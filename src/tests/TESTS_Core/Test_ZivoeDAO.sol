@@ -5,9 +5,8 @@ import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC721.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC1155.sol";
 
-import "lib/zivoe-core-foundry/src/tests/TESTS_Utility/generic_tokens/ERC721_Generic.sol";
-import "lib/zivoe-core-foundry/src/tests/TESTS_Utility/generic_tokens/ERC1155_Generic.sol";
-
+import "../TESTS_Utility/generic_tokens/ERC721_Generic.sol";
+import "../TESTS_Utility/generic_tokens/ERC1155_Generic.sol";
 import "../TESTS_Utility/Utility.sol";
 
 contract Test_ZivoeDAO is Utility {
