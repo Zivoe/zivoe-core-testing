@@ -516,7 +516,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         
         {
             uint256 _preEarned = vestZVE.viewRewards(address(pam), DAI);
-            uint256 _preURPTP = vestZVE.viewUserRewardPerTokenPaid(address(pam), DAI);
+            uint256 _preURPTP = vestZVE.viewAccountRewardPerTokenPaid(address(pam), DAI);
             assertEq(_preEarned, 0);
             assertEq(_preURPTP, 0);
         }
@@ -540,7 +540,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         assertEq(_postRewardPerTokenStored, vestZVE.rewardPerToken(DAI));
         assertEq(_postLastUpdateTime, vestZVE.lastTimeRewardApplicable(DAI));
 
-        assertEq(vestZVE.viewUserRewardPerTokenPaid(address(pam), DAI), _postRewardPerTokenStored);
+        assertEq(vestZVE.viewAccountRewardPerTokenPaid(address(pam), DAI), _postRewardPerTokenStored);
         assertEq(vestZVE.viewRewards(address(pam), DAI), 0);
         assertEq(IERC20(DAI).balanceOf(address(pam)), _postRewardPerTokenStored * vestZVE.balanceOf(address(pam)) / 10**18);
 

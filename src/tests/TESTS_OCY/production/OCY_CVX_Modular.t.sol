@@ -16,7 +16,7 @@ contract Test_OCY_CVX_Modular is Utility {
     OCY_CVX_Modular OCY_CVX_mUSD_3CRV;
     OCY_CVX_Modular OCY_CVX_FRAX_3CRV;
 
-    address randomUser = 0x5a29280d4668622ae19B8bd0bacE271F11Ac89dA;
+    address randomAccount = 0x5a29280d4668622ae19B8bd0bacE271F11Ac89dA;
     
     function setUp() public {
 

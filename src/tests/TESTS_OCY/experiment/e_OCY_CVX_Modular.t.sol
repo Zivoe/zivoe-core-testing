@@ -16,7 +16,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
     e_OCY_CVX_Modular OCY_CVX_mUSD_3CRV;
     e_OCY_CVX_Modular OCY_CVX_FRAX_3CRV;
 
-    address randomUser = 0x5a29280d4668622ae19B8bd0bacE271F11Ac89dA;
+    address randomAccount = 0x5a29280d4668622ae19B8bd0bacE271F11Ac89dA;
 
     function investInLockerMP(
         e_OCY_CVX_Modular locker, 
@@ -71,8 +71,8 @@ contract Test_e_OCY_CVX_Modular is Utility {
         address FRAX_USDC_CurvePool = 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2;
         address convex_deposit = 0xF403C135812408BFbE8713b5A23a04b3D48AAE31;
         address curvePoolLP = ICVX_Booster(convex_deposit).poolInfo(100).lptoken;
-        mint("FRAX", randomUser, 400000 * 10**18);
-        mint("USDC", randomUser, 100000 * 10**6);
+        mint("FRAX", randomAccount, 400000 * 10**18);
+        mint("USDC", randomAccount, 100000 * 10**6);
 
         uint256[2] memory deposits_pp;
 
@@ -83,7 +83,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         IERC20(USDC).safeApprove(FRAX_USDC_CurvePool, 100000 * 10**6);
 
         ICRVPlainPoolFBP(FRAX_USDC_CurvePool).add_liquidity(deposits_pp, 0); 
-        IERC20(curvePoolLP).safeApprove(convex_deposit, IERC20(curvePoolLP).balanceOf(randomUser));
+        IERC20(curvePoolLP).safeApprove(convex_deposit, IERC20(curvePoolLP).balanceOf(randomAccount));
         // will trigger stakeFor fct in baseRewardPool.
         ICVX_Booster(convex_deposit).depositAll(100, true);
 
@@ -561,7 +561,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
     function test_e_OCY_CVX_Modular_harvestYield_PP_FRAX_USDC() public {
         investInLockerPP_FRAX_USDC();    
         hevm.warp(block.timestamp + 6 hours);
-        hevm.startPrank(randomUser);
+        hevm.startPrank(randomAccount);
         triggerUpdateReward();
         hevm.stopPrank();
         hevm.warp(block.timestamp + 6 hours);
