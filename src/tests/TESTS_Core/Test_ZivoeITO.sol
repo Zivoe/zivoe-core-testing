@@ -455,9 +455,9 @@ contract Test_ZivoeITO is Utility {
         hevm.stopPrank();
     }
 
-    // Validate claim() state changes, single user depositing into ITO (a single tranche), a.k.a. "_single_senior".
-    // Validate claim() state changes, single user depositing into ITO (both tranches), a.k.a. "_both".
-    // Validate claim() state changes, two users depositing into ITO (both tranches), a.k.a. "_multi".
+    // Validate claim() state changes, single account depositing into ITO (a single tranche), a.k.a. "_single_senior".
+    // Validate claim() state changes, single account depositing into ITO (both tranches), a.k.a. "_both".
+    // Validate claim() state changes, two accounts depositing into ITO (both tranches), a.k.a. "_multi".
 
     function test_ZivoeITO_claim_state_single_senior_DAI(uint96 amountIn_senior) public {
 
@@ -1018,7 +1018,7 @@ contract Test_ZivoeITO is Utility {
                 uint256 _post_ZVE_ITO = ZVE.balanceOf(address(ITO));
 
                 // Note: This invariant assumes only two people have deposited into the ITO 
-                //       (with each user depositing an equal stanardized amount per stablecoin, but different "equal" amount per user).
+                //       (with each account depositing an equal stanardized amount per stablecoin, but different "equal" amount per account).
                 assertEq(
                     _pre_ZVE_ITO - _post_ZVE_ITO,
                     ((amount_senior * 2 + GBL.standardize(amount_senior, USDT) + GBL.standardize(amount_senior, USDC)) * 3 * ZVE.totalSupply() / 10) / 
@@ -1068,7 +1068,7 @@ contract Test_ZivoeITO is Utility {
                 uint256 _post_ZVE_ITO = ZVE.balanceOf(address(ITO));
 
                 // Note: This invariant assumes only two people have deposited into the ITO 
-                //       (with each user depositing an equal stanardized amount per stablecoin, but different "equal" amount per user).
+                //       (with each account depositing an equal stanardized amount per stablecoin, but different "equal" amount per account).
                 assertEq(
                     _pre_ZVE_ITO - _post_ZVE_ITO,
                     ((amount_junior * 2 + GBL.standardize(amount_junior, USDT) + GBL.standardize(amount_junior, USDC)) * ZVE.totalSupply() / 10) / 
