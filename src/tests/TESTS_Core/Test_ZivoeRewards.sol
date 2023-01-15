@@ -73,24 +73,24 @@ contract Test_ZivoeRewards is Utility {
     function test_ZivoeRewards_addReward_restrictions_maxRewards() public {
         // Can't call if more than 10 rewards have been added.
         assert(zvl.try_addReward(address(stZVE), WETH, 30 days)); // Note: DAI, ZVE added already.
-        assert(zvl.try_addReward(address(stZVE), address(4), 0));
-        assert(zvl.try_addReward(address(stZVE), address(5), 0));
-        assert(zvl.try_addReward(address(stZVE), address(6), 0));
-        assert(zvl.try_addReward(address(stZVE), address(7), 0));
-        assert(zvl.try_addReward(address(stZVE), address(8), 0));
-        assert(zvl.try_addReward(address(stZVE), address(9), 0));
-        assert(zvl.try_addReward(address(stZVE), address(10), 0));
-        assert(!zvl.try_addReward(address(stZVE), address(11), 0));
+        assert(zvl.try_addReward(address(stZVE), address(4), 1));
+        assert(zvl.try_addReward(address(stZVE), address(5), 1));
+        assert(zvl.try_addReward(address(stZVE), address(6), 1));
+        assert(zvl.try_addReward(address(stZVE), address(7), 1));
+        assert(zvl.try_addReward(address(stZVE), address(8), 1));
+        assert(zvl.try_addReward(address(stZVE), address(9), 1));
+        assert(zvl.try_addReward(address(stZVE), address(10), 1));
+        assert(!zvl.try_addReward(address(stZVE), address(11), 1));
 
         hevm.startPrank(address(zvl));
         hevm.expectRevert("ZivoeRewards::addReward() rewardTokens.length >= 10");
-        stZVE.addReward(address(11), 0);
+        stZVE.addReward(address(11), 1);
         hevm.stopPrank();
     }
 
     function test_ZivoeRewards_addReward_state(uint96 random) public {
 
-        uint256 duration = uint256(random);
+        uint256 duration = uint256(random) + 1;
 
         // Pre-state.
         (

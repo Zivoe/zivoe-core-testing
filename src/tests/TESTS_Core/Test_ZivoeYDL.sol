@@ -213,21 +213,21 @@ contract Test_ZivoeYDL is Utility {
         hevm.stopPrank();
 
         // Example success.
-        assert(god.try_setProtocolEarningsRateBIPS(address(YDL), 10000));
+        assert(god.try_setProtocolEarningsRateBIPS(address(YDL), 1200));
     }
 
     function test_ZivoeYDL_setProtocolEarningsRateBIPS_restrictions_max10000() public {
         
-        // Can't call if > 10000.
+        // Can't call if > 3000.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::setProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 10000");
-        YDL.setProtocolEarningsRateBIPS(10001);
+        hevm.expectRevert("ZivoeYDL::setProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 3000");
+        YDL.setProtocolEarningsRateBIPS(3001);
         hevm.stopPrank();
     }
 
     function test_ZivoeYDL_setProtocolEarningsRateBIPS_state(uint96 random) public {
 
-        uint256 amount = uint256(random) % 10000;
+        uint256 amount = uint256(random) % 3000;
 
         // Pre-state.
         assertEq(YDL.protocolEarningsRateBIPS(), 2000);
@@ -753,13 +753,6 @@ contract Test_ZivoeYDL is Utility {
         mint("DAI", address(YDL), uint256(amtSenior));
 
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
-
-        (
-            uint256[] memory _protocol,
-            uint256 _seniorTranche,
-            uint256 _juniorTranche,
-            uint256[] memory _residual
-        ) = YDL.earningsTrancheuse(seniorSupp, juniorSupp);
 
         // Pre-state.
         assertEq(YDL.numDistributions(), 0);
