@@ -551,7 +551,7 @@ contract Utility is DSTest, Test {
 
     /// @notice Deploys the core protocol.
     /// @dev    Set input param to true for using TLC as governance contract, otherwise
-    ///         set input param to false for using "gov" (user) as governance contract
+    ///         set input param to false for using "gov" (account) as governance contract
     ///         for more simplistic control over governance-based actions (and testing).
     function deployCore(bool live) public {
 

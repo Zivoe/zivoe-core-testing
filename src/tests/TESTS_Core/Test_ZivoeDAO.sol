@@ -35,10 +35,10 @@ contract Test_ZivoeDAO is Utility {
         // Simulate ITO, supply ERC20 tokens to DAO.
         simulateITO(100_000_000 ether, 100_000_000 ether, 100_000_000 * USD, 100_000_000 * USD);
 
-        // Create ERC721 contract for testing OCG_ERC721Locker interactions.
+        // TODO: Create ERC721 contract for testing OCG_ERC721Locker interactions.
 
 
-        // Create ERC1155 contract for testing OCG_ERC1155Locker interactions.
+        // TODO: Create ERC1155 contract for testing OCG_ERC1155Locker interactions.
         
     }
 

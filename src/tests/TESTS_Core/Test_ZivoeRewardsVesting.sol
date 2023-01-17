@@ -67,24 +67,24 @@ contract Test_ZivoeRewardsVesting is Utility {
     function test_ZivoeRewardsVesting_addReward_restrictions_maxRewards() public {
         // Can't call if more than 10 rewards have been added.
         assert(zvl.try_addReward(address(vestZVE), WETH, 30 days));// Note: DAI added already.
-        assert(zvl.try_addReward(address(vestZVE), address(3), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(4), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(5), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(6), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(7), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(8), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(9), 0));
-        assert(zvl.try_addReward(address(vestZVE), address(10), 0));
+        assert(zvl.try_addReward(address(vestZVE), address(3), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(4), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(5), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(6), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(7), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(8), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(9), 1));
+        assert(zvl.try_addReward(address(vestZVE), address(10), 1));
 
         hevm.startPrank(address(zvl));
         hevm.expectRevert("ZivoeRewardsVesting::addReward() rewardTokens.length >= 10");
-        vestZVE.addReward(address(11), 0);
+        vestZVE.addReward(address(11), 1);
         hevm.stopPrank();
     }
 
     function test_ZivoeRewardsVesting_addReward_state(uint96 random) public {
 
-        uint256 duration = uint256(random);
+        uint256 duration = uint256(random) + 1;
 
         // Pre-state.
         (
@@ -516,7 +516,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         
         {
             uint256 _preEarned = vestZVE.viewRewards(address(pam), DAI);
-            uint256 _preURPTP = vestZVE.viewUserRewardPerTokenPaid(address(pam), DAI);
+            uint256 _preURPTP = vestZVE.viewAccountRewardPerTokenPaid(address(pam), DAI);
             assertEq(_preEarned, 0);
             assertEq(_preURPTP, 0);
         }
@@ -540,7 +540,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         assertEq(_postRewardPerTokenStored, vestZVE.rewardPerToken(DAI));
         assertEq(_postLastUpdateTime, vestZVE.lastTimeRewardApplicable(DAI));
 
-        assertEq(vestZVE.viewUserRewardPerTokenPaid(address(pam), DAI), _postRewardPerTokenStored);
+        assertEq(vestZVE.viewAccountRewardPerTokenPaid(address(pam), DAI), _postRewardPerTokenStored);
         assertEq(vestZVE.viewRewards(address(pam), DAI), 0);
         assertEq(IERC20(DAI).balanceOf(address(pam)), _postRewardPerTokenStored * vestZVE.balanceOf(address(pam)) / 10**18);
 

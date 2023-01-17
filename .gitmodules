@@ -4,3 +4,4 @@
 [submodule "lib/zivoe-core-foundry"]
 	path = lib/zivoe-core-foundry
 	url = https://github.com/Zivoe/zivoe-core-foundry
+	branch = master
