@@ -54,7 +54,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**18;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
 
     }
@@ -70,7 +70,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**6;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 
@@ -92,7 +92,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**6;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 
@@ -114,7 +114,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**6;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 
@@ -136,7 +136,8 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
                 address(DAO), 
                 address(OCL_CRV), 
                 OCL_CRV.ZVE_MP(), 
-                IERC20(OCL_CRV.ZVE_MP()).balanceOf(address(OCL_CRV)) / 2
+                IERC20(OCL_CRV.ZVE_MP()).balanceOf(address(OCL_CRV)) / 2,
+                ""
             )
         );
 
@@ -153,7 +154,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**6;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 
@@ -168,7 +169,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         assets_pull[2] = USDT;
         assets_pull[3] = address(ZVE);
 
-        assert(god.try_pullMulti(address(DAO), address(OCL_CRV), assets_pull));
+        assert(god.try_pullMulti(address(DAO), address(OCL_CRV), assets_pull, new bytes[](4)));
 
     }
 
@@ -183,7 +184,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**6;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 
@@ -205,7 +206,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**18;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 
@@ -245,7 +246,7 @@ contract Test_OCL_ZVE_CRV_1 is Utility {
         amounts[0] = 1000000 * 10**6;
         amounts[1] = 200000 * 10**18;
 
-        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCL_CRV), assets, amounts, new bytes[](2)));
 
         (uint256 amount, uint256 lp) = OCL_CRV.FRAXConvertible();
 

@@ -144,10 +144,10 @@ contract Test_OCC_Modular is Utility {
 
         simulateITO(amount * WAD, amount * WAD, amount * USD, amount * USD);
 
-        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount));
+        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount, ""));
 
         _loanID_DAI = tim_requestRandomLoan(random, choice, DAI);
         _loanID_FRAX = tim_requestRandomLoan(random, choice, FRAX);
@@ -169,10 +169,10 @@ contract Test_OCC_Modular is Utility {
 
         simulateITO(amount * WAD, amount * WAD, amount * USD, amount * USD);
 
-        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount));
+        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount, ""));
 
         _loanID_DAI = tim_requestRandomLoan(random, choice, DAI);
         _loanID_FRAX = tim_requestRandomLoan(random, choice, FRAX);
@@ -244,10 +244,10 @@ contract Test_OCC_Modular is Utility {
 
         simulateITO(amount * WAD, amount * WAD, amount * USD, amount * USD);
 
-        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount));
+        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount, ""));
 
         _loanID_DAI = tim_requestRandomLoan(random, choice, DAI);
         _loanID_FRAX = tim_requestRandomLoan(random, choice, FRAX);
@@ -303,10 +303,10 @@ contract Test_OCC_Modular is Utility {
 
         simulateITO(amount * WAD, amount * WAD, amount * USD, amount * USD);
 
-        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount));
+        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount, ""));
 
         _loanID_DAI = tim_requestRandomLoan(random, choice, DAI);
         _loanID_FRAX = tim_requestRandomLoan(random, choice, FRAX);
@@ -822,10 +822,10 @@ contract Test_OCC_Modular is Utility {
 
         simulateITO(amount * WAD, amount * WAD, amount * USD, amount * USD);
 
-        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount));
+        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount, ""));
 
         uint256 _loanID_DAI = tim_requestRandomLoan(random, choice, DAI);
         uint256 _loanID_FRAX = tim_requestRandomLoan(random, choice, FRAX);
@@ -849,10 +849,10 @@ contract Test_OCC_Modular is Utility {
 
         simulateITO(amount * WAD, amount * WAD, amount * USD, amount * USD);
 
-        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount));
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount));
+        assert(god.try_push(address(DAO), address(OCC_Modular_DAI), DAI, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_FRAX), FRAX, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, amount, ""));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDT), USDT, amount, ""));
 
         uint256 _loanID_DAI = tim_requestRandomLoan(random, choice, DAI);
         uint256 _loanID_FRAX = tim_requestRandomLoan(random, choice, FRAX);
@@ -3050,11 +3050,11 @@ contract Test_OCC_Modular is Utility {
         // Restriction tests for pullFromLocker().
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeOwnableLocked::_checkOwner owner() != _msgSender()");
-        OCC_Modular_DAI.pullFromLocker(DAI);
+        OCC_Modular_DAI.pullFromLocker(DAI, "");
         hevm.stopPrank();
-        assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_FRAX), FRAX));
-        assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_USDC), USDC));
-        assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_USDT), USDT));
+        assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_FRAX), FRAX, ""));
+        assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_USDC), USDC, ""));
+        assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_USDT), USDT, ""));
     }
 
     function test_OCC_Modular_pullFromLocker_x_restrictions_owner_multi() public {
@@ -3071,12 +3071,12 @@ contract Test_OCC_Modular is Utility {
         // Restriction tests for pullFromLockerMulti().
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeOwnableLocked::_checkOwner owner() != _msgSender()");
-        OCC_Modular_DAI.pullFromLockerMulti(data_DAI);
+        OCC_Modular_DAI.pullFromLockerMulti(data_DAI, new bytes[](1));
         hevm.stopPrank();
 
-        assert(!bob.try_pullFromLockerMulti_DIRECT(address(OCC_Modular_FRAX), data_FRAX));
-        assert(!bob.try_pullFromLockerMulti_DIRECT(address(OCC_Modular_USDC), data_USDC));
-        assert(!bob.try_pullFromLockerMulti_DIRECT(address(OCC_Modular_USDT), data_USDT));
+        assert(!bob.try_pullFromLockerMulti_DIRECT(address(OCC_Modular_FRAX), data_FRAX, new bytes[](1)));
+        assert(!bob.try_pullFromLockerMulti_DIRECT(address(OCC_Modular_USDC), data_USDC, new bytes[](1)));
+        assert(!bob.try_pullFromLockerMulti_DIRECT(address(OCC_Modular_USDT), data_USDT, new bytes[](1)));
     }
 
     function test_OCC_Modular_pullFromLocker_x_restrictions_owner_multiPartial() public {
@@ -3096,12 +3096,12 @@ contract Test_OCC_Modular is Utility {
         // Restriction tests for pullFromLockerMultiPartial().
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeOwnableLocked::_checkOwner owner() != _msgSender()");
-        OCC_Modular_DAI.pullFromLockerMultiPartial(data_DAI, amts);
+        OCC_Modular_DAI.pullFromLockerMultiPartial(data_DAI, amts, new bytes[](1));
         hevm.stopPrank();
 
-        assert(!bob.try_pullFromLockerMultiPartial_DIRECT(address(OCC_Modular_FRAX), data_FRAX, amts));
-        assert(!bob.try_pullFromLockerMultiPartial_DIRECT(address(OCC_Modular_USDC), data_USDC, amts));
-        assert(!bob.try_pullFromLockerMultiPartial_DIRECT(address(OCC_Modular_USDT), data_USDT, amts));
+        assert(!bob.try_pullFromLockerMultiPartial_DIRECT(address(OCC_Modular_FRAX), data_FRAX, amts, new bytes[](1)));
+        assert(!bob.try_pullFromLockerMultiPartial_DIRECT(address(OCC_Modular_USDC), data_USDC, amts, new bytes[](1)));
+        assert(!bob.try_pullFromLockerMultiPartial_DIRECT(address(OCC_Modular_USDT), data_USDT, amts, new bytes[](1)));
     }
 
     function test_OCC_Modular_pullFromLocker_state(uint96 random, bool choice) public {
@@ -3126,9 +3126,9 @@ contract Test_OCC_Modular is Utility {
         assertGt(OCC_Modular_USDC.amountForConversion(), 0);
         assertGt(OCC_Modular_USDT.amountForConversion(), 0);
 
-        assert(god.try_pull(address(DAO), address(OCC_Modular_FRAX), FRAX));
-        assert(god.try_pull(address(DAO), address(OCC_Modular_USDC), USDC));
-        assert(god.try_pull(address(DAO), address(OCC_Modular_USDT), USDT));
+        assert(god.try_pull(address(DAO), address(OCC_Modular_FRAX), FRAX, ""));
+        assert(god.try_pull(address(DAO), address(OCC_Modular_USDC), USDC, ""));
+        assert(god.try_pull(address(DAO), address(OCC_Modular_USDT), USDT, ""));
 
         // Post-state.
         assertEq(OCC_Modular_FRAX.amountForConversion(), 0);
@@ -3166,9 +3166,9 @@ contract Test_OCC_Modular is Utility {
         assertGt(OCC_Modular_USDC.amountForConversion(), 0);
         assertGt(OCC_Modular_USDT.amountForConversion(), 0);
 
-        assert(god.try_pullMulti(address(DAO), address(OCC_Modular_FRAX), data_FRAX));
-        assert(god.try_pullMulti(address(DAO), address(OCC_Modular_USDC), data_USDC));
-        assert(god.try_pullMulti(address(DAO), address(OCC_Modular_USDT), data_USDT));
+        assert(god.try_pullMulti(address(DAO), address(OCC_Modular_FRAX), data_FRAX, new bytes[](1)));
+        assert(god.try_pullMulti(address(DAO), address(OCC_Modular_USDC), data_USDC, new bytes[](1)));
+        assert(god.try_pullMulti(address(DAO), address(OCC_Modular_USDT), data_USDT, new bytes[](1)));
 
         // Post-state.
         // amountForConversion should equal 0 after all pullFromLockerMulti() calls (that involve base stablecoin).
@@ -3213,9 +3213,9 @@ contract Test_OCC_Modular is Utility {
         uint256 _preAmountForConversion_USDC = OCC_Modular_USDC.amountForConversion();
         uint256 _preAmountForConversion_USDT = OCC_Modular_USDT.amountForConversion();
 
-        assert(god.try_pullMultiPartial(address(DAO), address(OCC_Modular_FRAX), data_FRAX, amounts));
-        assert(god.try_pullMultiPartial(address(DAO), address(OCC_Modular_USDC), data_USDC, amounts));
-        assert(god.try_pullMultiPartial(address(DAO), address(OCC_Modular_USDT), data_USDT, amounts));
+        assert(god.try_pullMultiPartial(address(DAO), address(OCC_Modular_FRAX), data_FRAX, amounts, new bytes[](1)));
+        assert(god.try_pullMultiPartial(address(DAO), address(OCC_Modular_USDC), data_USDC, amounts, new bytes[](1)));
+        assert(god.try_pullMultiPartial(address(DAO), address(OCC_Modular_USDT), data_USDT, amounts, new bytes[](1)));
 
         // amountForConversion should equal remaining stablecoin balance IFF amountForConversion < remaining stablecoin balance.
         if (IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)) > _preAmountForConversion_FRAX) {
@@ -3264,7 +3264,7 @@ contract Test_OCC_Modular is Utility {
             int8(1)
         ));
         
-        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, borrow_amt));
+        assert(god.try_push(address(DAO), address(OCC_Modular_USDC), USDC, borrow_amt, ""));
         assert(roy.try_fundLoan(address(OCC_Modular_USDC), 0));
 
         mint("USDC", address(tim), MAX_UINT / 2);

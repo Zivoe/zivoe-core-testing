@@ -303,8 +303,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push to address(0), not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::push() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
-        DAO.push(address(0), address(DAI), 1000 ether);
+        hevm.expectRevert("ZivoeDAO::push() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        DAO.push(address(0), address(DAI), 1000 ether, "");
         hevm.stopPrank();
     }
 
@@ -312,8 +312,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push to address(OCG_ERC721Locker), does not expose canPush().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::push() !IERC104_DAO(locker).canPush()");
-        DAO.push(address(OCG_ERC721Locker), address(DAI), 1000 ether);
+        hevm.expectRevert("ZivoeDAO::push() !DAO_ILocker(locker).canPush()");
+        DAO.push(address(OCG_ERC721Locker), address(DAI), 1000 ether, "");
         hevm.stopPrank();
     }
 
@@ -339,7 +339,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // push().
-            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI));
+            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI, ""));
 
             // Post-state.
             post_DAI[0] = IERC20(DAI).balanceOf(address(DAO));
@@ -365,7 +365,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // push().
-            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX));
+            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX, ""));
 
             // Post-state.
             post_FRAX[0] = IERC20(FRAX).balanceOf(address(DAO));
@@ -391,7 +391,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // push().
-            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC));
+            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC, ""));
 
             // Post-state.
             post_USDC[0] = IERC20(USDC).balanceOf(address(DAO));
@@ -417,7 +417,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // push().
-            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT));
+            assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT, ""));
 
             // Post-state.
             post_USDT[0] = IERC20(USDT).balanceOf(address(DAO));
@@ -443,8 +443,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPull().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pull() !IERC104_DAO(locker).canPull()");
-        DAO.pull(address(OCG_ERC721Locker), address(DAI));
+        hevm.expectRevert("ZivoeDAO::pull() !DAO_ILocker(locker).canPull()");
+        DAO.pull(address(OCG_ERC721Locker), address(DAI), "");
         hevm.stopPrank();
     }
 
@@ -457,10 +457,10 @@ contract Test_ZivoeDAO is Utility {
         uint256 modularity = uint256(random) % 4;
 
         // push() to locker initially.
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI));
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX));
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC));
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI, ""));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX, ""));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC, ""));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT, ""));
 
         if (modularity == 0) {
 
@@ -475,7 +475,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pull().
-            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(DAI)));
+            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(DAI), ""));
 
             // Post-state.
             post_DAI[0] = IERC20(DAI).balanceOf(address(DAO));
@@ -498,7 +498,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pull().
-            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(FRAX)));
+            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(FRAX), ""));
 
             // Post-state.
             post_FRAX[0] = IERC20(FRAX).balanceOf(address(DAO));
@@ -521,7 +521,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pull().
-            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(USDC)));
+            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(USDC), ""));
 
             // Post-state.
             post_USDC[0] = IERC20(USDC).balanceOf(address(DAO));
@@ -544,7 +544,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pull().
-            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(USDT)));
+            assert(god.try_pull(address(DAO), address(OCG_ERC20Locker), address(USDT), ""));
 
             // Post-state.
             post_USDT[0] = IERC20(USDT).balanceOf(address(DAO));
@@ -568,8 +568,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPullPartial().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullPartial() !IERC104_DAO(locker).canPullPartial()");
-        DAO.pullPartial(address(OCG_ERC721Locker), address(DAI), 1000 ether);
+        hevm.expectRevert("ZivoeDAO::pullPartial() !DAO_ILocker(locker).canPullPartial()");
+        DAO.pullPartial(address(OCG_ERC721Locker), address(DAI), 1000 ether, "");
         hevm.stopPrank();
     }
 
@@ -582,10 +582,10 @@ contract Test_ZivoeDAO is Utility {
         uint256 modularity = uint256(random) % 4;
 
         // push() to locker initially.
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI));
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX));
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC));
-        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI, ""));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX, ""));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC, ""));
+        assert(god.try_push(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT, ""));
 
         if (modularity == 0) {
 
@@ -600,7 +600,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pullPartial().
-            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI));
+            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(DAI), amt_DAI, ""));
 
             // Post-state.
             post_DAI[0] = IERC20(DAI).balanceOf(address(DAO));
@@ -623,7 +623,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pullPartial().
-            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX));
+            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(FRAX), amt_FRAX, ""));
 
             // Post-state.
             post_FRAX[0] = IERC20(FRAX).balanceOf(address(DAO));
@@ -645,7 +645,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pullPartial().
-            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC));
+            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(USDC), amt_USDC, ""));
 
             // Post-state.
             post_USDC[0] = IERC20(USDC).balanceOf(address(DAO));
@@ -667,7 +667,7 @@ contract Test_ZivoeDAO is Utility {
             ];
 
             // pullPartial().
-            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT));
+            assert(god.try_pullPartial(address(DAO), address(OCG_ERC20Locker), address(USDT), amt_USDT, ""));
 
             // Post-state.
             post_USDT[0] = IERC20(USDT).balanceOf(address(DAO));
@@ -696,8 +696,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push to address(0), not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMulti() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
-        DAO.pushMulti(address(0), assets_good, amounts);
+        hevm.expectRevert("ZivoeDAO::pushMulti() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        DAO.pushMulti(address(0), assets_good, amounts, new bytes[](4));
         hevm.stopPrank();
     }
 
@@ -712,7 +712,7 @@ contract Test_ZivoeDAO is Utility {
         // Can't push with assets_bad / amounts due to mismatch array length.
         hevm.startPrank(address(god));
         hevm.expectRevert("ZivoeDAO::pushMulti() assets.length != amounts.length");
-        DAO.pushMulti(address(OCG_ERC20Locker), assets_bad, amounts);
+        DAO.pushMulti(address(OCG_ERC20Locker), assets_bad, amounts, new bytes[](3));
         hevm.stopPrank();
     }
 
@@ -725,8 +725,8 @@ contract Test_ZivoeDAO is Utility {
         ) = pushMultiRestrictions(random);
 
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMulti() !IERC104_DAO(locker).canPushMulti()");
-        DAO.pushMulti(address(OCG_ERC721Locker), assets_good, amounts);
+        hevm.expectRevert("ZivoeDAO::pushMulti() !DAO_ILocker(locker).canPushMulti()");
+        DAO.pushMulti(address(OCG_ERC721Locker), assets_good, amounts, new bytes[](4));
         hevm.stopPrank();
     }
 
@@ -765,7 +765,7 @@ contract Test_ZivoeDAO is Utility {
         ];
 
         // pushMulti().
-        assert(god.try_pushMulti(address(DAO), address(OCG_ERC20Locker), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCG_ERC20Locker), assets, amounts, new bytes[](4)));
 
         // Post-state.
         assertEq(IERC20(DAI).balanceOf(address(OCG_ERC20Locker)), amt_DAI);
@@ -803,8 +803,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPullMulti().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullMulti() !IERC104_DAO(locker).canPullMulti()");
-        DAO.pullMulti(address(OCG_ERC721Locker), assets);
+        hevm.expectRevert("ZivoeDAO::pullMulti() !DAO_ILocker(locker).canPullMulti()");
+        DAO.pullMulti(address(OCG_ERC721Locker), assets, new bytes[](1));
         hevm.stopPrank();
     }
 
@@ -829,7 +829,7 @@ contract Test_ZivoeDAO is Utility {
         amounts[3] = amt_USDT;
 
         // pushMulti().
-        assert(god.try_pushMulti(address(DAO), address(OCG_ERC20Locker), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCG_ERC20Locker), assets, amounts, new bytes[](4)));
 
         // Pre-state.
         assertEq(IERC20(DAI).balanceOf(address(OCG_ERC20Locker)), amt_DAI);
@@ -845,7 +845,7 @@ contract Test_ZivoeDAO is Utility {
         ];
 
         // pullMulti().
-        assert(god.try_pullMulti(address(DAO), address(OCG_ERC20Locker), assets));
+        assert(god.try_pullMulti(address(DAO), address(OCG_ERC20Locker), assets, new bytes[](4)));
 
         // Post-state.
         assertEq(IERC20(DAI).balanceOf(address(OCG_ERC20Locker)), 0);
@@ -887,8 +887,8 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPushMulti().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullMultiPartial() !IERC104_DAO(locker).canPullMultiPartial()");
-        DAO.pullMultiPartial(address(OCG_ERC721Locker), assets_bad, amounts);
+        hevm.expectRevert("ZivoeDAO::pullMultiPartial() !DAO_ILocker(locker).canPullMultiPartial()");
+        DAO.pullMultiPartial(address(OCG_ERC721Locker), assets_bad, amounts, new bytes[](1));
         hevm.stopPrank();
     }
 
@@ -914,7 +914,7 @@ contract Test_ZivoeDAO is Utility {
         // Can't pull from address(OCG_ERC20Locker), assets_bad.length != amounts.length.
         hevm.startPrank(address(god));
         hevm.expectRevert("ZivoeDAO::pullMultiPartial() assets.length != amounts.length");
-        DAO.pullMultiPartial(address(OCG_ERC20Locker), assets_bad, amounts);
+        DAO.pullMultiPartial(address(OCG_ERC20Locker), assets_bad, amounts, new bytes[](1));
         hevm.stopPrank();
 
     }
@@ -951,7 +951,7 @@ contract Test_ZivoeDAO is Utility {
 
 
         // pushMulti().
-        assert(god.try_pushMulti(address(DAO), address(OCG_ERC20Locker), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCG_ERC20Locker), assets, amounts, new bytes[](4)));
 
         amounts_partial[0] = pull % IERC20(DAI).balanceOf(address(OCG_ERC20Locker));
         amounts_partial[0] = pull % IERC20(FRAX).balanceOf(address(OCG_ERC20Locker));
@@ -972,7 +972,7 @@ contract Test_ZivoeDAO is Utility {
         ];
 
         // pullMultiPartial().
-        assert(god.try_pullMultiPartial(address(DAO), address(OCG_ERC20Locker), assets, amounts_partial));
+        assert(god.try_pullMultiPartial(address(DAO), address(OCG_ERC20Locker), assets, amounts_partial, new bytes[](4)));
 
         // Post-state.
         assertEq(IERC20(DAI).balanceOf(address(OCG_ERC20Locker)), amt_DAI - amounts_partial[0]);
@@ -1000,7 +1000,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push NFT to address(0), locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC721() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushERC721() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
         DAO.pushERC721(address(0), address(ZivoeNFT), 0, "");
         hevm.stopPrank();
 
@@ -1015,7 +1015,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push NFT to address(OCG_ERC20Locker), does not expose canPushERC721().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC721() !IERC104_DAO(locker).canPushERC721()");
+        hevm.expectRevert("ZivoeDAO::pushERC721() !DAO_ILocker(locker).canPushERC721()");
         DAO.pushERC721(address(OCG_ERC20Locker), address(ZivoeNFT), 0, "");
         hevm.stopPrank();
 
@@ -1066,7 +1066,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushMulti NFT to address(0), locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
         DAO.pushMultiERC721(address(0), good_assets, good_tokenIds, good_data);
         hevm.stopPrank();
 
@@ -1123,7 +1123,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushMulti NFT to address(OCG_ERC20Locker), does not expose canPushMultiERC721().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !IERC104_DAO(locker).canPushMultiERC721()");
+        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !DAO_ILocker(locker).canPushMultiERC721()");
         DAO.pushMultiERC721(address(OCG_ERC20Locker), good_assets, good_tokenIds, good_data);
         hevm.stopPrank();   
     }
@@ -1194,7 +1194,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull if canPullERC721() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullERC721() !IERC104_DAO(locker).canPullERC721()");
+        hevm.expectRevert("ZivoeDAO::pullERC721() !DAO_ILocker(locker).canPullERC721()");
         DAO.pullERC721(address(OCG_ERC20Locker), address(ZivoeNFT), 0, '');
         hevm.stopPrank();          
     }
@@ -1264,7 +1264,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pullMulti NFT from address(OCG_ERC20Locker), does not expose canPullMultiERC721().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullMultiERC721() !IERC104_DAO(locker).canPullMultiERC721()");
+        hevm.expectRevert("ZivoeDAO::pullMultiERC721() !DAO_ILocker(locker).canPullMultiERC721()");
         DAO.pullMultiERC721(address(OCG_ERC20Locker), good_assets, good_tokenIds, good_data);
         hevm.stopPrank();          
     
@@ -1384,7 +1384,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushERC1155Batch() if locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
         DAO.pushERC1155Batch(address(0), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
 
@@ -1417,7 +1417,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushERC1155Batch() if canPushERC1155() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !IERC104_DAO(locker).canPushERC1155()");
+        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !DAO_ILocker(locker).canPushERC1155()");
         DAO.pushERC1155Batch(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
     }
@@ -1493,7 +1493,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pullERC1155Batch() if canPullERC1155() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullERC1155Batch() !IERC104_DAO(locker).canPullERC1155()");
+        hevm.expectRevert("ZivoeDAO::pullERC1155Batch() !DAO_ILocker(locker).canPullERC1155()");
         DAO.pullERC1155Batch(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
 

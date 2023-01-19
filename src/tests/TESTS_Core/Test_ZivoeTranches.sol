@@ -10,7 +10,7 @@ contract Test_ZivoeTranches is Utility {
         deployCore(false);
 
         // Move 2.5mm ZVE from DAO to ZVT.
-        assert(god.try_push(address(DAO), address(ZVT), address(ZVE), 2500000 ether));
+        assert(god.try_push(address(DAO), address(ZVT), address(ZVE), 2500000 ether, ""));
 
     }
 
@@ -31,7 +31,7 @@ contract Test_ZivoeTranches is Utility {
         // Can't push non-ZVE asset to ZVT.
         hevm.startPrank(address(god));
         hevm.expectRevert("ZivoeTranches::pushToLocker() asset != IZivoeGlobals_Tranches(GBL).ZVE()");
-        DAO.push(address(ZVT), address(FRAX), 10_000 ether);
+        DAO.push(address(ZVT), address(FRAX), 10_000 ether, "");
         hevm.stopPrank();
     }
 
@@ -42,7 +42,7 @@ contract Test_ZivoeTranches is Utility {
         // Pre-state.
         uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(ZVT));
 
-        assert(god.try_push(address(DAO), address(ZVT), address(ZVE), amount));
+        assert(god.try_push(address(DAO), address(ZVT), address(ZVE), amount, ""));
         
         // Post-state.
         assertEq(IERC20(address(ZVE)).balanceOf(address(ZVT)), _preZVE + amount);
