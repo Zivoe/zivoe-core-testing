@@ -40,10 +40,10 @@ contract OCY_AAVETest is Utility {
         assertEq(IERC20(0xBcca60bB61934080951369a648Fb03DF4F96263C).balanceOf(address(OCY_AAVE_0)), 0);
 
         // Push 1mm USDC + USDT + DAI + FRAX to locker.
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDC), 1000000 * 10**6));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDT), 1000000 * 10**6));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(DAI),  1000000 * 10**18));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(FRAX), 1000000 * 10**18));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDC), 1000000 * 10**6, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDT), 1000000 * 10**6, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(DAI),  1000000 * 10**18, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(FRAX), 1000000 * 10**18, ""));
 
         // Post-state checks.
         // Ensuring aUSDC received is within 5000 (out of 4mm, so .125% slippage/fees allowed here, increase if needed depending on main-net state).
@@ -56,10 +56,10 @@ contract OCY_AAVETest is Utility {
     function xtest_OCY_AAVE_pull() public {
 
         // Push 1mm USDC, USDT, DAI, and FRAX to locker.
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDC), 1000000 * 10**6));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDT), 1000000 * 10**6));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(DAI),  1000000 * 10**18));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(FRAX), 1000000 * 10**18));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDC), 1000000 * 10**6, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDT), 1000000 * 10**6, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(DAI),  1000000 * 10**18, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(FRAX), 1000000 * 10**18, ""));
 
         // NOTE: Uncomment line below to simulate passing of time, and generate actual yield.
         hevm.warp(block.timestamp + 365 days);
@@ -69,7 +69,7 @@ contract OCY_AAVETest is Utility {
         withinDiff(IERC20(0xBcca60bB61934080951369a648Fb03DF4F96263C).balanceOf(address(OCY_AAVE_0)), 4000000 * 10**6, 35000 * 10**6);
 
         // Pull capital from locker (divesting from AAVE v2, returning capital to DAO).
-        assert(god.try_pull(address(DAO), address(OCY_AAVE_0), USDC));
+        assert(god.try_pull(address(DAO), address(OCY_AAVE_0), USDC, ""));
 
         // Post-state check.
         withinDiff(IERC20(USDC).balanceOf(address(DAO)), 5000000 * 10**6, 35000 * 10**6);
@@ -80,10 +80,10 @@ contract OCY_AAVETest is Utility {
     function xtest_OCY_AAVE_yieldForward() public {
 
         // Push 1mm USDC, USDT, DAI, and FRAX to locker.
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDC), 1000000 * 10**6));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDT), 1000000 * 10**6));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(DAI),  1000000 * 10**18));
-        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(FRAX), 1000000 * 10**18));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDC), 1000000 * 10**6, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(USDT), 1000000 * 10**6, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(DAI),  1000000 * 10**18, ""));
+        assert(god.try_push(address(DAO), address(OCY_AAVE_0), address(FRAX), 1000000 * 10**18, ""));
 
         // NOTE: Uncomment line below to simulate passing of time, and generate actual yield.
         hevm.warp(block.timestamp + 365 days);

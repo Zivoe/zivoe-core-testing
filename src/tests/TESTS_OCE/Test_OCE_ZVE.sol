@@ -22,7 +22,7 @@ contract Test_OCE_ZVE is Utility {
         assert(zvl.try_updateIsLocker(address(GBL), address(OCE_ZVE_Live), true));
         
         // DAO pushes 100k $ZVE to OCE_ZVE_Live.
-        assert(god.try_push(address(DAO), address(OCE_ZVE_Live), address(ZVE), 100_000 ether));
+        assert(god.try_push(address(DAO), address(OCE_ZVE_Live), address(ZVE), 100_000 ether, ""));
 
     }
 
@@ -86,7 +86,7 @@ contract Test_OCE_ZVE is Utility {
         // Can't push non-ZVE asset to OCE_ZVE.
         hevm.startPrank(address(god));
         hevm.expectRevert("OCE_ZVE::pushToLocker() asset != IZivoeGlobals_OCE_ZVE(GBL).ZVE()");
-        DAO.push(address(OCE_ZVE_Live), address(FRAX), 10_000 ether);
+        DAO.push(address(OCE_ZVE_Live), address(FRAX), 10_000 ether, "");
         hevm.stopPrank();
     }
 

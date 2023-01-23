@@ -88,34 +88,34 @@ contract Admin {
         (ok,) = address(amp).call(abi.encodeWithSignature(sig, account, amount));
     }
 
-    function try_push(address dao, address locker, address asset, uint256 amount) external returns (bool ok) {
-        string memory sig = "push(address,address,uint256)";
-        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, amount));
+    function try_push(address dao, address locker, address asset, uint256 amount, bytes calldata data) external returns (bool ok) {
+        string memory sig = "push(address,address,uint256,bytes)";
+        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, amount, data));
     }
 
-    function try_pull(address dao, address locker, address asset) external returns (bool ok) {
-        string memory sig = "pull(address,address)";
-        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset));
+    function try_pull(address dao, address locker, address asset, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pull(address,address,bytes)";
+        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, data));
     }
 
-    function try_pullPartial(address dao, address locker, address asset, uint256 amount) external returns (bool ok) {
-        string memory sig = "pullPartial(address,address,uint256)";
-        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, amount));
+    function try_pullPartial(address dao, address locker, address asset, uint256 amount, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pullPartial(address,address,uint256,bytes)";
+        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, amount, data));
     }
 
-    function try_pushMulti(address dao, address locker, address[] calldata assets, uint256[] calldata amounts) external returns (bool ok) {
-        string memory sig = "pushMulti(address,address[],uint256[])";
-        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, amounts));
+    function try_pushMulti(address dao, address locker, address[] calldata assets, uint256[] calldata amounts, bytes[] calldata data) external returns (bool ok) {
+        string memory sig = "pushMulti(address,address[],uint256[],bytes[])";
+        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, amounts, data));
     }
 
-    function try_pullMulti(address dao, address locker, address[] calldata assets) external returns (bool ok) {
-        string memory sig = "pullMulti(address,address[])";
-        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets));
+    function try_pullMulti(address dao, address locker, address[] calldata assets, bytes[] calldata data) external returns (bool ok) {
+        string memory sig = "pullMulti(address,address[],bytes[])";
+        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, data));
     }
 
-    function try_pullMultiPartial(address dao, address locker, address[] calldata assets, uint256[] calldata amounts) external returns (bool ok) {
-        string memory sig = "pullMultiPartial(address,address[],uint256[])";
-        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, amounts));
+    function try_pullMultiPartial(address dao, address locker, address[] calldata assets, uint256[] calldata amounts, bytes[] calldata data) external returns (bool ok) {
+        string memory sig = "pullMultiPartial(address,address[],uint256[],bytes[])";
+        (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, amounts, data));
     }
 
     function try_pushERC721(address dao, address locker, address asset, uint256 tokenId, bytes calldata data) external returns (bool ok) {

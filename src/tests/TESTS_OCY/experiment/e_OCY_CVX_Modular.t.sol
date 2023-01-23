@@ -33,7 +33,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
             mint("FRAX", address(DAO), amount);
         }
 
-        assert(god.try_pushMulti(address(DAO), address(locker), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(locker), assets, amounts, new bytes[](1)));
 
         hevm.warp(block.timestamp + 25 hours);
         locker.invest();
@@ -55,7 +55,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         mint("FRAX", address(DAO), 500000 * 10**18);
         mint("USDC", address(DAO), 200000 * 10**6);
 
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts, new bytes[](2)));
 
         hevm.warp(block.timestamp + 25 hours);
 
@@ -252,7 +252,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         mint("FRAX", address(DAO), 1000000 * 10**18);
 
         //Plain Pool
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts, new bytes[](4)));
 
         assert(IERC20(DAI).balanceOf(address(OCY_CVX_FRAX_USDC)) == 500000 * 10**18);
         assert(IERC20(USDC).balanceOf(address(OCY_CVX_FRAX_USDC)) == 200000 * 10**6);
@@ -260,7 +260,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         assert(IERC20(FRAX).balanceOf(address(OCY_CVX_FRAX_USDC)) == 500000 * 10**18); 
 
         //Meta Pool
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_mUSD_3CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_mUSD_3CRV), assets, amounts, new bytes[](4)));
 
         assert(IERC20(DAI).balanceOf(address(OCY_CVX_mUSD_3CRV)) == 500000 * 10**18);
         assert(IERC20(USDC).balanceOf(address(OCY_CVX_mUSD_3CRV)) == 200000 * 10**6);
@@ -313,7 +313,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         mint("FRAX", address(DAO), 500000 * 10**18);
         mint("USDC", address(DAO), 200000 * 10**6);
 
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts, new bytes[](2)));
 
         // We don't let more than 24 hours pass - should fail.
         hevm.expectRevert("timelock - restricted to keepers for now");
@@ -334,7 +334,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         mint("FRAX", address(DAO), 500000 * 10**18);
         mint("USDC", address(DAO), 200000 * 10**6);
 
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, amounts, new bytes[](2)));
 
         // We don't let more than 24 hours pass - but keeper thus should succeed.
         address keeper = 0x1Db3439a222C519ab44bb1144fC28167b4Fa6EE6;
@@ -370,7 +370,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
         mint("FRAX", address(DAO), 50000 * 10**18);
 
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_3CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_3CRV), assets, amounts, new bytes[](1)));
 
         // We don't let more than 24 hours pass - should fail.
         hevm.expectRevert("timelock - restricted to keepers for now");
@@ -388,7 +388,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
         mint("FRAX", address(DAO), 50000 * 10**18);
 
-        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_3CRV), assets, amounts));
+        assert(god.try_pushMulti(address(DAO), address(OCY_CVX_FRAX_3CRV), assets, amounts, new bytes[](1)));
 
         // We don't let more than 24 hours pass - but keeper thus should succeed.
         address keeper = 0x1Db3439a222C519ab44bb1144fC28167b4Fa6EE6;        
@@ -405,7 +405,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
         hevm.warp(block.timestamp + 30 days);
 
-        assert(god.try_pullMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets));
+        assert(god.try_pullMulti(address(DAO), address(OCY_CVX_FRAX_USDC), assets, new bytes[](2)));
 
         assert(IERC20(OCY_CVX_FRAX_USDC.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_USDC)) == 0);
 
@@ -424,7 +424,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
         hevm.startPrank(address(DAO));
         hevm.expectRevert(bytes("e_OCY_CVX_Modular::pullFromLockerMulti() assets input array should be equal to PP_TOKENS array and in the same order"));
-        OCY_CVX_FRAX_USDC.pullFromLockerMulti(assetsWRONG); 
+        OCY_CVX_FRAX_USDC.pullFromLockerMulti(assetsWRONG, new bytes[](1)); 
         hevm.stopPrank();    
 
     }
@@ -437,7 +437,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
         hevm.warp(block.timestamp + 30 days);
 
-        assert(god.try_pullMulti(address(DAO), address(OCY_CVX_FRAX_3CRV), assets));
+        assert(god.try_pullMulti(address(DAO), address(OCY_CVX_FRAX_3CRV), assets, new bytes[](1)));
 
         assert(IERC20(OCY_CVX_FRAX_3CRV.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_3CRV)) == 0);       
 
@@ -457,7 +457,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
         hevm.startPrank(address(DAO));
         hevm.expectRevert(bytes("e_OCY_CVX_Modular::pullFromLockerMulti() asset not equal to BASE_TOKEN"));
-        OCY_CVX_FRAX_3CRV.pullFromLockerMulti(assetsWRONG);
+        OCY_CVX_FRAX_3CRV.pullFromLockerMulti(assetsWRONG, new bytes[](1));
         hevm.stopPrank();
     }
 
@@ -472,7 +472,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         uint256 lpBalanceInit = IERC20(OCY_CVX_FRAX_3CRV.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_3CRV));
         uint256 lpToWithdraw = (IERC20(OCY_CVX_FRAX_3CRV.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_3CRV)) / 2) + (1000 *10**18);
 
-        assert(god.try_pullPartial(address(DAO), address(OCY_CVX_FRAX_3CRV), OCY_CVX_FRAX_3CRV.CVX_Reward_Address(), lpToWithdraw));
+        assert(god.try_pullPartial(address(DAO), address(OCY_CVX_FRAX_3CRV), OCY_CVX_FRAX_3CRV.CVX_Reward_Address(), lpToWithdraw, ""));
 
         assert(IERC20(OCY_CVX_FRAX_3CRV.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_3CRV)) <  (lpBalanceInit / 2));       
 
@@ -490,7 +490,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         uint256 lpToWithdraw = (IERC20(OCY_CVX_FRAX_USDC.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_USDC)) / 2) + (1000 *10**18);
 
         emit log_named_uint("Init LP Balance: ", lpBalanceInit);
-        assert(god.try_pullPartial(address(DAO), address(OCY_CVX_FRAX_USDC), OCY_CVX_FRAX_USDC.CVX_Reward_Address(), lpToWithdraw));
+        assert(god.try_pullPartial(address(DAO), address(OCY_CVX_FRAX_USDC), OCY_CVX_FRAX_USDC.CVX_Reward_Address(), lpToWithdraw, ""));
         emit log_named_uint("LP's to withdraw", lpToWithdraw);
 
         assert(IERC20(OCY_CVX_FRAX_USDC.CVX_Reward_Address()).balanceOf(address(OCY_CVX_FRAX_USDC)) <  (lpBalanceInit / 2));       
