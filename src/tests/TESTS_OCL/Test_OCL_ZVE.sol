@@ -909,9 +909,9 @@ contract Test_OCL_ZVE is Utility {
 
     function test_OCL_ZVE_SUSHI_updateCompoundingRateBIPS_restrictions_maxBIPS() public {
         
-        // Can't call if > 10000.
+        // Can't call if > 10000 (BIPS = 10000).
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCL_ZVE::updateCompoundingRateBIPS() ratio > 10000");
+        hevm.expectRevert("OCL_ZVE::updateCompoundingRateBIPS() ratio > BIPS");
         OCL_ZVE_SUSHI_DAI.updateCompoundingRateBIPS(10001);
         hevm.stopPrank();
 
