@@ -70,7 +70,8 @@ contract Test_OCE_ZVE is Utility {
         assertEq(OCE_ZVE_Live.distributionRatioBIPS(2), 0);
 
         assert(OCE_ZVE_Live.canPush());
-        assert(!OCE_ZVE_Live.canPull());
+        assert(OCE_ZVE_Live.canPull());
+        assert(OCE_ZVE_Live.canPullPartial());
 
         // $ZVE balance 100k from setUp().
         assertEq(IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live)), 100_000 ether);
