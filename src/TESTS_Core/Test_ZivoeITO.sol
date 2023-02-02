@@ -93,26 +93,50 @@ contract Test_ZivoeITO is Utility {
     // Ensure ZivoeITO.sol constructor() does not permit _start >= _end (input params).
 
     function testFail_ZivoeITO_constructor_0() public {
+
+        address[] memory _stables = new address[](4);
+        _stables[0] = DAI;
+        _stables[1] = FRAX;
+        _stables[2] = USDC;
+        _stables[3] = USDT;
+
         ITO = new ZivoeITO(
             block.timestamp + 5001 seconds,
             block.timestamp + 5000 seconds,
-            address(GBL)
+            address(GBL),
+            _stables
         );
     }
 
     function testFail_ZivoeITO_constructor_1() public {
+
+        address[] memory _stables = new address[](4);
+        _stables[0] = DAI;
+        _stables[1] = FRAX;
+        _stables[2] = USDC;
+        _stables[3] = USDT;
+
         ITO = new ZivoeITO(
             block.timestamp + 5000 seconds,
             block.timestamp + 5000 seconds,
-            address(GBL)
+            address(GBL),
+            _stables
         );
     }
 
     function test_ZivoeITO_constructor_2() public {
+
+        address[] memory _stables = new address[](4);
+        _stables[0] = DAI;
+        _stables[1] = FRAX;
+        _stables[2] = USDC;
+        _stables[3] = USDT;
+
         ITO = new ZivoeITO(
             block.timestamp + 4999 seconds,
             block.timestamp + 5000 seconds,
-            address(GBL)
+            address(GBL),
+            _stables
         );
     }
 
@@ -168,7 +192,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositJunior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() !stablecoinWhitelist[asset]");
+        hevm.expectRevert("ZivoeITO::depositJunior() asset != stables[0] && asset != stables[1] && asset != stables[2] && asset != stables[3]");
         ITO.depositJunior(100 ether, address(WETH));
         hevm.stopPrank();
     }
@@ -219,7 +243,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositSenior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() !stablecoinWhitelist[asset]");
+        hevm.expectRevert("ZivoeITO::depositSenior() asset != stables[0] && asset != stables[1] && asset != stables[2] && asset != stables[3]");
         ITO.depositSenior(100 ether, address(WETH));
         hevm.stopPrank();
     }

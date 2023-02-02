@@ -610,7 +610,7 @@ contract Test_OCC_Modular is Utility {
         APR = 3601;
 
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::requestLoan() APR > 3600");
+        hevm.expectRevert("OCC_Modular::requestLoan() APR > 3600 || APRLateFee > 3600 || term == 0");
         OCC_Modular_DAI.requestLoan(address(bob),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
@@ -649,7 +649,7 @@ contract Test_OCC_Modular is Utility {
         APRLateFee = 3601;
 
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::requestLoan() APRLateFee > 3600");
+        hevm.expectRevert("OCC_Modular::requestLoan() APR > 3600 || APRLateFee > 3600 || term == 0");
         OCC_Modular_DAI.requestLoan(address(bob),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
@@ -687,7 +687,7 @@ contract Test_OCC_Modular is Utility {
 
         // Can't requestLoan with term == 0.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::requestLoan() term == 0");
+        hevm.expectRevert("OCC_Modular::requestLoan() APR > 3600 || APRLateFee > 3600 || term == 0");
         OCC_Modular_DAI.requestLoan(address(bob),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
@@ -769,7 +769,7 @@ contract Test_OCC_Modular is Utility {
         
         // Can't requestLoan with invalid paymentSchedule (0 || 1).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::requestLoan() paymentSchedule != 0 && paymentSchedule != 1");
+        hevm.expectRevert("OCC_Modular::requestLoan() paymentSchedule > 1");
         OCC_Modular_DAI.requestLoan(address(bob),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );

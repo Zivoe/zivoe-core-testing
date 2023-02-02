@@ -633,10 +633,17 @@ contract Utility is DSTest, Test {
 
         // Step #6 --- Deploy ZivoeITO.sol.
 
+        address[] memory _stablesITO = new address[](4);
+        _stablesITO[0] = DAI;
+        _stablesITO[1] = FRAX;
+        _stablesITO[2] = USDC;
+        _stablesITO[3] = USDT;
+
         ITO = new ZivoeITO(
             block.timestamp + 3 days,
             block.timestamp + 33 days,
-            address(GBL)
+            address(GBL),
+            _stablesITO
         );
 
         // "jay" MUST transfer 10% of ZVE tokens to ITO.
@@ -757,7 +764,13 @@ contract Utility is DSTest, Test {
         _wallets[13] = address(ZVT);     // _wallets[13] == ZVT     == ZivoeTranches.sol
 
         // GBL.owner() MUST call initializeGlobals() with the above address array.
-        GBL.initializeGlobals(_wallets);
+
+        address[] memory _stablesGlobals = new address[](3);
+        _stablesGlobals[0] = DAI;
+        _stablesGlobals[1] = USDC;
+        _stablesGlobals[2] = USDT;
+
+        GBL.initializeGlobals(_wallets, _stablesGlobals);
 
         // GBL.owner() MUST transfer ownership to governance contract ("god").
         GBL.transferOwnershipAndLock(address(god));

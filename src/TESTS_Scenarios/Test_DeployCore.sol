@@ -129,10 +129,10 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeITO(_ITO).start(), block.timestamp + 3 days);
         assertEq(IZivoeITO(_ITO).end(), block.timestamp + 33 days);
         
-        assert(IZivoeITO(_ITO).stablecoinWhitelist(DAI));
-        assert(IZivoeITO(_ITO).stablecoinWhitelist(FRAX));
-        assert(IZivoeITO(_ITO).stablecoinWhitelist(USDC));
-        assert(IZivoeITO(_ITO).stablecoinWhitelist(USDT));
+        assertEq(IZivoeITO(_ITO).stables(0), DAI);
+        assertEq(IZivoeITO(_ITO).stables(1), FRAX);
+        assertEq(IZivoeITO(_ITO).stables(2), USDC);
+        assertEq(IZivoeITO(_ITO).stables(3), USDT);
     
         // $ZVE balance (should be 10% of total supply).
         assertEq(IERC20(_ZVE).balanceOf(_ITO), IERC20(_ZVE).totalSupply() * 10 / 100);
