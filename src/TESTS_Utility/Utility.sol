@@ -13,7 +13,7 @@ import "./users/Vester.sol";
 // Core imports.
 import "lib/zivoe-core-foundry/src/ZivoeDAO.sol";
 import "lib/zivoe-core-foundry/src/ZivoeGlobals.sol";
-import "lib/zivoe-core-foundry/src/ZivoeGovernor.sol";
+import "lib/zivoe-core-foundry/src/ZivoeGovernorV2.sol";
 import "lib/zivoe-core-foundry/src/ZivoeITO.sol";
 import "lib/zivoe-core-foundry/src/ZivoeToken.sol";
 import "lib/zivoe-core-foundry/src/ZivoeTranches.sol";
@@ -22,7 +22,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 
 // External-protocol imports.
-import "lib/zivoe-core-foundry/src/libraries/ZivoeTimelockController.sol";
+import "lib/zivoe-core-foundry/src/libraries/ZivoeTLC.sol";
 import { ZivoeRewards } from "lib/zivoe-core-foundry/src/ZivoeRewards.sol";
 import { ZivoeRewardsVesting } from "lib/zivoe-core-foundry/src/ZivoeRewardsVesting.sol";
 
@@ -30,7 +30,7 @@ import { ZivoeRewardsVesting } from "lib/zivoe-core-foundry/src/ZivoeRewardsVest
 import "lib/zivoe-core-foundry/src/misc/InterfacesAggregated.sol";
 
 // Test (foundry-rs) imports.
-import "../../../lib/forge-std/src/Test.sol";
+import "../../lib/forge-std/src/Test.sol";
 
 // Interface imports.
 interface Hevm {
@@ -57,7 +57,7 @@ contract Utility is DSTest, Test {
     // ------------
 
     Admin       god;    /// @dev    Represents "governing" contract of the system, could be individual 
-                        ///         (for debugging) or ZivoeTimelockController (for live governance simulations).
+                        ///         (for debugging) or ZivoeTLC (for live governance simulations).
     Admin       zvl;    /// @dev    Represents GnosisSafe multi-sig, handled by Zivoe Labs / Zivoe Dev entity.
 
     Blackhat    bob;    /// @dev    Bob is a malicious actor that tries to attack the system for profit/mischief.
@@ -112,7 +112,7 @@ contract Utility is DSTest, Test {
 
     ZivoeDAO            DAO;
     ZivoeGlobals        GBL;
-    ZivoeGovernor       GOV;
+    ZivoeGovernorV2     GOV;
     ZivoeITO            ITO;
     ZivoeToken          ZVE;
     ZivoeTranches       ZVT;
@@ -120,7 +120,7 @@ contract Utility is DSTest, Test {
     ZivoeTrancheToken   zJTT;
     ZivoeYDL            YDL;
 
-    ZivoeTimelockController  TLC;
+    ZivoeTLC  TLC;
     
 
 
@@ -580,19 +580,19 @@ contract Utility is DSTest, Test {
         jay.try_delegate(address(ZVE), address(jay));
 
 
-        // Step #3 --- Deploy governance contracts, ZivoeTimelockController.sol and ZivoeGovernor.sol.
+        // Step #3 --- Deploy governance contracts, ZivoeTLC.sol and ZivoeGovernorV2.sol.
 
         address[] memory proposers;
         address[] memory executors;
 
-        TLC = new ZivoeTimelockController(
+        TLC = new ZivoeTLC(
             1,
             proposers,
             executors,
             address(GBL)
         );
 
-        GOV = new ZivoeGovernor(
+        GOV = new ZivoeGovernorV2(
             IVotes(address(ZVE)),
             TLC
         );
@@ -633,10 +633,17 @@ contract Utility is DSTest, Test {
 
         // Step #6 --- Deploy ZivoeITO.sol.
 
+        address[] memory _stablesITO = new address[](4);
+        _stablesITO[0] = DAI;
+        _stablesITO[1] = FRAX;
+        _stablesITO[2] = USDC;
+        _stablesITO[3] = USDT;
+
         ITO = new ZivoeITO(
             block.timestamp + 3 days,
             block.timestamp + 33 days,
-            address(GBL)
+            address(GBL),
+            _stablesITO
         );
 
         // "jay" MUST transfer 10% of ZVE tokens to ITO.
@@ -751,13 +758,19 @@ contract Utility is DSTest, Test {
         _wallets[8] = address(zSTT);     // _wallets[8]  == zSTT    == ZivoeTranchesToken.sol
         _wallets[9] = address(ZVE);      // _wallets[9]  == ZVE     == ZivoeToken.sol
         _wallets[10] = address(zvl);     // _wallets[10] == ZVL     == address(zvl) "Multi-Sig"
-        _wallets[11] = address(GOV);     // _wallets[11] == GOV     == ZivoeGovernor.sol
-                                         // _wallets[12] == TLC     == ZivoeTimelockController.sol
+        _wallets[11] = address(GOV);     // _wallets[11] == GOV     == ZivoeGovernorV2.sol
+                                         // _wallets[12] == TLC     == ZivoeTLC.sol
         _wallets[12] = live ? address(TLC) : address(god);     
         _wallets[13] = address(ZVT);     // _wallets[13] == ZVT     == ZivoeTranches.sol
 
         // GBL.owner() MUST call initializeGlobals() with the above address array.
-        GBL.initializeGlobals(_wallets);
+
+        address[] memory _stablesGlobals = new address[](3);
+        _stablesGlobals[0] = DAI;
+        _stablesGlobals[1] = USDC;
+        _stablesGlobals[2] = USDT;
+
+        GBL.initializeGlobals(_wallets, _stablesGlobals);
 
         // GBL.owner() MUST transfer ownership to governance contract ("god").
         GBL.transferOwnershipAndLock(address(god));
