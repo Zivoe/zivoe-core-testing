@@ -30,7 +30,7 @@ import { ZivoeRewardsVesting } from "lib/zivoe-core-foundry/src/ZivoeRewardsVest
 import "lib/zivoe-core-foundry/src/misc/InterfacesAggregated.sol";
 
 // Test (foundry-rs) imports.
-import "../../../lib/forge-std/src/Test.sol";
+import "../../lib/forge-std/src/Test.sol";
 
 // Interface imports.
 interface Hevm {
