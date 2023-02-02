@@ -101,14 +101,14 @@ contract Test_DeployCore_Modular is Utility {
         address _GOV = IZivoeGlobals(_GBL).GOV();
         address _ZVE = IZivoeGlobals(_GBL).ZVE();
 
-        // Note: No ownership for ZivoeGovernor.sol
+        // Note: No ownership for ZivoeGovernorV2.sol
 
         // State variables.
         assertEq(IZivoeGovernor(_GOV).votingDelay(), 1);
         assertEq(IZivoeGovernor(_GOV).votingPeriod(), 45818);
         assertEq(IZivoeGovernor(_GOV).quorum(0), 0);
         assertEq(IZivoeGovernor(_GOV).proposalThreshold(), 125000 ether);
-        assertEq(IZivoeGovernor(_GOV).name(), 'ZivoeGovernor');
+        assertEq(IZivoeGovernor(_GOV).name(), 'ZivoeGovernorV2');
         assertEq(IZivoeGovernor(_GOV).version(), '1');
         assertEq(IZivoeGovernor(_GOV).COUNTING_MODE(), 'support=bravo&quorum=for,abstain');
         assertEq(IZivoeGovernor(_GOV).quorumNumerator(), 10);
@@ -144,7 +144,7 @@ contract Test_DeployCore_Modular is Utility {
 
         address _GOV = IZivoeGlobals(_GBL).GOV();
 
-        // Note: No ownership for ZivoeTimelockController.sol
+        // Note: No ownership for ZivoeTLC.sol
 
         // State variables.
         assertEq(ITimelockController(_TLC).GBL(), _GBL);

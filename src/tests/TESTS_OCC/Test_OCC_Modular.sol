@@ -3049,7 +3049,7 @@ contract Test_OCC_Modular is Utility {
 
         // Restriction tests for pullFromLocker().
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeOwnableLocked::_checkOwner owner() != _msgSender()");
+        hevm.expectRevert("Ownable: caller is not the owner");
         OCC_Modular_DAI.pullFromLocker(DAI, "");
         hevm.stopPrank();
         assert(!bob.try_pullFromLocker_DIRECT(address(OCC_Modular_FRAX), FRAX, ""));
@@ -3070,7 +3070,7 @@ contract Test_OCC_Modular is Utility {
 
         // Restriction tests for pullFromLockerMulti().
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeOwnableLocked::_checkOwner owner() != _msgSender()");
+        hevm.expectRevert("Ownable: caller is not the owner");
         OCC_Modular_DAI.pullFromLockerMulti(data_DAI, new bytes[](1));
         hevm.stopPrank();
 
@@ -3095,7 +3095,7 @@ contract Test_OCC_Modular is Utility {
 
         // Restriction tests for pullFromLockerMultiPartial().
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeOwnableLocked::_checkOwner owner() != _msgSender()");
+        hevm.expectRevert("Ownable: caller is not the owner");
         OCC_Modular_DAI.pullFromLockerMultiPartial(data_DAI, amts, new bytes[](1));
         hevm.stopPrank();
 

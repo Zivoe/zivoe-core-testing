@@ -3,11 +3,11 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/libraries/ZivoeMath.sol";
+import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
 
 contract Test_ZivoeYDL is Utility {
     
-    using ZivoeMath for uint256;
+    using FloorMath for uint256;
 
     struct Recipients {
         address[] recipients;
