@@ -3,7 +3,11 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
+import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
+
 contract Test_ZivoeRewards is Utility {
+
+    OCG_ERC20_FreeClaim ZVEClaimer;
 
     function setUp() public {
 
@@ -14,6 +18,11 @@ contract Test_ZivoeRewards is Utility {
 
         claimITO_and_approveTokens_and_stakeTokens(false);
 
+        // Create an OCG locker which moves ZVE from DAO -> OCG ... allows another user to claim.
+        // We need ZVE accessible by someone to test the ZivoeRewards functionality contract (generic $ZVE staking contract).
+        ZVEClaimer = new OCG_ERC20_FreeClaim(address(DAO));
+        
+        
     }
 
     // ----------------------

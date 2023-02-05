@@ -240,20 +240,19 @@ contract Test_ZivoeRewardsVesting is Utility {
     //  - Must be enough $ZVE present to vest out.
     //  - Cliff timeline must be appropriate (daysToCliff <= daysToVest).
 
+    event LogU(uint);
+
     function test_ZivoeRewardsVesting_vest_restrictions_maxVest() public {
 
-        assertEq(IERC20(address(ZVE)).balanceOf(address(vestZVE)), 12_500_000 ether);
-
+        uint256 zveBalanceOverflow = ZVE.balanceOf(address(vestZVE)) + 1;
         // Can't vest more ZVE than is present.
         hevm.startPrank(address(zvl));
         hevm.expectRevert("ZivoeRewardsVesting::vest() amountToVest > IERC20(vestingToken).balanceOf(address(this)) - vestingTokenAllocated");
-        vestZVE.vest( address(poe), 30, 90, 12_500_000 ether + 1, false);
+        vestZVE.vest(address(poe), 30, 90, zveBalanceOverflow, false);
         hevm.stopPrank();
     }
 
     function test_ZivoeRewardsVesting_vest_restrictions_maxCliff() public {
-
-        assertEq(IERC20(address(ZVE)).balanceOf(address(vestZVE)), 12_500_000 ether);
 
         // Can't vest if cliff days > vesting days.
         hevm.startPrank(address(zvl));
@@ -264,8 +263,6 @@ contract Test_ZivoeRewardsVesting is Utility {
 
     function test_ZivoeRewardsVesting_vest_restrictions_amount0() public {
 
-        assertEq(IERC20(address(ZVE)).balanceOf(address(vestZVE)), 12_500_000 ether);
-
         // Can't vest if amount == 0.
         hevm.startPrank(address(zvl));
         hevm.expectRevert("ZivoeRewardsVesting::_stake() amount == 0");
@@ -274,8 +271,6 @@ contract Test_ZivoeRewardsVesting is Utility {
     }
 
     function test_ZivoeRewardsVesting_vest_restrictions_scheduleSet() public {
-
-        assertEq(IERC20(address(ZVE)).balanceOf(address(vestZVE)), 12_500_000 ether);
         
         // Can't call vest if schedule already set.
         assert(zvl.try_vest(address(vestZVE), address(poe), 30, 90, 100 ether, false));

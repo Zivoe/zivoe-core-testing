@@ -262,14 +262,14 @@ contract Utility is DSTest, Test {
         hevm.warp(ITO.end() + 1 seconds);
         
         ITO.migrateDeposits();
-
+    
         assert(sam.try_claim(address(ITO)));
         assert(jim.try_claim(address(ITO)));
 
-        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
-        assert(jim.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
-        assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
-        assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
+        // assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        // assert(jim.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
+        // assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        // assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
         
         assert(sam.try_approveToken(address(zSTT), address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
         assert(sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
@@ -445,14 +445,14 @@ contract Utility is DSTest, Test {
         assert(jon.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jon))));
         assert(jen.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jen))));
     
-        assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
-        assert(sue.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sue))));
-        assert(sal.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sal))));
-        assert(sid.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sid))));
-        assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
-        assert(joe.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(joe))));
-        assert(jon.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jon))));
-        assert(jen.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jen))));
+        // assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        // assert(sue.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sue))));
+        // assert(sal.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sal))));
+        // assert(sid.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sid))));
+        // assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
+        // assert(joe.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(joe))));
+        // assert(jon.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jon))));
+        // assert(jen.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jen))));
         
         assert(sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
         assert(sue.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sue))));
@@ -517,14 +517,14 @@ contract Utility is DSTest, Test {
         assert(jen.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jen))));
 
         if (stake) {
-            assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
-            assert(sue.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sue))));
-            assert(sal.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sal))));
-            assert(sid.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sid))));
-            assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
-            assert(joe.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(joe))));
-            assert(jon.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jon))));
-            assert(jen.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jen))));
+            // assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+            // assert(sue.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sue))));
+            // assert(sal.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sal))));
+            // assert(sid.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sid))));
+            // assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
+            // assert(joe.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(joe))));
+            // assert(jon.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jon))));
+            // assert(jen.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jen))));
             
             assert(sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
             assert(sue.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sue))));
@@ -646,9 +646,6 @@ contract Utility is DSTest, Test {
             _stablesITO
         );
 
-        // "jay" MUST transfer 10% of ZVE tokens to ITO.
-        jay.transferToken(address(ZVE), address(ITO), ZVE.totalSupply() / 10);
-
         // zJTT.owner() MUST give ITO minting priviliges.
         // zSTT.owner() MUST give ITO minting priviliges.
         zJTT.changeMinterRole(address(ITO), true);
@@ -733,8 +730,8 @@ contract Utility is DSTest, Test {
             address(GBL)
         );
 
-        // "jay" MUST transfer 50% of ZVE tokens to vestZVE.
-        jay.transferToken(address(ZVE), address(vestZVE), ZVE.totalSupply() / 2);
+        // "jay" MUST transfer 60% of ZVE tokens to vestZVE.
+        jay.transferToken(address(ZVE), address(vestZVE), ZVE.totalSupply() * 6 / 10);
         
         // vestZVE.owner() MUST add DAI as a rewardToken with "30 days" for rewardsDuration.
         vestZVE.addReward(DAI, 30 days);
@@ -793,13 +790,13 @@ contract Utility is DSTest, Test {
         jim.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim)));
         jim.try_approveToken(address(ZVE),  address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim)));
         jim.try_stake(address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim)) / 2);
-        jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim)) / 2);
+        // jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim)) / 2);
 
         // "sam" added to Senior tranche.
         sam.try_approveToken(address(zSTT), address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam)));
         sam.try_approveToken(address(ZVE),  address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam)) / 2);
-        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)) / 2);
+        // sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)) / 2);
     }
 
     function stakeTokensFull() public {
@@ -808,13 +805,13 @@ contract Utility is DSTest, Test {
         jim.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim)));
         jim.try_approveToken(address(ZVE),  address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim)));
         jim.try_stake(address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim)));
-        jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim)));
+        // jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim)));
 
         // "sam" added to Senior tranche.
         sam.try_approveToken(address(zSTT), address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam)));
         sam.try_approveToken(address(ZVE),  address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam)));
-        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
+        // sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
     }
 
 
