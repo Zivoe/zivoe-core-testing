@@ -67,11 +67,6 @@ contract Deployer {
         string memory sig = "vest(address,uint256,uint256,uint256)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account, daysUntilVestingBegins, daysToVest, amountToVest));
     }
-    
-    function try_updateWhitelistedAmplifiers(address amplifier, address account, bool allowed) external returns (bool ok) {
-        string memory sig = "updateWhitelistedAmplifiers(address,bool)";
-        (ok,) = address(amplifier).call(abi.encodeWithSignature(sig, account, allowed));
-    }
 
     function try_modifyStablecoinWhitelist(address tranches, address asset, bool allowed) external returns (bool ok) {
         string memory sig = "modifyStablecoinWhitelist(address,bool)";

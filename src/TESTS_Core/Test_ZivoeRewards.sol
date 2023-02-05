@@ -3,7 +3,11 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
+import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
+
 contract Test_ZivoeRewards is Utility {
+
+    OCG_ERC20_FreeClaim ZVEClaimer;
 
     function setUp() public {
 
@@ -14,6 +18,12 @@ contract Test_ZivoeRewards is Utility {
 
         claimITO_and_approveTokens_and_stakeTokens(false);
 
+        // Create an OCG locker which moves ZVE from DAO -> OCG ... allows another user to claim.
+        // We need ZVE accessible by someone to test the ZivoeRewards functionality contract (generic $ZVE staking contract).
+        ZVEClaimer = new OCG_ERC20_FreeClaim(address(DAO));
+        assert(zvl.try_updateIsLocker(address(GBL), address(ZVEClaimer), true));
+        assert(god.try_push(address(DAO), address(ZVEClaimer), address(ZVE), 5000 ether, ""));
+        ZVEClaimer.forward(address(ZVE), 5000 ether, address(sam));
     }
 
     // ----------------------
@@ -245,7 +255,9 @@ contract Test_ZivoeRewards is Utility {
 
         // stake().
         if (preStake) {
-            stakeTokens(); // 50% chance to have someone stake prior here
+            // stakeTokens();
+            assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+            sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         }
 
         // depositReward().
@@ -412,7 +424,9 @@ contract Test_ZivoeRewards is Utility {
 
     function test_ZivoeRewards_withdraw_restrictions() public {
 
-        stakeTokens();
+        // stakeTokens();
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
 
         // Can't withdraw if amount == 0.
         hevm.startPrank(address(sam));
@@ -423,7 +437,9 @@ contract Test_ZivoeRewards is Utility {
 
     function test_ZivoeRewards_withdraw_state(uint96 random) public {
 
-        stakeTokens();
+        // stakeTokens();
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
 
         uint256 unstake = uint256(random) % (stZVE.balanceOf(address(sam)) - 1) + 1;
 
@@ -457,7 +473,9 @@ contract Test_ZivoeRewards is Utility {
 
         // stake().
         // depositReward().
-        stakeTokens();
+        // stakeTokens();
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         depositReward_DAI(address(stZVE), deposit);
 
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
@@ -507,7 +525,9 @@ contract Test_ZivoeRewards is Utility {
 
         // stake().
         // depositReward().
-        stakeTokens();
+        // stakeTokens();
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         depositReward_DAI(address(stZVE), deposit);
 
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
@@ -523,7 +543,9 @@ contract Test_ZivoeRewards is Utility {
 
         // stake().
         // depositReward().
-        stakeTokens();
+        // stakeTokens();
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         depositReward_DAI(address(stZVE), deposit);
 
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
