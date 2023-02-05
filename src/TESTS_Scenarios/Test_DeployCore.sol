@@ -133,9 +133,6 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeITO(_ITO).stables(1), FRAX);
         assertEq(IZivoeITO(_ITO).stables(2), USDC);
         assertEq(IZivoeITO(_ITO).stables(3), USDT);
-    
-        // $ZVE balance (should be 10% of total supply).
-        assertEq(IERC20(_ZVE).balanceOf(_ITO), IERC20(_ZVE).totalSupply() * 10 / 100);
     }
 
     function test_DeployCore_ZivoeTimelockController() public {
@@ -270,8 +267,8 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeRewardsVesting(_vestZVE).GBL(), _GBL);
         assertEq(IZivoeRewardsVesting(_vestZVE).stakingToken(), _ZVE);
 
-        // $ZVE balance (should be 50% of total supply).
-        assertEq(IERC20(_ZVE).balanceOf(_vestZVE), IERC20(_ZVE).totalSupply() * 50 / 100);
+        // $ZVE balance (should be 60% of total supply).
+        assertEq(IERC20(_ZVE).balanceOf(_vestZVE), IERC20(_ZVE).totalSupply() * 60 / 100);
     }
 
     function test_DeployCore_ZivoeToken() public {

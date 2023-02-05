@@ -62,11 +62,6 @@ contract Blackhat {
         string memory sig = "vest(address,uint256,uint256,uint256)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account, daysUntilVestingBegins, daysToVest, amountToVest));
     }
-    
-    function try_updateWhitelistedAmplifiers(address amplifier, address account, bool allowed) external returns (bool ok) {
-        string memory sig = "updateWhitelistedAmplifiers(address,uint256,uint256,uint256)";
-        (ok,) = address(amplifier).call(abi.encodeWithSignature(sig, account, allowed));
-    }
 
     function try_increaseAmplification(address amp, address account, uint256 amount) external returns (bool ok) {
         string memory sig = "increaseAmplification(address,uint256)";
