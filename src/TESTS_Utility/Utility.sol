@@ -594,7 +594,8 @@ contract Utility is DSTest, Test {
 
         GOV = new ZivoeGovernorV2(
             IVotes(address(ZVE)),
-            TLC
+            TLC,
+            address(GBL)
         );
 
         // TLC.owner() MUST grant "EXECUTOR_ROLE" to address(0) for public execution of proposals.
