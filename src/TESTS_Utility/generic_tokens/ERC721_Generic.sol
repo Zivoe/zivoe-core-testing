@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.16;
 
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/utils/Counters.sol";

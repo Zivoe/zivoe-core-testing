@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.16;
 
 // User imports.
@@ -594,7 +594,8 @@ contract Utility is DSTest, Test {
 
         GOV = new ZivoeGovernorV2(
             IVotes(address(ZVE)),
-            TLC
+            TLC,
+            address(GBL)
         );
 
         // TLC.owner() MUST grant "EXECUTOR_ROLE" to address(0) for public execution of proposals.
