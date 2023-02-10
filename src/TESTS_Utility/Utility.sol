@@ -659,7 +659,7 @@ contract Utility is DSTest, Test {
             address(GBL)
         );
 
-        // ZVT.owner() MUST transfer ownership to governance contract.
+        // ZVT.owner() MUST transfer ownership to the DAO (it is a ZivoeLocker).
         ZVT.transferOwnershipAndLock(address(DAO));
 
         // "jay" MUST transfer 5% of ZVE tokens to ZVT.
