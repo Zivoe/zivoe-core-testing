@@ -41,13 +41,11 @@ contract Test_DeployCore_Modular is Utility {
 
     function test_DeployCore_ZivoeGlobals() public {
 
-        address _TLC = live ? IZivoeGlobals(_GBL).TLC() : address(god);
-
         // Ownership.
-        assertEq(IZivoeDAO(_GBL).owner(), _TLC);
+        assertEq(IZivoeDAO(_GBL).owner(), address(0));
 
         // State variables.
-        assertEq(IZivoeGlobals(_GBL).defaults(),            0);
+        assertEq(IZivoeGlobals(_GBL).defaults(), 0);
         
         assert(IZivoeGlobals(_GBL).stablecoinWhitelist(DAI));
         assert(IZivoeGlobals(_GBL).stablecoinWhitelist(USDC));

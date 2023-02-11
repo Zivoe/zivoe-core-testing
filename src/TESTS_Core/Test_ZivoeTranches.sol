@@ -3,8 +3,12 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
+import "../../lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
+
 contract Test_ZivoeTranches is Utility {
     
+    using FloorMath for uint256;
+
     function setUp() public {
 
         deployCore(false);
@@ -114,13 +118,15 @@ contract Test_ZivoeTranches is Utility {
 
         assert(sam.try_approveToken(address(DAI), address(ZVT), 10_000_000_000 ether));
         assert(sam.try_depositSenior(address(ZVT), 10_000_000_000 ether, address(DAI)));
-
+        
         // Calculate maximum amount depositable in junior tranche.
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
-        
-        uint256 maximumAmount = (seniorSupp * ZVT.maxTrancheRatioBIPS() / BIPS - juniorSupp) / 3;
 
-        uint256 maximumAmount_18 = uint256(random) % maximumAmount;
+        uint256 maximumAmount = (seniorSupp * ZVT.maxTrancheRatioBIPS() / BIPS).zSub(juniorSupp);
+
+        if (maximumAmount == 0) { return; } // Can't deposit anything in given state.
+
+        uint256 maximumAmount_18 = uint256(random) % maximumAmount / 3; // Dividing by three to support three deposits.
         uint256 maximumAmount_6 = maximumAmount_18 /= 10**12;
 
         // Mint amounts for depositJunior() calls.
@@ -252,7 +258,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateMaxTrancheRatio() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
         ZVT.updateMaxTrancheRatio(3000);
         hevm.stopPrank();
     }
@@ -260,7 +266,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateMinZVEPerJTTMint() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
         ZVT.updateMinZVEPerJTTMint(0.001 * 10**18);
         hevm.stopPrank();
     }
@@ -268,7 +274,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateMaxZVEPerJTTMint() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
         ZVT.updateMaxZVEPerJTTMint(0.022 * 10**18);
         hevm.stopPrank();
     }
@@ -276,7 +282,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateLowerRatioIncentive() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
         ZVT.updateLowerRatioIncentive(2000);
         hevm.stopPrank();
     }
@@ -284,7 +290,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateUpperRatioIncentives() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
         ZVT.updateUpperRatioIncentives(2250);
         hevm.stopPrank();
     }

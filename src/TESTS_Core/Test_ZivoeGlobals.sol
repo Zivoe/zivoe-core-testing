@@ -13,68 +13,58 @@ contract Test_ZivoeGlobals is Utility {
         deployCore(false);
     }
 
-    // Validate restrictions of increaseDefaults() / decreaseDefaults().
+    // Validate restrictions of decreaseDefaults() / increaseDefaults().
     // This includes:
     //  - _msgSender() must be a whitelisted ZivoeLocker.
-    //  - Undeflow checks.
 
-    function test_ZivoeGlobals_restrictions_increaseDefaults_directly() public {
-        // Ensure non-whitelisted address may not call increase default, directly via ZivoeGlobals.sol.
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeGlobals::increaseDefaults() !isLocker[_msgSender()]");
-        GBL.increaseDefaults(100 ether);
-        hevm.stopPrank();
-    }
-
-    function test_ZivoeGlobals_restrictions_increaseDefaults_indirectly() public {
-        // Create GenericDefaults locker, with default adjustment capability, add this to whitelist.
-        GenericDefaultsLocker = new OCG_Defaults(address(DAO), address(GBL));
-        assert(zvl.try_updateIsLocker(address(GBL), address(GenericDefaultsLocker), true));
-
-        // Ensure non-whitelisted address may not call increase default, directly via ZivoeGlobals.sol.
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("OCG_Defaults::onlyGovernance() _msgSender!= IZivoeGlobals_OCG_Defaults(GBL).TLC()");
-        GenericDefaultsLocker.increaseDefaults(100 ether);
-        hevm.stopPrank();
-    }
-
-    function test_ZivoeGlobals_restrictions_decreaseDefaults_directly() public {
+    function test_ZivoeGlobals_decreaseDefaults_restrictions_direct() public {
         // Ensure non-whitelisted address may not call decrease default, directly via ZivoeGlobals.sol.
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeGlobals::decreaseDefaults() !isLocker[_msgSender()]");
         GBL.decreaseDefaults(100 ether);
         hevm.stopPrank();
     }
+
+    function test_ZivoeGlobals_increaseDefaults_restrictions_direct() public {
+        // Non-whitelisted address can not call increase default.
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeGlobals::increaseDefaults() !isLocker[_msgSender()]");
+        GBL.increaseDefaults(100 ether);
+        hevm.stopPrank();
+    }
+
+    // For additional testing purposes, validate restrictions on OCG_Defaults locker endpoints.
     
-    function test_ZivoeGlobals_restrictions_decreaseDefaults_indirectly() public {
-        // Create GenericDefaults locker, with default adjustment capability, add this to whitelist.
+    function test_ZivoeGlobals_decreaseDefaults_restrictions_indirect() public {
+        // Create OCG_Defaults locker, with default adjustment capability, add this to whitelist.
         GenericDefaultsLocker = new OCG_Defaults(address(DAO), address(GBL));
         assert(zvl.try_updateIsLocker(address(GBL), address(GenericDefaultsLocker), true));
 
-        // Ensure non-whitelisted address may not call decrease default, directly via ZivoeGlobals.sol.
+        // Ensure the "onlyGovernance" modifier in OCG_Defaults::decreaseDefaults() prevents this call.
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCG_Defaults::onlyGovernance() _msgSender!= IZivoeGlobals_OCG_Defaults(GBL).TLC()");
         GenericDefaultsLocker.decreaseDefaults(100 ether);
         hevm.stopPrank();
     }
 
-    function test_ZivoeGlobals_restrictions_decreaseDefaults_underflow() public {
+    function test_ZivoeGlobals_increaseDefaults_restrictions_indirect() public {
         // Create GenericDefaults locker, with default adjustment capability, add this to whitelist.
         GenericDefaultsLocker = new OCG_Defaults(address(DAO), address(GBL));
         assert(zvl.try_updateIsLocker(address(GBL), address(GenericDefaultsLocker), true));
-        // Ensure non-whitelisted address may not call increase default, directly via ZivoeGlobals.sol.
-        assertEq(GBL.defaults(), 0);
-        hevm.startPrank(address(GenericDefaultsLocker));
-        hevm.expectRevert(stdError.arithmeticError);
-        GBL.decreaseDefaults(1 ether);
+
+        // Ensure the "onlyGovernance" modifier in OCG_Defaults::increaseDefaults() prevents this call.
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCG_Defaults::onlyGovernance() _msgSender!= IZivoeGlobals_OCG_Defaults(GBL).TLC()");
+        GenericDefaultsLocker.increaseDefaults(100 ether);
         hevm.stopPrank();
     }
     
     // Validate state changes of increaseDefaults() / decreaseDefaults().
 
-    function test_ZivoeGlobals_increase_or_decreaseDefaults_state(uint96 increaseAmountIn) public {
+    function test_ZivoeGlobals_increase_or_decreaseDefaults_state(uint96 increaseAmount, uint96 decreaseAmount) public {
         
-        uint256 increaseAmount = uint256(increaseAmountIn);
+        uint256 increaseBy = uint256(increaseAmount);
+        uint256 decreaseBy = uint256(decreaseAmount);
 
         // Create GenericDefaults locker, with default adjustment capability, add this to whitelist.
         GenericDefaultsLocker = new OCG_Defaults(address(DAO), address(GBL));
@@ -83,15 +73,22 @@ contract Test_ZivoeGlobals is Utility {
         // Pre-state.
         assertEq(GBL.defaults(), 0);
 
-        assert(god.try_increaseDefaults(address(GenericDefaultsLocker), increaseAmount));
+        // increaseDefaults().
+        assert(god.try_increaseDefaults(address(GenericDefaultsLocker), increaseBy));
 
         // Post-state, increaseDefaults().
-        assertEq(GBL.defaults(), increaseAmount);
+        assertEq(GBL.defaults(), increaseBy);
 
-        assert(god.try_decreaseDefaults(address(GenericDefaultsLocker), increaseAmount));
+        // decreaseDefaults().
+        assert(god.try_decreaseDefaults(address(GenericDefaultsLocker), decreaseBy));
 
         // Post-state, decreaseDefaults().
-        assertEq(GBL.defaults(), 0);
+        if (decreaseBy > increaseBy) {
+            assertEq(GBL.defaults(), 0);
+        }
+        else {
+            assertEq(GBL.defaults(), increaseBy - decreaseBy);
+        }
 
     }
 

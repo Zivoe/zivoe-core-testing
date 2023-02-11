@@ -58,7 +58,7 @@ contract Utility is DSTest, Test {
 
     Admin       god;    /// @dev    Represents "governing" contract of the system, could be individual 
                         ///         (for debugging) or ZivoeTLC (for live governance simulations).
-    Admin       zvl;    /// @dev    Represents GnosisSafe multi-sig, handled by Zivoe Labs / Zivoe Dev entity.
+    Admin       zvl;    /// @dev    Represents GnosisSafe multi-sig, handled by ZVL.
 
     Blackhat    bob;    /// @dev    Bob is a malicious actor that tries to attack the system for profit/mischief.
 
@@ -705,9 +705,9 @@ contract Utility is DSTest, Test {
         stZVE.addReward(DAI, 30 days);
         stZVE.addReward(address(ZVE), 30 days);
 
-        // stSTT.owner() MUST transfer ownership to Zivoe Labs/Dev ("zvl").
-        // stJTT.owner() MUST transfer ownership to Zivoe Labs/Dev ("zvl").
-        // stZVE.owner() MUST transfer ownership to Zivoe Labs/Dev ("zvl").
+        // stSTT.owner() MUST transfer ownership to ZVL ("zvl").
+        // stJTT.owner() MUST transfer ownership to ZVL ("zvl").
+        // stZVE.owner() MUST transfer ownership to ZVL ("zvl").
         stSTT.transferOwnership(address(zvl));
         stJTT.transferOwnership(address(zvl));
         stZVE.transferOwnership(address(zvl));
@@ -737,7 +737,7 @@ contract Utility is DSTest, Test {
         // vestZVE.owner() MUST add DAI as a rewardToken with "30 days" for rewardsDuration.
         vestZVE.addReward(DAI, 30 days);
 
-        // vestZVE.owner() MUST transfer ownership to Zivoe Labs / Dev ("zvl").
+        // vestZVE.owner() MUST transfer ownership to ZVL ("zvl").
         vestZVE.transferOwnership(address(zvl));
 
         
@@ -770,8 +770,8 @@ contract Utility is DSTest, Test {
 
         GBL.initializeGlobals(_wallets, _stablesGlobals);
 
-        // GBL.owner() MUST transfer ownership to governance contract ("god").
-        GBL.transferOwnershipAndLock(address(god));
+        // GBL.owner() SHOULD renounce ownership.
+        GBL.renounceOwnership();
 
         // "zvl" MUST add ZVT to the isLocker whitelist.
         assert(zvl.try_updateIsLocker(address(GBL), address(ZVT), true));
