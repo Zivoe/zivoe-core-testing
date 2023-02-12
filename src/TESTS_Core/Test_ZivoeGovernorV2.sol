@@ -26,7 +26,7 @@ contract Test_ZivoeGovernorV2 is Utility {
     //    Helper Functions
     // ----------------------
 
-    function giveTiaProposalRights() public {
+    function giveTiaProposalRights(uint256 amount) public {
 
         // vest() 1mm $ZVE to the address "tia".
         assert(zvl.try_vest(
@@ -34,19 +34,19 @@ contract Test_ZivoeGovernorV2 is Utility {
             address(tia), 
             1,  // 1 Day Cliff
             3,  // 3 Day Total
-            1_000_000 ether,  // Amount to vest.
+            amount,  // Amount to vest.
             false
         ));
 
         // Warp to the end of vesting period for "tia", claim all $ZVE tokens.
         hevm.warp(block.timestamp + 3 * 86400);
         assert(tia.try_fullWithdraw(address(vestZVE)));
-        assertEq(ZVE.balanceOf(address(tia)), 1_000_000 ether);
+        assertEq(ZVE.balanceOf(address(tia)), amount);
 
         // NOTE: User must delegate to themselves to utilize governance of personally held tokens.
         assert(tia.try_delegate(address(ZVE), address(tia)));
         hevm.roll(block.number + 1);
-        assertEq(GOV.getVotes(address(tia), block.number - 1), 1_000_000 ether);
+        assertEq(GOV.getVotes(address(tia), block.number - 1), amount);
 
         // Validate user "tia" has enough votes to create a proposal.
         assertGt(GOV.getVotes(address(tia), block.number - 1), GOV.proposalThreshold());
@@ -116,13 +116,14 @@ contract Test_ZivoeGovernorV2 is Utility {
 
     // Validate TimelockController execute() if/else logic on keepers.
 
-    function test_ZivoeGovernorV2_proposeAndExecute_logic() public {
+    function test_ZivoeGovernorV2_proposeAndExecute_nonKeeper() public {
 
-        giveTiaProposalRights();
+        giveTiaProposalRights(3_000_000 ether); // 3mm $ZVE > 2.5mm (QuorumThreshold)
 
         address[] memory targets = new address[](1);
         uint256[] memory values = new uint256[](1);     // Leave as default of 0, this is msg.value input (ether).
         bytes[] memory calldatas = new bytes[](1);
+        string memory description = "Move 100 DAI to OCG_ERC20Locker";
 
         targets[0] = address(DAO);
 
@@ -133,21 +134,53 @@ contract Test_ZivoeGovernorV2 is Utility {
         );
 
         // "tia" creates a proposal to move capital.
-        assert(tia.try_propose(
-            address(GOV), targets, values, calldatas, 
-            "Move 100 DAI to OCG_ERC20Locker"
-        ));
+        hevm.startPrank(address(tia));
+        (uint256 proposalId) = GOV.propose(targets, values, calldatas, description);
+        hevm.stopPrank();
+
+        // emit Debug('proposalId', proposalId);
+        // emit Debug('GOV.state(proposalId)0', uint(GOV.state(proposalId)));   // Note: Return var is enum, typecast to uint()
+        // emit Debug('GOV.proposalSnapshot(proposalId)', GOV.proposalSnapshot(proposalId));
+        // emit Debug('GOV.proposalDeadline(proposalId)', GOV.proposalDeadline(proposalId));
+        // emit Debug('GOV.votingDelay()', GOV.votingDelay());
+        // emit Debug('GOV.votingPeriod()', GOV.votingPeriod());
+        // emit Debug('GOV.quorum(block.number)', GOV.quorum(block.number - 1)); // -1 to avoid "ERC20Votes: block not mined"
+
+        // Increase block number past votingDelay() period.
+        hevm.roll(block.number + GOV.votingDelay() + 1);
+        assertEq(uint(GOV.state(proposalId)), 1);  // "1" = Enum for Proposal.Active
+
+        // castVote().
+        hevm.startPrank(address(tia));
+        (uint256 weight) = GOV.castVote(proposalId, uint8(1)); // 0 = Against, 1 = For, 2 = Abstain
+        hevm.stopPrank();
+
+        // Increase block number past proposalDeadline() period.
+        hevm.roll(block.number + GOV.proposalDeadline(proposalId) + 1);
+        assertEq(uint(GOV.state(proposalId)), 4);  // "4" = Enum for Proposal.Succeeded
+        
+        // Queueing is public, call queue() directly.
+        GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
+
+        // Warp past delay period for execute().
+        hevm.warp(block.timestamp + TLC.getMinDelay() + 1);
+        hevm.roll(block.number + 1);
+
+        // Execution is public, call execute() directly.
+        GOV.execute(targets, values, calldatas, keccak256(bytes(description)));
+
     }
 
-    // TODO: Test TimelockController executeBatch() if/else logic on keepers.
+    // Validate TimelockController executeBatch() if/else logic on keepers.
 
-    function test_ZivoeGovernorV2_proposeAndExecuteBatch_logic() public {
+    function test_ZivoeGovernorV2_proposeAndExecuteBatch_nonKeeper() public {
 
-        giveTiaProposalRights();
+        giveTiaProposalRights(3_000_000 ether); // 3mm $ZVE > 2.5mm (QuorumThreshold)
 
         address[] memory targets = new address[](2);
         uint256[] memory values = new uint256[](2);
         bytes[] memory calldatas = new bytes[](2);
+        string memory description = "Move 100 DAI and 100 FRAX to OCG_ERC20Locker";
 
         // "tia" creates a proposal to move capital twice.
         targets[0] = address(DAO);
@@ -163,11 +196,33 @@ contract Test_ZivoeGovernorV2 is Utility {
             address(OCG_ERC20Locker), address(FRAX), 100 ether, ""
         );
 
-        // "tia" creates a proposal to move capital.
-        assert(tia.try_propose(
-            address(GOV), targets, values, calldatas, 
-            "Move 100 DAI and 100 FRAX to OCG_ERC20Locker"
-        ));
+        // "tia" creates a proposal to move capital twice.
+        hevm.startPrank(address(tia));
+        (uint256 proposalId) = GOV.propose(targets, values, calldatas, description);
+        hevm.stopPrank();
+
+        // Increase block number past votingDelay() period.
+        hevm.roll(block.number + GOV.votingDelay() + 1);
+        assertEq(uint(GOV.state(proposalId)), 1);  // "1" = Enum for Proposal.Active
+
+        // castVote().
+        hevm.startPrank(address(tia));
+        (uint256 weight) = GOV.castVote(proposalId, uint8(1)); // 0 = Against, 1 = For, 2 = Abstain
+        hevm.stopPrank();
+
+        // Increase block number past proposalDeadline() period.
+        hevm.roll(block.number + GOV.proposalDeadline(proposalId) + 1);
+        assertEq(uint(GOV.state(proposalId)), 4);  // "4" = Enum for Proposal.Succeeded
+        
+        // Queueing is public, call queue() directly.
+        GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
+
+        // Warp past delay period for execute().
+        hevm.warp(block.timestamp + TLC.getMinDelay() + 1);
+        hevm.roll(block.number + 1);
+
+        // Execution is public, call execute() directly.
+        GOV.execute(targets, values, calldatas, keccak256(bytes(description)));
         
     }
 

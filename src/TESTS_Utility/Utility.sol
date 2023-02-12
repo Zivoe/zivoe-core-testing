@@ -174,9 +174,10 @@ contract Utility is DSTest, Test {
         uint256 post;
     }
 
-    event Debug(string, uint256);
     event Debug(string, address);
+    event Debug(string, bytes);
     event Debug(string, bool);
+    event Debug(string, uint256);
 
     constructor() { hevm = Hevm(address(bytes20(uint160(uint256(keccak256("hevm cheat code")))))); }
 
