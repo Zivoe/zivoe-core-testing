@@ -33,7 +33,7 @@ contract Test_ZivoeGlobals is Utility {
         hevm.stopPrank();
     }
 
-    // For additional testing purposes, validate restrictions on OCG_Defaults locker endpoints.
+    // Validate restrictions on OCG_Defaults locker endpoints.
     
     function test_ZivoeGlobals_decreaseDefaults_restrictions_indirect() public {
         // Create OCG_Defaults locker, with default adjustment capability, add this to whitelist.
@@ -92,11 +92,41 @@ contract Test_ZivoeGlobals is Utility {
 
     }
 
-    // Validate restrictions updateIsKeeper() / updateIsLocker() / updateStablecoinWhitelist().
-    // Validate state changes updateIsKeeper() / updateIsLocker() / updateStablecoinWhitelist().
-    // Note: These functions are managed by Zivoe Lab / Dev entity ("ZVL").
 
-    function test_ZivoeGlobals_restrictions_onlyZVL_updateIsKeeper() public {
+    // Validate restrictions of transferZVL().
+    // This includes:
+    //  - _msgSender() MUST be "zvl"
+
+    function test_ZivoeGlobals_transferZVL_restrictions() public {
+        
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeGlobals::onlyZVL() _msgSender() != ZVL");
+        GBL.transferZVL(address(this));
+        hevm.stopPrank();
+    }
+
+    // Validate state changes of transferZVL().
+
+    function test_ZivoeGlobals_transferZVL_state(address random) public {
+        
+        if (random == address(zvl)) { random = address(0); }
+        
+        // Pre-state.
+        assertEq(GBL.ZVL(), address(zvl));
+
+        // transferZVL()
+        assert(zvl.try_transferZVL(address(GBL), random));
+
+        // Post-state.
+        assertEq(GBL.ZVL(), random);
+    }
+    
+    // Validate restrictions updateIsKeeper() / updateIsLocker() / updateStablecoinWhitelist().
+    // This includes:
+    //  - _msgSender() MUST be "zvl"
+    
+
+    function test_ZivoeGlobals_updateIsKeeper_restrictions_onlyZVL() public {
         
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeGlobals::onlyZVL() _msgSender() != ZVL");
@@ -104,7 +134,7 @@ contract Test_ZivoeGlobals is Utility {
         hevm.stopPrank();
     }
 
-    function test_ZivoeGlobals_restrictions_onlyZVL_updateIsLocker() public {
+    function test_ZivoeGlobals_updateIsLocker_restrictions_onlyZVL() public {
 
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeGlobals::onlyZVL() _msgSender() != ZVL");
@@ -112,15 +142,16 @@ contract Test_ZivoeGlobals is Utility {
         hevm.stopPrank();
     }
 
-    function test_ZivoeGlobals_restrictions_onlyZVL_updateStablecoinWhitelist() public {
+    function test_ZivoeGlobals_updateStablecoinWhitelist_restrictions_onlyZVL() public {
 
-        assert(!bob.try_updateStablecoinWhitelist(address(GBL), address(3), true));
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeGlobals::onlyZVL() _msgSender() != ZVL");
         GBL.updateStablecoinWhitelist(address(1), true);
         hevm.stopPrank();
     }
 
+    // Validate state changes updateIsKeeper() / updateIsLocker() / updateStablecoinWhitelist().
+    
     function test_ZivoeGlobals_onlyZVL_state(address entity) public {
         
         // updateIsKeeper() false => true.
@@ -128,25 +159,25 @@ contract Test_ZivoeGlobals is Utility {
         assert(zvl.try_updateIsKeeper(address(GBL), address(entity), true));
         assert(GBL.isKeeper(entity));
 
-        // updateIsLocker() false => true.
-        assert(!GBL.isLocker(entity));
-        assert(zvl.try_updateIsLocker(address(GBL), address(entity), true));
-        assert(GBL.isLocker(entity));
-
-        // updateStablecoinWhitelist() false => true.
-        assert(!GBL.stablecoinWhitelist(entity));
-        assert(zvl.try_updateStablecoinWhitelist(address(GBL), address(entity), true));
-        assert(GBL.stablecoinWhitelist(entity));
-
         // updateIsKeeper() true => false.
         assert(GBL.isKeeper(entity));
         assert(zvl.try_updateIsKeeper(address(GBL), address(entity), false));
         assert(!GBL.isKeeper(entity));
 
+        // updateIsLocker() false => true.
+        assert(!GBL.isLocker(entity));
+        assert(zvl.try_updateIsLocker(address(GBL), address(entity), true));
+        assert(GBL.isLocker(entity));
+
         // updateIsLocker() true => false.
         assert(GBL.isLocker(entity));
         assert(zvl.try_updateIsLocker(address(GBL), address(entity), false));
         assert(!GBL.isLocker(entity));
+
+        // updateStablecoinWhitelist() false => true.
+        assert(!GBL.stablecoinWhitelist(entity));
+        assert(zvl.try_updateStablecoinWhitelist(address(GBL), address(entity), true));
+        assert(GBL.stablecoinWhitelist(entity));
 
         // updateStablecoinWhitelist() true => false.
         assert(GBL.stablecoinWhitelist(entity));
@@ -155,15 +186,20 @@ contract Test_ZivoeGlobals is Utility {
 
     }
 
-    
-    // TODO: Experiment various values for two following functions.
+    // Validate various values for standardize() view function.
 
-    function test_ZivoeGlobals_standardize_view() public {
-        
-    }
+    function test_ZivoeGlobals_standardize_view(uint96 amount) public {
 
-    function test_ZivoeGlobals_adjustedSupplies_view() public {
-        
+        uint256 conversionAmount = uint256(amount);
+
+        // USDC 6 Decimals -> 18 Decimals
+        // USDT 6 Decimals -> 18 Decimals
+        (uint256 standardizedAmountUSDC) = GBL.standardize(conversionAmount, USDC);
+        (uint256 standardizedAmountUSDT) = GBL.standardize(conversionAmount, USDT);
+
+        assertEq(standardizedAmountUSDC, conversionAmount * 10**12);
+        assertEq(standardizedAmountUSDT, conversionAmount * 10**12);
+
     }
     
 }

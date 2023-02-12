@@ -43,6 +43,11 @@ contract Admin {
         (ok,) = address(exit).call(abi.encodeWithSignature(sig));
     }
 
+    function try_transferZVL(address GBL, address _ZVL) external returns (bool ok) {
+        string memory sig = "transferZVL(address)";
+        (ok,) = address(GBL).call(abi.encodeWithSignature(sig, _ZVL));
+    }
+
     function try_mint(address token, address account, uint256 amount) external returns (bool ok) {
         string memory sig = "mint(address,uint256)";
         (ok,) = address(token).call(abi.encodeWithSignature(sig, account, amount));
