@@ -3,8 +3,12 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
+import "../../lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
+
 contract Test_ZivoeTranches is Utility {
     
+    using FloorMath for uint256;
+
     function setUp() public {
 
         deployCore(false);
@@ -114,13 +118,15 @@ contract Test_ZivoeTranches is Utility {
 
         assert(sam.try_approveToken(address(DAI), address(ZVT), 10_000_000_000 ether));
         assert(sam.try_depositSenior(address(ZVT), 10_000_000_000 ether, address(DAI)));
-
+        
         // Calculate maximum amount depositable in junior tranche.
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
-        
-        uint256 maximumAmount = (seniorSupp * GBL.maxTrancheRatioBIPS() / BIPS - juniorSupp) / 3;
 
-        uint256 maximumAmount_18 = uint256(random) % maximumAmount;
+        uint256 maximumAmount = (seniorSupp * ZVT.maxTrancheRatioBIPS() / BIPS).zSub(juniorSupp);
+
+        if (maximumAmount == 0) { return; } // Can't deposit anything in given state.
+
+        uint256 maximumAmount_18 = uint256(random) % maximumAmount / 3; // Dividing by three to support three deposits.
         uint256 maximumAmount_6 = maximumAmount_18 /= 10**12;
 
         // Mint amounts for depositJunior() calls.
@@ -239,4 +245,159 @@ contract Test_ZivoeTranches is Utility {
             assertEq(IERC20(address(zSTT)).balanceOf(address(sam)), _preSTT + GBL.standardize(amount_6, USDT));
         }
     } 
+
+    // Validate restrictions on update functions (governance controlled).
+    // Validate state changes on update functions (governance controlled).
+    // This includes following functions:
+    //  - updateMaxTrancheRatio()
+    //  - updateMinZVEPerJTTMint()
+    //  - updateMaxZVEPerJTTMint()
+    //  - updateLowerRatioIncentive()
+    //  - updateUpperRatioIncentives()
+
+    function test_ZivoeTranches_restrictions_governance_owner_updateMaxTrancheRatio() public {
+        // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        ZVT.updateMaxTrancheRatio(3000);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_owner_updateMinZVEPerJTTMint() public {
+        // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        ZVT.updateMinZVEPerJTTMint(0.001 * 10**18);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_owner_updateMaxZVEPerJTTMint() public {
+        // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        ZVT.updateMaxZVEPerJTTMint(0.022 * 10**18);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_owner_updateLowerRatioIncentive() public {
+        // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        ZVT.updateLowerRatioIncentive(2000);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_owner_updateUpperRatioIncentives() public {
+        // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        ZVT.updateUpperRatioIncentives(2250);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_greaterThan_updateMaxTrancheRatio() public {
+        assert(god.try_updateMaxTrancheRatio(address(ZVT), 3500));
+        // Can't updateMaxTrancheRatio() greater than 3500.
+        hevm.startPrank(address(god));
+        hevm.expectRevert("ZivoeTranches::updateMaxTrancheRatio() ratio > 3500");
+        ZVT.updateMaxTrancheRatio(3501);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_greaterThan_updateUpperRatioIncentives() public {
+        assert(god.try_updateUpperRatioIncentives(address(ZVT), 2499));
+        assert(god.try_updateUpperRatioIncentives(address(ZVT), 2500));
+        // Can't updateUpperRatioIncentives() > 2500.
+        hevm.startPrank(address(god));
+        hevm.expectRevert("ZivoeTranches::updateUpperRatioIncentive() upperRatio > 2500");
+        ZVT.updateUpperRatioIncentives(2501);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_greaterThan_updateMinZVEPerJTTMint() public {
+        // Can't updateMinZVEPerJTTMint() greater than or equal to maxZVEPerJTTMint.
+        // Note: Call updateMaxZVEPerJTTMint() here to enable increasing min, given max = 0 initially.
+        assert(god.try_updateMaxZVEPerJTTMint(address(ZVT), 0.005 * 10**18));
+        // Two following calls should succeed as amount is less than MaxZVEPerJTTMint.
+        assert(god.try_updateMinZVEPerJTTMint(address(ZVT), 0.004 * 10**18));
+        assert(god.try_updateMinZVEPerJTTMint(address(ZVT), 0.00499 * 10**18));
+
+        hevm.startPrank(address(god));
+        hevm.expectRevert("ZivoeTranches::updateMinZVEPerJTTMint() min >= maxZVEPerJTTMint");
+        ZVT.updateMinZVEPerJTTMint(0.005 * 10**18);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_greaterThan_updateMaxZVEPerJTTMint() public {
+        assert(god.try_updateMaxZVEPerJTTMint(address(ZVT), 0.1 * 10**18 - 1));
+        // Can't updateMaxZVEPerJTTMint() greater than 0.1 * 10 **18.
+        hevm.startPrank(address(god));
+        hevm.expectRevert("ZivoeTranches::updateMaxZVEPerJTTMint() max >= 0.1 * 10**18");
+        ZVT.updateMaxZVEPerJTTMint(0.1 * 10**18);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_lessThan_updateLowerRatioIncentive() public {
+        assert(god.try_updateLowerRatioIncentive(address(ZVT), 1001));
+        assert(god.try_updateLowerRatioIncentive(address(ZVT), 1000));
+        // Can't updateLowerRatioIncentive() < 1000.
+        hevm.startPrank(address(god));
+        hevm.expectRevert("ZivoeTranches::updateLowerRatioIncentive() lowerRatio < 1000");
+        ZVT.updateLowerRatioIncentive(999);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_restrictions_governance_greaterThan_updateLowerRatioIncentive() public {
+        assert(god.try_updateLowerRatioIncentive(address(ZVT), 1999));
+        // Can't updateLowerRatioIncentive() > upperRatioIncentive (initially 2000).
+        hevm.startPrank(address(god));
+        hevm.expectRevert("ZivoeTranches::updateLowerRatioIncentive() lowerRatio >= upperRatioIncentive");
+        ZVT.updateLowerRatioIncentive(2000);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_governance_state(
+        uint256 maxTrancheRatioIn,
+        uint256 minZVEPerJTTMintIn,
+        uint256 maxZVEPerJTTMintIn,
+        uint256 lowerRatioIncentiveIn,
+        uint256 upperRatioIncentiveIn
+    ) public {
+        
+        uint256 maxTrancheRatio = maxTrancheRatioIn % 3500;
+        uint256 minZVEPerJTTMint = minZVEPerJTTMintIn % (0.01 * 10**18);
+        uint256 maxZVEPerJTTMint = maxZVEPerJTTMintIn % (0.01 * 10**18) + 1;
+
+        if (minZVEPerJTTMint >= maxZVEPerJTTMint) {
+            minZVEPerJTTMint = maxZVEPerJTTMint - 1;
+        }
+
+        uint256 lowerRatioIncentive = lowerRatioIncentiveIn % 1500 + 1000;
+        uint256 upperRatioIncentive = upperRatioIncentiveIn % 1499 + 1001;
+
+        if (lowerRatioIncentive >= upperRatioIncentive) {
+            lowerRatioIncentive = upperRatioIncentive - 1;
+        }
+
+        // Pre-state.
+        assertEq(ZVT.maxTrancheRatioBIPS(), 2000);
+        assertEq(ZVT.minZVEPerJTTMint(), 0);
+        assertEq(ZVT.maxZVEPerJTTMint(), 0);
+        assertEq(ZVT.lowerRatioIncentive(), 1000);
+        assertEq(ZVT.upperRatioIncentive(), 2000);
+
+        assert(god.try_updateMaxTrancheRatio(address(ZVT), maxTrancheRatio));
+        assert(god.try_updateMaxZVEPerJTTMint(address(ZVT), maxZVEPerJTTMint));
+        assert(god.try_updateMinZVEPerJTTMint(address(ZVT), minZVEPerJTTMint));
+        assert(god.try_updateUpperRatioIncentives(address(ZVT), upperRatioIncentive));
+        assert(god.try_updateLowerRatioIncentive(address(ZVT), lowerRatioIncentive));
+
+        // Post-state.
+        assertEq(ZVT.maxTrancheRatioBIPS(), maxTrancheRatio);
+        assertEq(ZVT.maxZVEPerJTTMint(), maxZVEPerJTTMint);
+        assertEq(ZVT.minZVEPerJTTMint(), minZVEPerJTTMint);
+        assertEq(ZVT.lowerRatioIncentive(), lowerRatioIncentive);
+        assertEq(ZVT.upperRatioIncentive(), upperRatioIncentive);
+
+    }
 }

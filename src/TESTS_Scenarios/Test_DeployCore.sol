@@ -41,18 +41,11 @@ contract Test_DeployCore_Modular is Utility {
 
     function test_DeployCore_ZivoeGlobals() public {
 
-        address _TLC = live ? IZivoeGlobals(_GBL).TLC() : address(god);
-
         // Ownership.
-        assertEq(IZivoeDAO(_GBL).owner(), _TLC);
+        assertEq(IZivoeDAO(_GBL).owner(), address(0));
 
         // State variables.
-        assertEq(IZivoeGlobals(_GBL).maxTrancheRatioBIPS(), 2000);
-        assertEq(IZivoeGlobals(_GBL).minZVEPerJTTMint(),    0);
-        assertEq(IZivoeGlobals(_GBL).maxZVEPerJTTMint(),    0);
-        assertEq(IZivoeGlobals(_GBL).lowerRatioIncentive(), 1000);
-        assertEq(IZivoeGlobals(_GBL).upperRatioIncentive(), 2000);
-        assertEq(IZivoeGlobals(_GBL).defaults(),            0);
+        assertEq(IZivoeGlobals(_GBL).defaults(), 0);
         
         assert(IZivoeGlobals(_GBL).stablecoinWhitelist(DAI));
         assert(IZivoeGlobals(_GBL).stablecoinWhitelist(USDC));
@@ -296,6 +289,11 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(IZivoeTranches(_ZVT).GBL(), _GBL);
+        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 2000);
+        assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(),    0);
+        assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(),    0);
+        assertEq(IZivoeTranches(_ZVT).lowerRatioIncentive(), 1000);
+        assertEq(IZivoeTranches(_ZVT).upperRatioIncentive(), 2000);
 
         assert(!IZivoeTranches(_ZVT).tranchesUnlocked());
         assert(IZivoeTranches(_ZVT).canPush());
