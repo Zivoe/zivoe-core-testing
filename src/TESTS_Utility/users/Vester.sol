@@ -23,6 +23,22 @@ contract Vester {
         (ok,) = address(mrv).call(abi.encodeWithSignature(sig));
     }
 
+    function try_propose(
+        address GOV, 
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) external returns (bool ok) {
+        string memory sig = "propose(address[],uint256[],bytes[],string)";
+        (ok,) = address(GOV).call(abi.encodeWithSignature(sig, targets, values, calldatas, description));
+    }
+
+    function try_propose(address mrv) external returns (bool ok) {
+        string memory sig = "withdraw()";
+        (ok,) = address(mrv).call(abi.encodeWithSignature(sig));
+    }
+
     function try_getRewards(address mrv) external returns (bool ok) {
         string memory sig = "getRewards()";
         (ok,) = address(mrv).call(abi.encodeWithSignature(sig));
