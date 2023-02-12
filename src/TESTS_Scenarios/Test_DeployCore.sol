@@ -274,7 +274,6 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeToken(_ZVE).name(), "Zivoe");
         assertEq(IZivoeToken(_ZVE).symbol(), "ZVE");
         assertEq(IZivoeToken(_ZVE).decimals(), 18);
-        assertEq(IZivoeToken(_ZVE).GBL(), _GBL);
         assertEq(IZivoeToken(_ZVE).totalSupply(), 25000000 ether);   // 25mm total supply
 
     }

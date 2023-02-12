@@ -7,6 +7,11 @@ contract Vester {
     /*********************/
     /*** TRY FUNCTIONS ***/
     /*********************/
+    
+    function try_delegate(address zve, address delegatee) external returns (bool ok) {
+        string memory sig = "delegate(address)";
+        (ok,) = address(zve).call(abi.encodeWithSignature(sig, delegatee));
+    }
 
     function try_fullWithdraw(address mrv) external returns (bool ok) {
         string memory sig = "fullWithdraw()";
@@ -27,6 +32,11 @@ contract Vester {
         string memory sig = "getRewardAt(uint256)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, ind));
     }
+
+    function try_approveToken(address token, address to, uint256 amount) external returns (bool ok) {
+        string memory sig = "approve(address,uint256)";
+        (ok,) = address(token).call(abi.encodeWithSignature(sig, to, amount));
+    }    
 
     function try_stake(address stk, uint256 amount) external returns (bool ok) {
         string memory sig = "stake(uint256)";
