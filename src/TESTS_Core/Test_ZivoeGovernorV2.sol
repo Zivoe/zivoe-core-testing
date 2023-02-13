@@ -114,9 +114,9 @@ contract Test_ZivoeGovernorV2 is Utility {
     
     }
 
-    // Validate TimelockController execute() if/else logic on keepers.
+    // Validate TimelockController executeBatch() if/else logic on keepers.
 
-    function test_ZivoeGovernorV2_proposeAndExecute_nonKeeper() public {
+    function test_ZivoeGovernorV2_proposeAndExecute_nonKeeper_1() public {
 
         giveTiaProposalRights(3_000_000 ether); // 3mm $ZVE > 2.5mm (QuorumThreshold)
 
@@ -163,17 +163,24 @@ contract Test_ZivoeGovernorV2 is Utility {
         GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
 
         // Warp past delay period for execute().
-        hevm.warp(block.timestamp + TLC.getMinDelay() + 1);
+        hevm.warp(block.timestamp + TLC.getMinDelay() - 1);
         hevm.roll(block.number + 1);
 
-        // Execution is public, call execute() directly.
-        GOV.execute(targets, values, calldatas, keccak256(bytes(description)));
+        // Assert "tia" can't call executeBatch() as non-keeper.
+        assert(!tia.try_executeBatch(address(TLC), targets[0], values[0], calldatas[0], 0, keccak256(bytes(description))));
+
+        // Add keeper to whitelist
+        assert(zvl.try_updateIsKeeper(address(GBL), address(tia), true));
+
+        // Assert "tia" can call executeBatch() as keeper.
+        assert(tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
+        
 
     }
 
     // Validate TimelockController executeBatch() if/else logic on keepers.
 
-    function test_ZivoeGovernorV2_proposeAndExecuteBatch_nonKeeper() public {
+    function test_ZivoeGovernorV2_proposeAndExecuteBatch_nonKeeper_2() public {
 
         giveTiaProposalRights(3_000_000 ether); // 3mm $ZVE > 2.5mm (QuorumThreshold)
 
@@ -217,12 +224,18 @@ contract Test_ZivoeGovernorV2 is Utility {
         // Queueing is public, call queue() directly.
         GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
 
-        // Warp past delay period for execute().
-        hevm.warp(block.timestamp + TLC.getMinDelay() + 1);
+        // Warp past delay period for execute(), right before non-keeper's can call.
+        hevm.warp(block.timestamp + TLC.getMinDelay() - 1);
         hevm.roll(block.number + 1);
 
-        // Execution is public, call execute() directly.
-        GOV.execute(targets, values, calldatas, keccak256(bytes(description)));
+        // Assert "tia" can't call executeBatch() as non-keeper.
+        assert(!tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
+
+        // Add keeper to whitelist
+        assert(zvl.try_updateIsKeeper(address(GBL), address(tia), true));
+
+        // Assert "tia" can call executeBatch() as keeper.
+        assert(tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
         
     }
 

@@ -34,9 +34,28 @@ contract Vester {
         (ok, data) = address(GOV).call(abi.encodeWithSignature(sig, targets, values, calldatas, description));
     }
 
-    function try_propose(address mrv) external returns (bool ok) {
-        string memory sig = "withdraw()";
-        (ok,) = address(mrv).call(abi.encodeWithSignature(sig));
+    function try_execute(
+        address TLC, 
+        address target,
+        uint256 value,
+        bytes calldata payload,
+        bytes32 predecessor,
+        bytes32 salt
+    ) external returns (bool ok) {
+        string memory sig = "execute(address,uint256,bytes,bytes32,bytes32)";
+        (ok, ) = address(TLC).call(abi.encodeWithSignature(sig, target, value, payload, predecessor, salt));
+    }
+
+    function try_executeBatch(
+        address TLC, 
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory payloads,
+        bytes32 predecessor,
+        bytes32 salt
+    ) external returns (bool ok) {
+        string memory sig = "executeBatch(address[],uint256[],bytes[],bytes32,bytes32)";
+        (ok, ) = address(TLC).call(abi.encodeWithSignature(sig, targets, values, payloads, predecessor, salt));
     }
 
     function try_getRewards(address mrv) external returns (bool ok) {
