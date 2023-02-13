@@ -34,6 +34,7 @@ import "../../lib/forge-std/src/Test.sol";
 
 // Interface imports.
 interface Hevm {
+    function roll(uint256) external;
     function warp(uint256) external;
     function store(address,bytes32,bytes32) external;
     function expectRevert(bytes calldata) external;
@@ -173,9 +174,10 @@ contract Utility is DSTest, Test {
         uint256 post;
     }
 
-    event Debug(string, uint256);
     event Debug(string, address);
+    event Debug(string, bytes);
     event Debug(string, bool);
+    event Debug(string, uint256);
 
     constructor() { hevm = Hevm(address(bytes20(uint160(uint256(keccak256("hevm cheat code")))))); }
 
@@ -572,13 +574,8 @@ contract Utility is DSTest, Test {
         ZVE = new ZivoeToken(
             "Zivoe",
             "ZVE",
-            address(jay),       // Note: "jay" receives all $ZVE tokens initially.
-            address(GBL)
+            address(jay)       // Note: "jay" receives all $ZVE tokens initially.
         );
-
-        // "jay" SHOULD delegate all tokens to himself initially so all future owners have delegation natively in perpetuity.
-        jay.try_delegate(address(ZVE), address(jay));
-
 
         // Step #3 --- Deploy governance contracts, ZivoeTLC.sol and ZivoeGovernorV2.sol.
 

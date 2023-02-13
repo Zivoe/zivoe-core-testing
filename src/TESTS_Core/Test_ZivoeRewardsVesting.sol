@@ -240,8 +240,6 @@ contract Test_ZivoeRewardsVesting is Utility {
     //  - Must be enough $ZVE present to vest out.
     //  - Cliff timeline must be appropriate (daysToCliff <= daysToVest).
 
-    event LogU(uint);
-
     function test_ZivoeRewardsVesting_vest_restrictions_maxVest() public {
 
         uint256 zveBalanceOverflow = ZVE.balanceOf(address(vestZVE)) + 1;
