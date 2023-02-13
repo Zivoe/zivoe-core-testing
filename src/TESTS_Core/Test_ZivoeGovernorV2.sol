@@ -116,7 +116,7 @@ contract Test_ZivoeGovernorV2 is Utility {
 
     // Validate TimelockController executeBatch() if/else logic on keepers.
 
-    function test_ZivoeGovernorV2_proposeAndExecute_nonKeeper_1() public {
+    function test_ZivoeGovernorV2_proposeAndExecuteBatch_nonKeeper_1() public {
 
         giveTiaProposalRights(3_000_000 ether); // 3mm $ZVE > 2.5mm (QuorumThreshold)
 
@@ -163,14 +163,20 @@ contract Test_ZivoeGovernorV2 is Utility {
         GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
 
         // Warp past delay period for execute().
-        hevm.warp(block.timestamp + TLC.getMinDelay() - 1);
+        hevm.warp(block.timestamp + TLC.getMinDelay() - 6 hours - 1);
         hevm.roll(block.number + 1);
 
         // Assert "tia" can't call executeBatch() as non-keeper.
-        assert(!tia.try_executeBatch(address(TLC), targets[0], values[0], calldatas[0], 0, keccak256(bytes(description))));
+        assert(!tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
 
         // Add keeper to whitelist
         assert(zvl.try_updateIsKeeper(address(GBL), address(tia), true));
+
+        // Assert "tia" can't call executeBatch() as keeper more than 6 hours in advance.
+        assert(!tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
+
+        // Tick past 6 hour threshold.
+        hevm.warp(block.timestamp + 1);
 
         // Assert "tia" can call executeBatch() as keeper.
         assert(tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
@@ -225,7 +231,7 @@ contract Test_ZivoeGovernorV2 is Utility {
         GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
 
         // Warp past delay period for execute(), right before non-keeper's can call.
-        hevm.warp(block.timestamp + TLC.getMinDelay() - 1);
+        hevm.warp(block.timestamp + TLC.getMinDelay() - 6 hours - 1);
         hevm.roll(block.number + 1);
 
         // Assert "tia" can't call executeBatch() as non-keeper.
@@ -233,6 +239,12 @@ contract Test_ZivoeGovernorV2 is Utility {
 
         // Add keeper to whitelist
         assert(zvl.try_updateIsKeeper(address(GBL), address(tia), true));
+
+        // Assert "tia" can't call executeBatch() as keeper more than 6 hours in advance.
+        assert(!tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
+
+        // Tick past 6 hour threshold.
+        hevm.warp(block.timestamp + 1);
 
         // Assert "tia" can call executeBatch() as keeper.
         assert(tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
