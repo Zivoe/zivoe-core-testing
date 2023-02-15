@@ -440,7 +440,7 @@ contract Test_ZivoeITO is Utility {
         // Can't call claim() until block.timestamp > end.
         hevm.startPrank(address(sam));
         hevm.expectRevert("ZivoeITO::claim() block.timestamp <= end && !migrated");
-        ITO.claim();
+        ITO.claim(address(sam));
         hevm.stopPrank();
     }
 
@@ -461,10 +461,10 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() + 1);
 
         // "sam" will claim once (successful) but cannot claim again.
-        assert(sam.try_claim(address(ITO)));
+        assert(sam.try_claim(address(ITO), address(sam)));
         hevm.startPrank(address(sam));
         hevm.expectRevert("ZivoeITO::claim() airdropClaimeded[caller]");
-        ITO.claim();
+        ITO.claim(address(sam));
         hevm.stopPrank();
     }
 
@@ -475,7 +475,7 @@ contract Test_ZivoeITO is Utility {
         // Can't call claim() if seniorCredits == 0 && juniorCredits == 0.
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeITO::claim() seniorCredits[caller] == 0 && juniorCredits[caller] == 0");
-        ITO.claim();
+        ITO.claim(address(bob));
         hevm.stopPrank();
     }
 

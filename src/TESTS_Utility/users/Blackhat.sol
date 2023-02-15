@@ -93,9 +93,9 @@ contract Blackhat {
         (ok,) = address(ito).call(abi.encodeWithSignature(sig, amount, asset));
     }
 
-    function try_claim(address ito) external returns (bool ok) {
-        string memory sig = "claim()";
-        (ok,) = address(ito).call(abi.encodeWithSignature(sig));
+    function try_claim(address ito, address depositor) external returns (bool ok) {
+        string memory sig = "claim(address)";
+        (ok,) = address(ito).call(abi.encodeWithSignature(sig, depositor));
     }
 
     function try_migrateDeposits(address ito) external returns (bool ok) {
