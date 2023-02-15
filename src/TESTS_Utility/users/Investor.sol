@@ -20,7 +20,7 @@ contract Investor {
         IERC20(token).transfer(to, amount);
     }
 
-    function claimAidrop(address ito, address depositor) external returns (uint256, uint256, uint256) {
+    function claimAirdrop(address ito, address depositor) external returns (uint256, uint256, uint256) {
         return IZivoeITO(ito).claim(depositor);
     }
 
@@ -50,11 +50,6 @@ contract Investor {
     function try_supplementYield(address ydl, uint256 amount) external returns (bool ok){
         string memory sig = "supplementYield(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, amount));
-    }
-
-    function try_claim(address ito, address depositor) external returns (bool ok) {
-        string memory sig = "claim(address)";
-        (ok,) = address(ito).call(abi.encodeWithSignature(sig, depositor));
     }
     
     function try_burnSenior(address token, uint256 amount, address asset) external returns (bool ok) {
