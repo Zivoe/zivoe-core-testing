@@ -440,7 +440,7 @@ contract Test_ZivoeITO is Utility {
         // Can't call claim() until block.timestamp > end.
         hevm.startPrank(address(sam));
         hevm.expectRevert("ZivoeITO::claim() block.timestamp <= end && !migrated");
-        ITO.claim();
+        ITO.claim(address(sam));
         hevm.stopPrank();
     }
 
@@ -461,10 +461,10 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() + 1);
 
         // "sam" will claim once (successful) but cannot claim again.
-        assert(sam.try_claim(address(ITO)));
+        assert(sam.try_claim(address(ITO), address(sam)));
         hevm.startPrank(address(sam));
-        hevm.expectRevert("ZivoeITO::claim() airdropClaimeded[caller]");
-        ITO.claim();
+        hevm.expectRevert("ZivoeITO::claim() airdropClaimeded[depositor]");
+        ITO.claim(address(sam));
         hevm.stopPrank();
     }
 
@@ -474,8 +474,8 @@ contract Test_ZivoeITO is Utility {
 
         // Can't call claim() if seniorCredits == 0 && juniorCredits == 0.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::claim() seniorCredits[caller] == 0 && juniorCredits[caller] == 0");
-        ITO.claim();
+        hevm.expectRevert("ZivoeITO::claim() seniorCredits[depositor] == 0 && juniorCredits[depositor] == 0");
+        ITO.claim(address(bob));
         hevm.stopPrank();
     }
 
@@ -497,7 +497,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
         {
@@ -534,7 +534,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
         {
@@ -571,7 +571,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
         {
@@ -611,7 +611,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
         {
@@ -651,7 +651,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT_ITO = zJTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior).
         {
@@ -687,7 +687,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT_ITO = zJTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior).
         {
@@ -723,7 +723,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT_ITO = zJTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior).
         {
@@ -762,7 +762,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT_ITO = zJTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior).
         {
@@ -804,7 +804,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior + senior).
 
@@ -854,7 +854,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior + senior).
 
@@ -904,7 +904,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) =jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior + senior).
 
@@ -954,7 +954,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
         // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
         
-        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+        (uint256 _zSTT_Claimed_JIM, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
         // Post-state claim (junior + senior).
 
@@ -1014,7 +1014,7 @@ contract Test_ZivoeITO is Utility {
             uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
             // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
             
-            (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAidrop(address(ITO));
+            (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
             // #1 Senior Deposit Check: SeniorCredits + zSTT
             {    
@@ -1065,7 +1065,7 @@ contract Test_ZivoeITO is Utility {
             uint256 _pre_zJTT_ITO = zJTT.balanceOf(address(ITO));
             // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
             
-            (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAidrop(address(ITO));
+            (, uint256 _zJTT_Claimed_JIM, uint256 _ZVE_Claimed_JIM) = jim.claimAirdrop(address(ITO), address(jim));
 
             // #1 Junior Deposit Check: JuniorCredits + zJTT
             {    
