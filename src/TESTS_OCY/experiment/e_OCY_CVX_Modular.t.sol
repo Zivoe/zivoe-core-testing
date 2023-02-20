@@ -41,7 +41,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         return assets;
     }
 
-    function investInLockerPP_FRAX_USDC() public returns(address[] memory _assets) {
+    function investInLockerPP_FRAX_USDC() public returns (address[] memory _assets) {
 
         address[] memory assets = new address[](2);
         uint256[] memory amounts = new uint256[](2);
