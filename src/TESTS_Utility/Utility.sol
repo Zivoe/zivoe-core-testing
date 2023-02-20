@@ -41,6 +41,7 @@ interface Hevm {
     function prank(address) external;
     function startPrank(address) external;
     function stopPrank() external;
+    function expectEmit(bool, bool, bool, bool, address) external;
 }
 
 interface User {
