@@ -259,9 +259,9 @@ contract Test_ZivoeDAO is Utility {
         launchERC1155();
     }
 
-    // ----------------
+    // ------------
     //    Events
-    // ----------------
+    // ------------
 
     event Pushed(address indexed locker, address indexed asset, uint256 amount, bytes data);
 

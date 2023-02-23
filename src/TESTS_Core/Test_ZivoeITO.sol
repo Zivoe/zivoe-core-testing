@@ -86,9 +86,21 @@ contract Test_ZivoeITO is Utility {
 
     }
 
-    // ---------------
-    //    Unit Tets
-    // ---------------
+    // ------------
+    //    Events
+    // ------------
+
+    event JuniorDeposit(address indexed account, address indexed asset, uint256 amount, uint256 credits, uint256 trancheTokens);
+
+    event SeniorDeposit(address indexed account, address indexed asset, uint256 amount, uint256 credits, uint256 trancheTokens);
+
+    event AirdropClaimed(address indexed account, uint256 zSTTClaimed, uint256 zJTTClaimed, uint256 ZVEClaimed);
+
+    event DepositsMigrated(uint256 DAI, uint256 FRAX, uint256 USDC, uint256 USDT);
+
+    // ----------------
+    //    Unit Tests
+    // ----------------
 
     // Ensure ZivoeITO.sol constructor() does not permit _start >= _end (input params).
 
@@ -261,7 +273,10 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
-        depositJunior(DAI, amountIn);
+        // depostJunior()
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit JuniorDeposit(address(jim), address(DAI), amount, amount, amount);
+        depositJunior(DAI, amount);
 
         // Post-state DAI deposit.
         uint256 _post_JuniorCredits = ITO.juniorCredits(address(jim));
