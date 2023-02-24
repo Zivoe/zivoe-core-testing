@@ -1290,7 +1290,7 @@ contract Test_ZivoeDAO is Utility {
         assertEq(ZivoeNFT.getApproved(3), address(0));
         assert(!ZivoeNFT.isApprovedForAll(address(OCG_ERC721Locker), address(DAO)));
 
-        // pushERC721().
+        // pushMultiERC721().
         for (uint256 i = 0; i < assets.length; i++) {
             hevm.expectEmit(true, true, true, true, address(DAO));
             emit PushedERC721(address(OCG_ERC721Locker), assets[i], tokenIds[i], data[i]);

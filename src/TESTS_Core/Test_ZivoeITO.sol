@@ -273,7 +273,7 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
-        // depostJunior()
+        // depositJunior()
         hevm.expectEmit(true, true, false, true, address(ITO));
         emit JuniorDeposit(address(jim), address(DAI), amount, amount, amount);
         depositJunior(DAI, amount);
