@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.16;
 
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
-
 import "../TESTS_Utility/Utility.sol";
 
-contract Test_ZivoeGovernorV2 is Utility {
+contract Test_ZivoeToken is Utility {
 
     ZivoeToken tZVE;
 
@@ -16,9 +14,9 @@ contract Test_ZivoeGovernorV2 is Utility {
 
     }
 
-    function test_ZivoeToken_burn_state(uint96 random) {
+    function test_ZivoeToken_burn_state(uint96 random) public {
 
-        uint256 amt = uint96 % 25_000_000; // Burn arbitrary amount of existing tokens (total 25mm).
+        uint256 amt = uint256(random) % 25_000_000; // Burn arbitrary amount of existing tokens (total 25mm).
 
         // Pre-state.
         assertEq(tZVE.totalSupply(), 25_000_000 ether);
