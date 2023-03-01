@@ -9,6 +9,14 @@ contract Test_ZivoeGlobals is Utility {
 
     OCG_Defaults GenericDefaultsLocker;
 
+    function setUp() public {
+        deployCore(false);
+    }
+
+    // ----------------------
+    //    Helper Functions
+    // ----------------------
+
     function updatedDefaults(
         uint256 increaseBy,
         uint256 decreaseBy
@@ -22,10 +30,6 @@ contract Test_ZivoeGlobals is Utility {
         else {
             updated = increaseBy - decreaseBy;
         }
-    }
-
-    function setUp() public {
-        deployCore(false);
     }
 
     // ------------
