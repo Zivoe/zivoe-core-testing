@@ -5,11 +5,6 @@ import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
 
-interface IZivoeRewards_Earned {
-    function earned(address account, address rewardsToken) external returns (uint256 amount);
-    function rewardTokens(uint256) external returns (address);
-}
-
 contract Test_ZivoeRewards is Utility {
 
     OCG_ERC20_FreeClaim ZVEClaimer;
