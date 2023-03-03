@@ -22,6 +22,7 @@ contract Test_ZivoeGlobals is Utility {
         uint256 decreaseBy
     ) 
     public
+    view
     returns (uint256 updated)
     {
         if (decreaseBy > increaseBy) {
