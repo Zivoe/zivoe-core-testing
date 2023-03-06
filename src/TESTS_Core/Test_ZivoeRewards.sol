@@ -5,6 +5,7 @@ import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
 
+
 contract Test_ZivoeRewards is Utility {
 
     OCG_ERC20_FreeClaim ZVEClaimer;
@@ -597,7 +598,7 @@ contract Test_ZivoeRewards is Utility {
 
         // getRewards().
         hevm.expectEmit(true, true, false, true, address(stZVE));
-        emit RewardDistributed(address(sam), DAI, IZivoeRewards_Earned(address(stZVE)).earned(address(sam), DAI));
+        emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
         assert(sam.try_getRewards(address(stZVE)));
 
     }
