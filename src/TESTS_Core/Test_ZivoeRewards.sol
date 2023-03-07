@@ -5,6 +5,7 @@ import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
 
+
 contract Test_ZivoeRewards is Utility {
 
     OCG_ERC20_FreeClaim ZVEClaimer;
@@ -36,6 +37,20 @@ contract Test_ZivoeRewards is Utility {
         assert(bob.try_approveToken(DAI, loc, amount));
         assert(bob.try_depositReward(loc, DAI, amount));
     }
+
+    // ------------
+    //    Events
+    // ------------
+
+    event RewardAdded(address indexed reward);
+
+    event RewardDeposited(address indexed reward, uint256 amount, address indexed depositor);
+
+    event Staked(address indexed account, uint256 amount);
+
+    event Withdrawn(address indexed account, uint256 amount);
+
+    event RewardDistributed(address indexed account, address indexed rewardsToken, uint256 reward);
 
     // ----------------
     //    Unit Tests
@@ -117,7 +132,8 @@ contract Test_ZivoeRewards is Utility {
         assertEq(lastUpdateTime, 0);
         assertEq(rewardPerTokenStored, 0);
 
-
+        hevm.expectEmit(true, false, false, false, address(stZVE));
+        emit RewardAdded(WETH);
         assert(zvl.try_addReward(address(stZVE), WETH, duration));
 
         // Post-state.
@@ -161,6 +177,9 @@ contract Test_ZivoeRewards is Utility {
         // depositReward().
         mint("DAI", address(bob), deposit);
         assert(bob.try_approveToken(DAI, address(stZVE), deposit));
+
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit RewardDeposited(DAI, deposit, address(bob));
         assert(bob.try_depositReward(address(stZVE), DAI, deposit));
 
         // Post-state.
@@ -212,6 +231,9 @@ contract Test_ZivoeRewards is Utility {
         // depositReward().
         mint("DAI", address(bob), deposit);
         assert(bob.try_approveToken(DAI, address(stZVE), deposit));
+
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit RewardDeposited(DAI, deposit, address(bob));
         assert(bob.try_depositReward(address(stZVE), DAI, deposit));
 
         // Post-state.
@@ -284,6 +306,9 @@ contract Test_ZivoeRewards is Utility {
         // depositReward().
         mint("DAI", address(bob), deposit);
         assert(bob.try_approveToken(DAI, address(stZVE), deposit));
+
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit RewardDeposited(DAI, deposit, address(bob));
         assert(bob.try_depositReward(address(stZVE), DAI, deposit));
 
         // Post-state.
@@ -356,6 +381,9 @@ contract Test_ZivoeRewards is Utility {
 
         // stake().
         assert(sam.try_approveToken(address(ZVE), address(stZVE), deposit));
+
+        hevm.expectEmit(true, false, false, true, address(stZVE));
+        emit Staked(address(sam), deposit);
         assert(sam.try_stake(address(stZVE), deposit));
 
         // Post-state.
@@ -374,6 +402,9 @@ contract Test_ZivoeRewards is Utility {
         // stake(), 50% chance for sam to pre-stake 50% of his ZVE.
         if (preStake) {
             assert(sam.try_approveToken(address(ZVE), address(stZVE), ZVE.balanceOf(address(sam)) / 2));
+
+            hevm.expectEmit(true, false, false, true, address(stZVE));
+            emit Staked(address(sam), ZVE.balanceOf(address(sam)) / 2);
             assert(sam.try_stake(address(stZVE), ZVE.balanceOf(address(sam)) / 2));
         }
 
@@ -402,6 +433,9 @@ contract Test_ZivoeRewards is Utility {
 
         // stake().
         assert(sam.try_approveToken(address(ZVE), address(stZVE), deposit));
+
+        hevm.expectEmit(true, false, false, true, address(stZVE));
+        emit Staked(address(sam), deposit);
         assert(sam.try_stake(address(stZVE), deposit));
 
         // Post-state.
@@ -455,6 +489,8 @@ contract Test_ZivoeRewards is Utility {
         assertGt(_preBal_ZVE_stZVE, 0);
 
         // withdraw().
+        hevm.expectEmit(true, false, false, true, address(stZVE));
+        emit Withdrawn(address(sam), unstake);
         assert(sam.try_withdraw(address(stZVE), unstake));
 
         // Post-state.
@@ -493,6 +529,11 @@ contract Test_ZivoeRewards is Utility {
         assertGt(IERC20(DAI).balanceOf(address(stZVE)), 0);
         
         // getRewardAt().
+
+        uint256 rewardsEarned = IZivoeRewards(address(stZVE)).earned(address(sam), DAI);
+
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit RewardDistributed(address(sam), DAI, rewardsEarned);
         assert(sam.try_getRewardAt(address(stZVE), 0));
 
         // Post-state.
@@ -527,12 +568,17 @@ contract Test_ZivoeRewards is Utility {
         // depositReward().
         // stakeTokens();
         assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+        uint256 stakedAmount = IERC20(address(ZVE)).balanceOf(address(sam));
         sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam)));
         depositReward_DAI(address(stZVE), deposit);
 
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
 
         // fullWithdraw().
+        hevm.expectEmit(true, false, false, true, address(stZVE));
+        emit Withdrawn(address(sam), stakedAmount);
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
         assert(sam.try_fullWithdraw(address(stZVE)));
 
     }
@@ -551,6 +597,8 @@ contract Test_ZivoeRewards is Utility {
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
 
         // getRewards().
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
         assert(sam.try_getRewards(address(stZVE)));
 
     }

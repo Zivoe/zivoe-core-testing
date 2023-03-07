@@ -13,6 +13,43 @@ contract Test_ZivoeGlobals is Utility {
         deployCore(false);
     }
 
+    // ----------------------
+    //    Helper Functions
+    // ----------------------
+
+    function updatedDefaults(
+        uint256 increaseBy,
+        uint256 decreaseBy
+    ) 
+    public
+    view
+    returns (uint256 updated)
+    {
+        
+        return updated = decreaseBy > increaseBy ? 0: increaseBy - decreaseBy;
+
+    }
+
+    // ------------
+    //    Events
+    // ------------
+
+    event AccessControlSetZVL(address indexed controller);
+
+    event DefaultsDecreased(address indexed locker, uint256 amount, uint256 updatedDefaults);
+
+    event DefaultsIncreased(address indexed locker, uint256 amount, uint256 updatedDefaults);
+
+    event UpdatedKeeperStatus(address indexed account, bool status);
+
+    event UpdatedLockerStatus(address indexed locker, bool allowed);
+
+    event UpdatedStablecoinWhitelist(address indexed asset, bool allowed);    
+
+    // ------------
+    //  Unit tests
+    // ------------
+
     // Validate restrictions of decreaseDefaults() / increaseDefaults().
     // This includes:
     //  - _msgSender() must be a whitelisted ZivoeLocker.
@@ -68,18 +105,27 @@ contract Test_ZivoeGlobals is Utility {
 
         // Create GenericDefaults locker, with default adjustment capability, add this to whitelist.
         GenericDefaultsLocker = new OCG_Defaults(address(DAO), address(GBL));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedLockerStatus(address(GenericDefaultsLocker), true);
         assert(zvl.try_updateIsLocker(address(GBL), address(GenericDefaultsLocker), true));
 
         // Pre-state.
         assertEq(GBL.defaults(), 0);
 
         // increaseDefaults().
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit DefaultsIncreased(address(GenericDefaultsLocker), increaseBy, increaseBy);
         assert(god.try_increaseDefaults(address(GenericDefaultsLocker), increaseBy));
 
         // Post-state, increaseDefaults().
         assertEq(GBL.defaults(), increaseBy);
 
         // decreaseDefaults().
+
+        uint256 updatedDefaults = updatedDefaults(increaseBy, decreaseBy);
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit DefaultsDecreased(address(GenericDefaultsLocker), decreaseBy, updatedDefaults);
         assert(god.try_decreaseDefaults(address(GenericDefaultsLocker), decreaseBy));
 
         // Post-state, decreaseDefaults().
@@ -115,6 +161,8 @@ contract Test_ZivoeGlobals is Utility {
         assertEq(GBL.ZVL(), address(zvl));
 
         // transferZVL()
+        hevm.expectEmit(true, false, false, false, address(GBL));
+        emit AccessControlSetZVL(random);
         assert(zvl.try_transferZVL(address(GBL), random));
 
         // Post-state.
@@ -156,31 +204,55 @@ contract Test_ZivoeGlobals is Utility {
         
         // updateIsKeeper() false => true.
         assert(!GBL.isKeeper(entity));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedKeeperStatus(address(entity), true);
+
         assert(zvl.try_updateIsKeeper(address(GBL), address(entity), true));
         assert(GBL.isKeeper(entity));
 
         // updateIsKeeper() true => false.
         assert(GBL.isKeeper(entity));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedKeeperStatus(address(entity), false);
+
         assert(zvl.try_updateIsKeeper(address(GBL), address(entity), false));
         assert(!GBL.isKeeper(entity));
 
         // updateIsLocker() false => true.
         assert(!GBL.isLocker(entity));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedLockerStatus(address(entity), true);
+
         assert(zvl.try_updateIsLocker(address(GBL), address(entity), true));
         assert(GBL.isLocker(entity));
 
         // updateIsLocker() true => false.
         assert(GBL.isLocker(entity));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedLockerStatus(address(entity), false);
+
         assert(zvl.try_updateIsLocker(address(GBL), address(entity), false));
         assert(!GBL.isLocker(entity));
 
         // updateStablecoinWhitelist() false => true.
         assert(!GBL.stablecoinWhitelist(entity));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedStablecoinWhitelist(address(entity), true);
+
         assert(zvl.try_updateStablecoinWhitelist(address(GBL), address(entity), true));
         assert(GBL.stablecoinWhitelist(entity));
 
         // updateStablecoinWhitelist() true => false.
         assert(GBL.stablecoinWhitelist(entity));
+
+        hevm.expectEmit(true, false, false, true, address(GBL));
+        emit UpdatedStablecoinWhitelist(address(entity), false);
+
         assert(zvl.try_updateStablecoinWhitelist(address(GBL), address(entity), false));
         assert(!GBL.stablecoinWhitelist(entity));
 
