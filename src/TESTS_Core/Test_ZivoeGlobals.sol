@@ -25,12 +25,9 @@ contract Test_ZivoeGlobals is Utility {
     view
     returns (uint256 updated)
     {
-        if (decreaseBy > increaseBy) {
-            updated = 0;
-        }
-        else {
-            updated = increaseBy - decreaseBy;
-        }
+        
+        return updated = decreaseBy > increaseBy ? 0: increaseBy - decreaseBy;
+
     }
 
     // ------------
