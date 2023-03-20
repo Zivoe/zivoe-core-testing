@@ -11,9 +11,29 @@ contract Test_ZivoeYDL_Math is Utility {
         deployCore(false);
     }
 
+    event Logger(uint256);
+
+    function test_ZivoeYDL_math_carat() public {
+        emit Logger(365);
+        emit Logger(365^2);
+    }
+
     function test_ZivoeYDL_Math_yieldTarget_0() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
+
+        // sSTT = 10,000,000
+        // sJTT = 2,000,000
+        // defaults = 500,000
+        // --------------------
+        // sSTT = 10,000,000
+        // sJTT = 1,500,000
+
+        sSTT = 10_000_000 ether;
+        sJTT = 1_000_000 ether; // 25% discount ... [75-100] ... .75 DAI = 1 zJTT ... 
+
+        // sSTT = 8_000_000 ether;
+        // sJTT = 2_000_000 ether;
 
         uint256 yieldTarget = YDL.yieldTarget(
             sSTT, 
