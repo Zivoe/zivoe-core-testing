@@ -11,14 +11,25 @@ contract Test_ZivoeYDL_Math is Utility {
         deployCore(false);
     }
 
-    event Logger(uint256);
+    function test_ZivoeYDL_Math_yieldTarget_0() public {
 
-    function test_ZivoeYDL_math_carat() public {
-        emit Logger(365);
-        emit Logger(365^2);
+        (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
+
+        sSTT = 10_000_000 ether;
+        sJTT = 1_000_000 ether;
+
+        uint256 yieldTarget = YDL.yieldTarget(
+            sSTT, 
+            sJTT, 
+            YDL.targetAPYBIPS(), 
+            YDL.targetRatioBIPS(), 
+            YDL.daysBetweenDistributions()
+        );
+
+        emit Debug('yieldTarget', yieldTarget);
     }
 
-    function test_ZivoeYDL_Math_yieldTarget_0() public {
+    function test_ZivoeYDL_Math_yieldTarget_1() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
@@ -41,6 +52,50 @@ contract Test_ZivoeYDL_Math is Utility {
             YDL.targetAPYBIPS(), 
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
+        );
+
+        emit Debug('yieldTarget', yieldTarget);
+    }
+
+    function test_ZivoeYDL_Math_yieldTarget_fuzz(
+        uint96 _sSTT, uint96 _sJTT, uint24 _Y, uint24 _Q
+    ) public {
+
+        uint sSTT = uint(_sSTT);
+        uint sJTT = uint(_sJTT);
+        uint Y = uint(_Y + 1);
+        uint Q = uint(_Q + 1);
+        uint BIPS = 10000;
+        uint T = 30;
+
+        // 0, 0, 0, 79228162514264337593543950335
+
+        /**
+            @notice     Calculates amount of annual yield required to meet target rate for both tranches.
+            @param      sSTT = total supply of senior tranche token     (units = WEI)
+            @param      sJTT = total supply of junior tranche token     (units = WEI)
+            @param      Y    = target annual yield for senior tranche   (units = BIPS)
+            @param      Q    = multiple of Y                            (units = BIPS)
+            @param      T    = # of days between distributions          (units = integer)
+            @dev        (Y * T * (sSTT + sJTT * Q / BIPS) / BIPS) / 365
+            @dev        Precision of the return value is in WEI.
+        */
+
+        emit Debug('a', (sSTT + sJTT * Q));
+        emit Debug('b', Y * T);
+        emit Debug('c', Y * T * (sSTT + sJTT * Q / BIPS));
+
+        uint256 yieldTarget = YDL.yieldTarget(
+            sSTT, 
+            sJTT, 
+            Y, // YDL.targetAPYBIPS(), 
+            Q, // YDL.targetRatioBIPS(), 
+            T // YDL.daysBetweenDistributions()
+        );
+
+        assertEq(
+            yieldTarget,
+            (Y * T * (sSTT + sJTT * Q / BIPS) / BIPS) / 365
         );
 
         emit Debug('yieldTarget', yieldTarget);
