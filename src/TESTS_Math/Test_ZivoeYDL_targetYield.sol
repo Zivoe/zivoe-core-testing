@@ -5,7 +5,7 @@ import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
-// First the idea is to test for multiple values of input parameters and it's effect on returned value.
+// 1) First the idea is to test for multiple values of input parameters and it's effect on returned value.
 
 // Test 1
 // sSTT = 10% of initial amount
@@ -28,7 +28,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // Test 7
 // Number of days (T) = 1
 
-
+// 2) Then in a separate test function we will also perform fuzz testing
 
 contract Test_ZivoeYDL_targetYield is Utility {
 
