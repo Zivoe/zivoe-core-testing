@@ -25,6 +25,9 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // Test 6
 // Multiplication factor = 10
 
+// Test 7
+// Number of days (T) = 1
+
 
 
 contract Test_ZivoeYDL_targetYield is Utility {
@@ -130,6 +133,43 @@ contract Test_ZivoeYDL_targetYield is Utility {
         withinDiff(yieldTarget6, 591_700 ether, 100 ether);
         emit log_named_uint("yieldTarget6", yieldTarget6);
 
+        // Test 7
+        uint256 yieldTarget7 = YDL.yieldTarget(
+            sSTT, 
+            sJTT, 
+            YDL.targetAPYBIPS(), 
+            YDL.targetRatioBIPS(), 
+            1
+        );
+
+        assert(yieldTarget7 < yieldTarget0);
+        withinDiff(yieldTarget7, 19_700 ether, 100 ether);
+        emit log_named_uint("yieldTarget7", yieldTarget7);
+
+    }
+
+    function test_ZivoeYDL_yieldTarget_fuzzTesting(
+        uint96 seniorSupply,
+        uint96 juniorSupply,
+        uint16 targetAPY,
+        uint32 targetRatio,
+        uint16 numberOfDays
+    ) 
+    public
+    {
+        hevm.assume(targetAPY < 10000 && targetAPY > 100);
+        hevm.assume(targetRatio > 0);
+        hevm.assume(numberOfDays > 0);
+        hevm.assume(seniorSupply > 1 ether);
+        uint256 yieldTarget = YDL.yieldTarget(
+            uint256(seniorSupply), 
+            uint256(juniorSupply), 
+            uint256(targetAPY), 
+            uint256(targetRatio), 
+            numberOfDays
+        );
+
+        assert(yieldTarget > 0);
 
     }
 
