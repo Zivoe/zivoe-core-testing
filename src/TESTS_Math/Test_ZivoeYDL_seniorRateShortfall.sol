@@ -92,4 +92,22 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
 
     }
 
+    function test_ZivoeYDL_seniorRateShortfall_fuzzTesting(
+        uint96 seniorSupply,
+        uint96 juniorSupply,
+        uint32 targetRatio
+    ) 
+    public
+    {
+        hevm.assume(seniorSupply > 1 ether);
+        hevm.assume(targetRatio > 0);
+        uint256 seniorRate = YDL.seniorRateShortfall_RAY(
+            uint256(seniorSupply),
+            uint256(juniorSupply),
+            uint256(targetRatio)
+        );
+
+        assert(seniorRate > 0);
+    }
+
 }
