@@ -37,17 +37,58 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
     function test_ZivoeYDL_seniorRateShortfall_chosenValues() public {
 
         // State 0
-        uint256 seniorReturn = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate = YDL.seniorRateShortfall_RAY(
             sSTT,
             sJTT,
             YDL.targetRatioBIPS()
         );
 
-        withinDiff(seniorReturn, 261_300 ether, 100 ether);
-        emit log_named_uint("seniorReturn", seniorReturn);
+        withinDiff(seniorRate, 754716981 ether, 100 ether);
+        emit log_named_uint("seniorRate", seniorRate);
 
+        // state 1
+        uint256 seniorRate1 = YDL.seniorRateShortfall_RAY(
+            (sSTT * 10) / 100,
+            sJTT,
+            YDL.targetRatioBIPS()
+        );
 
+        assert (seniorRate1 < seniorRate);
+        withinDiff(seniorRate1, 235294117 ether, 100 ether);
+        emit log_named_uint("seniorRate1", seniorRate1);
 
+        // state 2
+        uint256 seniorRate2 = YDL.seniorRateShortfall_RAY(
+            sSTT,
+            (sJTT * 10) / 100,
+            YDL.targetRatioBIPS()
+        );
+
+        assert (seniorRate2 > seniorRate);
+        withinDiff(seniorRate2, 968523002 ether, 100 ether);
+        emit log_named_uint("seniorRate2", seniorRate2);
+
+        // state 3
+        uint256 seniorRate3 = YDL.seniorRateShortfall_RAY(
+            sSTT,
+            sJTT,
+            5000
+        );
+
+        assert (seniorRate3 > seniorRate);
+        withinDiff(seniorRate3, 909090909 ether, 100 ether);
+        emit log_named_uint("seniorRate3", seniorRate3);
+
+        // state 4
+        uint256 seniorRate4 = YDL.seniorRateShortfall_RAY(
+            sSTT,
+            sJTT,
+            100000
+        );
+
+        assert (seniorRate4 < seniorRate);
+        withinDiff(seniorRate4, 333333333 ether, 100 ether);
+        emit log_named_uint("seniorRate4", seniorRate4);
 
     }
 
