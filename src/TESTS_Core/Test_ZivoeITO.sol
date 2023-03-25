@@ -157,6 +157,7 @@ contract Test_ZivoeITO is Utility {
     //   - Restricting deposits until the ITO starts.
     //   - Restricting deposits after the ITO ends.
     //   - Restricting deposits of non-whitelisted assets.
+    //   - TODO: Restricting deposits if user has a vesting schedule.
 
     function test_ZivoeITO_depositJunior_restrictions_notStarted() public {
 
@@ -209,6 +210,23 @@ contract Test_ZivoeITO is Utility {
         hevm.stopPrank();
     }
 
+    function test_ZivoeITO_depositJunior_restrictions_vestingSchedule() public {
+
+        // Mint 100 DAI for "bob", approve ITO contract.
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
+
+        // Assign vesting schedule to "bob".
+        assert(zvl.try_vest(address(vestZVE), address(bob), 30, 90, 100 ether, false));
+
+        // Should throw with: "ZivoeITO::depositJunior() ~ has vesting schedule ~"
+        hevm.startPrank(address(bob));
+        hevm.warp(ITO.start() + 1 seconds);
+        hevm.expectRevert("ZivoeITO::depositJunior() ITO_IZivoeRewardsVesting(ITO_IZivoeGlobals(GBL).vestZVE()).vestingScheduleSet(_msgSender())");
+        ITO.depositJunior(100 ether, address(DAI));
+        hevm.stopPrank();
+    }
+
     function test_ZivoeITO_depositSenior_restrictions_notStarted() public {
 
         // Mint 100 DAI and 100 WETH for "bob", approve ITO contract.
@@ -257,6 +275,23 @@ contract Test_ZivoeITO is Utility {
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeITO::depositSenior() asset != stables[0] && asset != stables[1] && asset != stables[2] && asset != stables[3]");
         ITO.depositSenior(100 ether, address(WETH));
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeITO_depositSenior_restrictions_vestingSchedule() public {
+
+        // Mint 100 DAI for "bob", approve ITO contract.
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
+
+        // Assign vesting schedule to "bob".
+        assert(zvl.try_vest(address(vestZVE), address(bob), 30, 90, 100 ether, false));
+
+        // Should throw with: "ZivoeITO::depositSenior() ~ has vesting schedule ~"
+        hevm.startPrank(address(bob));
+        hevm.warp(ITO.start() + 1 seconds);
+        hevm.expectRevert("ZivoeITO::depositSenior() ITO_IZivoeRewardsVesting(ITO_IZivoeGlobals(GBL).vestZVE()).vestingScheduleSet(_msgSender())");
+        ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }
 
