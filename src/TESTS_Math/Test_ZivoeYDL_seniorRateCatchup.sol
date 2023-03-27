@@ -19,6 +19,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // Test 4
 // Multiplication factor = 10
 
+
 // Then in a separate test function we will also perform fuzz testing
 
 contract Test_ZivoeYDL_seniorRateShortfall is Utility {
@@ -33,7 +34,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
 
     function test_ZivoeYDL_seniorRateCatchup_chosenValues() public {
 
-        simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6);
+        simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6); 
         claimITO_and_approveTokens_and_stakeTokens(true);
 
         (uint256 supplyZSTT, uint256 supplyZJTT) = GBL.adjustedSupplies();
@@ -43,7 +44,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
 
         // State 0
         // As a first step we will distributeYield() in order to set initial variable "ema" needed 
-        deal(DAI, address(YDL), 240_000 ether);
+        deal(DAI, address(YDL), 240_000 ether); 
         hevm.warp(block.timestamp + 31 days);
         YDL.distributeYield();
 
@@ -59,9 +60,67 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
             YDL.targetRatioBIPS()
         );
 
-        //withinDiff(seniorRate, 754716981 ether, 100 ether);
+        withinDiff(seniorRateCatchup0, 908843537 ether, 100 ether);
         emit log_named_uint("seniorRateCatchup0", seniorRateCatchup0);
         emit log_named_uint("emaYield", YDL.emaYield());
+
+        // Test 1
+        uint256 seniorRateCatchup1 = YDL.seniorRateCatchup_RAY(
+            postFeeYield,
+            yT,
+            (supplyZSTT * 10) / 100,
+            supplyZJTT,
+            YDL.retrospectiveDistributions(),
+            YDL.targetRatioBIPS()
+        );
+
+        assert(seniorRateCatchup1 < seniorRateCatchup0);
+        withinDiff(seniorRateCatchup1, 138302277 ether, 100 ether);
+        emit log_named_uint("seniorRateCatchup1", seniorRateCatchup1);
+
+        // Test 2
+        uint256 seniorRateCatchup2 = YDL.seniorRateCatchup_RAY(
+            postFeeYield,
+            yT,
+            supplyZSTT,
+            (supplyZJTT * 10) / 100,
+            YDL.retrospectiveDistributions(),
+            YDL.targetRatioBIPS()
+        );
+
+        assert(seniorRateCatchup2 > seniorRateCatchup0);
+        withinDiff(seniorRateCatchup2, 1000000000 ether, 100 ether);
+        emit log_named_uint("seniorRateCatchup2", seniorRateCatchup2);
+
+        // Test 3
+        uint256 seniorRateCatchup3 = YDL.seniorRateCatchup_RAY(
+            postFeeYield,
+            yT,
+            supplyZSTT,
+            supplyZJTT,
+            YDL.retrospectiveDistributions(),
+            5000
+        );
+
+        assert(seniorRateCatchup3 > seniorRateCatchup0);
+        withinDiff(seniorRateCatchup3, 1000000000 ether, 100 ether);
+        emit log_named_uint("seniorRateCatchup3", seniorRateCatchup3);
+
+        // Test 4
+        uint256 seniorRateCatchup4 = YDL.seniorRateCatchup_RAY(
+            postFeeYield,
+            yT,
+            supplyZSTT,
+            supplyZJTT,
+            YDL.retrospectiveDistributions(),
+            100000
+        );
+
+        assert(seniorRateCatchup4 < seniorRateCatchup0);
+        withinDiff(seniorRateCatchup4, 216883116 ether, 100 ether);
+        emit log_named_uint("seniorRateCatchup4", seniorRateCatchup4);
     }
+
+    
 
 }

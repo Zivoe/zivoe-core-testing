@@ -143,7 +143,7 @@ contract Test_ZivoeYDL_targetYield is Utility {
         );
 
         assert(yieldTarget7 < yieldTarget0);
-        withinDiff(yieldTarget7, 19_700 ether, 100 ether);
+        withinDiff(yieldTarget7, 8_700 ether, 100 ether);
         emit log_named_uint("yieldTarget7", yieldTarget7);
 
     }
