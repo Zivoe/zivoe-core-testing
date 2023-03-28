@@ -178,6 +178,8 @@ contract Test_ZivoeYDL_Math is Utility {
 
         uint256 rateSenior = YDL.rateSenior_RAY(
             100000 ether,
+            YDL.yieldTarget(sSTT, sJTT, YDL.targetAPYBIPS(), YDL.targetRatioBIPS(), YDL.daysBetweenDistributions()),
+            YDL.emaYield(),
             sSTT,
             sJTT,
             YDL.targetAPYBIPS(),
