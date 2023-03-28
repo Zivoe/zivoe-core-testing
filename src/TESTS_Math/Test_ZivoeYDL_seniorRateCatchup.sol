@@ -22,7 +22,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_seniorRateShortfall is Utility {
+contract Test_ZivoeYDL_seniorRateCatchup is Utility {
 
     uint256 sSTT = 30_000_000 ether;
     uint256 sJTT = 6_000_000 ether;
@@ -121,6 +121,54 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRateCatchup4", seniorRateCatchup4);
     }
 
-    
+    function test_ZivoeYDL_seniorRateCatchup_fuzzTesting(
+        uint80 postFeeYield,
+        uint80 yT,
+        uint96 depositITO,
+        uint80 initialYield,
+        uint16 targetRatio
+
+    ) 
+    public
+    {
+        
+        hevm.assume(initialYield < yT);
+        hevm.assume(postFeeYield > yT);
+        hevm.assume(yT > initialYield);
+
+        uint256 targetRatioBIPS = uint256(targetRatio) + 1;
+        uint256 ITOAmount = uint256(depositITO) + 1_000 ether;
+
+        simulateITO(ITOAmount, ITOAmount, ITOAmount/10**12, ITOAmount/10**12); 
+        claimITO_and_approveTokens_and_stakeTokens(true);
+
+        (uint256 supplyZSTT, uint256 supplyZJTT) = GBL.adjustedSupplies();
+
+        emit log_named_uint("zSTT", supplyZSTT);
+        emit log_named_uint("zJTT", supplyZJTT);
+
+        // As a first step we will distributeYield() in order to set initial variable "ema" needed 
+        deal(DAI, address(YDL), initialYield); 
+        hevm.warp(block.timestamp + 31 days);
+        YDL.distributeYield();
+
+        emit log_named_uint("postFeeYield", postFeeYield);
+        emit log_named_uint("yT", yT);
+        emit log_named_uint("ITOAmount", ITOAmount);
+        emit log_named_uint("initialYield", initialYield);
+        emit log_named_uint("targetRatio", targetRatio);
+
+        uint256 seniorRateCatchup = YDL.seniorRateCatchup_RAY(
+            postFeeYield,
+            yT,
+            supplyZSTT,
+            supplyZJTT,
+            YDL.retrospectiveDistributions(),
+            targetRatioBIPS
+        );
+
+        assert(seniorRateCatchup > 0);
+
+    }
 
 }
