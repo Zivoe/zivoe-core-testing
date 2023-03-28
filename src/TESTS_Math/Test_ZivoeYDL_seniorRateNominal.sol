@@ -43,7 +43,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("yT", yT);
         emit log_named_uint("yT / 10**18", yT / 10**18);
 
-        uint256 seniorRateNominal = YDL.seniorRateNominal_RAY(
+        uint256 seniorRateNominal = YDL.seniorRateBase(
             yT,
             sSTT,
             YDL.targetAPYBIPS(),
@@ -53,7 +53,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRateNominal", seniorRateNominal);
         emit log_named_uint("seniorRateNominal / (RAY/10**4)", seniorRateNominal / (RAY/10**4));
 
-        seniorRateNominal = YDL.seniorRateNominal_RAY(
+        seniorRateNominal = YDL.seniorRateBase(
             1_000_000 ether,
             sSTT,
             YDL.targetAPYBIPS(),
@@ -63,7 +63,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRateNominal", seniorRateNominal);
         emit log_named_uint("seniorRateNominal / (RAY/10**4)", seniorRateNominal / (RAY/10**4));
 
-        seniorRateNominal = YDL.seniorRateNominal_RAY(
+        seniorRateNominal = YDL.seniorRateBase(
             2_000_000 ether,
             sSTT,
             YDL.targetAPYBIPS(),

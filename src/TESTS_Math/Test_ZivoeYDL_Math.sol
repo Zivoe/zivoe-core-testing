@@ -101,27 +101,27 @@ contract Test_ZivoeYDL_Math is Utility {
         emit Debug('yieldTarget', yieldTarget);
     }
 
-    function test_ZivoeYDL_Math_seniorRateNominal_RAY_0() public {
+    function test_ZivoeYDL_Math_seniorRateBase_0() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
-        uint256 seniorRateNominal_RAY = YDL.seniorRateNominal_RAY(
+        uint256 seniorRateBase = YDL.seniorRateBase(
             100000 ether,
             sSTT,
             YDL.targetAPYBIPS(),
             YDL.daysBetweenDistributions()
         );
 
-        emit Debug('a', seniorRateNominal_RAY);
+        emit Debug('seniorRateBase', seniorRateBase);
 
-        uint256 rateJunior_RAY = YDL.rateJunior_RAY(
+        uint256 juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
-            seniorRateNominal_RAY,    // RAY precision
+            seniorRateBase,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
     }
 
     function test_ZivoeYDL_Math_seniorProportionShortfall_0() public {
@@ -136,14 +136,14 @@ contract Test_ZivoeYDL_Math is Utility {
 
         emit Debug('seniorProportionShortfall', seniorProportionShortfall);
 
-        uint256 rateJunior_RAY = YDL.rateJunior_RAY(
+        uint256 juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             seniorProportionShortfall,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
     }
 
     function test_ZivoeYDL_Math_seniorProportionCatchup_0() public {
@@ -162,14 +162,14 @@ contract Test_ZivoeYDL_Math is Utility {
 
         emit Debug('seniorProportionCatchup', seniorProportionCatchup);
 
-        uint256 rateJunior_RAY = YDL.rateJunior_RAY(
+        uint256 juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             seniorProportionCatchup,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
     }
 
     function test_ZivoeYDL_Math_seniorProportion_RAY_0() public {
@@ -190,60 +190,60 @@ contract Test_ZivoeYDL_Math is Utility {
 
         emit Debug('seniorProportion', seniorProportion);
 
-        uint256 rateJunior_RAY = YDL.rateJunior_RAY(
+        uint256 juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             seniorProportion,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
     }
 
-    function test_ZivoeYDL_Math_rateJunior_RAY_0() public {
+    function test_ZivoeYDL_Math_juniorProportion_0() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
-        uint256 rateJunior_RAY = YDL.rateJunior_RAY(
+        uint256 juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             326975476839237057220708446,    // RAY precision (0.3269 % => senior tranche)
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
     }
 
-    function test_ZivoeYDL_Math_rateJunior_RAY_1() public {
+    function test_ZivoeYDL_Math_juniorProportion_1() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
-        uint256 rateJunior_RAY = YDL.rateJunior_RAY(
+        uint256 juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             0.30 * 10**27,
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
 
-        rateJunior_RAY = YDL.rateJunior_RAY(
+        juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             0.40 * 10**27,
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
 
-        rateJunior_RAY = YDL.rateJunior_RAY(
+        juniorProportion = YDL.juniorProportion(
             sSTT,
             sJTT,
             0.50 * 10**27,
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('rateJunior_RAY', rateJunior_RAY);
+        emit Debug('juniorProportion', juniorProportion);
     }
 
     // Miscellaneous tests, unrelated.

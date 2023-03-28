@@ -810,7 +810,7 @@ contract Test_ZivoeYDL is Utility {
         // Post-state.
         (uint256 seniorSupp,) = GBL.adjustedSupplies();
     
-        uint256 seniorRate = YDL.seniorRateNominal_RAY(
+        uint256 seniorRate = YDL.seniorRateBase(
             deposit, 
             seniorSupp, 
             YDL.targetAPYBIPS(), 
