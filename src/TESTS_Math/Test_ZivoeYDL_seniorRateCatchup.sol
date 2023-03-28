@@ -52,7 +52,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         uint256 emaYield = YDL.emaYield();
         uint256 yT = 260_000 ether;
 
-        uint256 seniorRateCatchup0 = YDL.seniorRateCatchup_RAY(
+        uint256 seniorRateCatchup0 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -67,7 +67,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         emit log_named_uint("emaYield", emaYield);
 
         // Test 1
-        uint256 seniorRateCatchup1 = YDL.seniorRateCatchup_RAY(
+        uint256 seniorRateCatchup1 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -82,7 +82,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         emit log_named_uint("seniorRateCatchup1", seniorRateCatchup1);
 
         // Test 2
-        uint256 seniorRateCatchup2 = YDL.seniorRateCatchup_RAY(
+        uint256 seniorRateCatchup2 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -97,7 +97,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         emit log_named_uint("seniorRateCatchup2", seniorRateCatchup2);
 
         // Test 3
-        uint256 seniorRateCatchup3 = YDL.seniorRateCatchup_RAY(
+        uint256 seniorRateCatchup3 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -112,7 +112,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         emit log_named_uint("seniorRateCatchup3", seniorRateCatchup3);
 
         // Test 4
-        uint256 seniorRateCatchup4 = YDL.seniorRateCatchup_RAY(
+        uint256 seniorRateCatchup4 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -164,7 +164,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         emit log_named_uint("initialYield", initialYield);
         emit log_named_uint("targetRatio", targetRatio);
 
-        uint256 seniorRateCatchup = YDL.seniorRateCatchup_RAY(
+        uint256 seniorRateCatchup = YDL.seniorProportionCatchup(
             postFeeYield,
             YDL.emaYield(),
             yT,

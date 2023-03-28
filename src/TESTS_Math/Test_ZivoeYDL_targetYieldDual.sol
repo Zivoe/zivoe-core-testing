@@ -53,21 +53,6 @@ contract Test_ZivoeYDL_targetYield is Utility {
         );
 
         withinDiff(yieldTarget0, 261369863013698630136986, 2);
-
-        (uint256 seniorYieldTarget0, uint256 juniorYieldTarget0) = YDL.yieldTargetDual(
-            sSTT, 
-            sJTT, 
-            YDL.targetAPYBIPS(), 
-            YDL.targetRatioBIPS(), 
-            YDL.daysBetweenDistributions()
-        );
-
-        withinDiff(yieldTarget0, seniorYieldTarget0 + juniorYieldTarget0, 2);
-        
-
-        emit log_named_uint("yieldTarget0", yieldTarget0);
-        emit log_named_uint("seniorYieldTarget0", seniorYieldTarget0);
-        emit log_named_uint("juniorYieldTarget0", juniorYieldTarget0);
     }
     
 }

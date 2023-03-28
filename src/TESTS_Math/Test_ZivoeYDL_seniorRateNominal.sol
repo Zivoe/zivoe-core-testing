@@ -36,27 +36,15 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
 
     function test_ZivoeYDL_seniorRateNominal_chosenValues() public {
 
-        (uint256 targetSenior, uint256 targetJunior) = YDL.yieldTargetDual(
+        uint256 yT = YDL.yieldTarget(
             sSTT, sJTT, YDL.targetAPYBIPS(), YDL.targetRatioBIPS(), 30
         );
 
-        emit log_named_uint("targetSenior", targetSenior);
-        emit log_named_uint("targetJunior", targetJunior);
-        emit log_named_uint("targetSenior / 10**18", targetSenior / 10**18);
-        emit log_named_uint("targetJunior / 10**18", targetJunior / 10**18);
+        emit log_named_uint("yT", yT);
+        emit log_named_uint("yT / 10**18", yT / 10**18);
 
         uint256 seniorRateNominal = YDL.seniorRateNominal_RAY(
-            targetSenior + targetJunior,
-            sSTT,
-            YDL.targetAPYBIPS(),
-            30
-        );
-        
-        emit log_named_uint("seniorRateNominal", seniorRateNominal);
-        emit log_named_uint("seniorRateNominal / (RAY/10**4)", seniorRateNominal / (RAY/10**4));
-
-        seniorRateNominal = YDL.seniorRateNominal_RAY(
-            targetSenior,
+            yT,
             sSTT,
             YDL.targetAPYBIPS(),
             30

@@ -34,7 +34,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
     function test_ZivoeYDL_seniorRateShortfall_chosenValues() public {
 
         // State 0
-        uint256 seniorRate = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate = YDL.seniorProportionShortfall(
             sSTT,
             sJTT,
             YDL.targetRatioBIPS()
@@ -44,7 +44,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRate", seniorRate);
 
         // state 1
-        uint256 seniorRate1 = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate1 = YDL.seniorProportionShortfall(
             (sSTT * 10) / 100,
             sJTT,
             YDL.targetRatioBIPS()
@@ -55,7 +55,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRate1", seniorRate1);
 
         // state 2
-        uint256 seniorRate2 = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate2 = YDL.seniorProportionShortfall(
             sSTT,
             (sJTT * 10) / 100,
             YDL.targetRatioBIPS()
@@ -66,7 +66,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRate2", seniorRate2);
 
         // state 3
-        uint256 seniorRate3 = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate3 = YDL.seniorProportionShortfall(
             sSTT,
             sJTT,
             5000
@@ -77,7 +77,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("seniorRate3", seniorRate3);
 
         // state 4
-        uint256 seniorRate4 = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate4 = YDL.seniorProportionShortfall(
             sSTT,
             sJTT,
             100000
@@ -98,7 +98,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
     {
         hevm.assume(seniorSupply > 1 ether);
         hevm.assume(targetRatio > 0);
-        uint256 seniorRate = YDL.seniorRateShortfall_RAY(
+        uint256 seniorRate = YDL.seniorProportionShortfall(
             uint256(seniorSupply),
             uint256(juniorSupply),
             uint256(targetRatio)

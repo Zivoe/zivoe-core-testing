@@ -124,33 +124,33 @@ contract Test_ZivoeYDL_Math is Utility {
         emit Debug('rateJunior_RAY', rateJunior_RAY);
     }
 
-    function test_ZivoeYDL_Math_seniorRateShortfall_RAY_0() public {
+    function test_ZivoeYDL_Math_seniorProportionShortfall_0() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
-        uint256 seniorRateShortfall_RAY = YDL.seniorRateShortfall_RAY(
+        uint256 seniorProportionShortfall = YDL.seniorProportionShortfall(
             sSTT,
             sJTT,
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('seniorRateShortfall_RAY', seniorRateShortfall_RAY);
+        emit Debug('seniorProportionShortfall', seniorProportionShortfall);
 
         uint256 rateJunior_RAY = YDL.rateJunior_RAY(
             sSTT,
             sJTT,
-            seniorRateShortfall_RAY,    // RAY precision
+            seniorProportionShortfall,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
         emit Debug('rateJunior_RAY', rateJunior_RAY);
     }
 
-    function test_ZivoeYDL_Math_seniorRateCatchup_RAY_0() public {
+    function test_ZivoeYDL_Math_seniorProportionCatchup_0() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
-        uint256 seniorRateCatchup_RAY = YDL.seniorRateCatchup_RAY(
+        uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             25000 ether,
             25000 ether, // NOTE: this is "emaYield" ... 
             33500 ether, // NOTE: this is "yT" ... 
@@ -160,23 +160,23 @@ contract Test_ZivoeYDL_Math is Utility {
             YDL.targetRatioBIPS()
         );
 
-        emit Debug('seniorRateCatchup_RAY', seniorRateCatchup_RAY);
+        emit Debug('seniorProportionCatchup', seniorProportionCatchup);
 
         uint256 rateJunior_RAY = YDL.rateJunior_RAY(
             sSTT,
             sJTT,
-            seniorRateCatchup_RAY,    // RAY precision
+            seniorProportionCatchup,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
         emit Debug('rateJunior_RAY', rateJunior_RAY);
     }
 
-    function test_ZivoeYDL_Math_rateSenior_RAY_0() public {
+    function test_ZivoeYDL_Math_seniorProportion_RAY_0() public {
 
         (uint256 sSTT, uint256 sJTT) = GBL.adjustedSupplies();
 
-        uint256 rateSenior = YDL.rateSenior_RAY(
+        uint256 seniorProportion = YDL.seniorProportion(
             100000 ether,
             YDL.yieldTarget(sSTT, sJTT, YDL.targetAPYBIPS(), YDL.targetRatioBIPS(), YDL.daysBetweenDistributions()),
             YDL.emaYield(),
@@ -188,7 +188,7 @@ contract Test_ZivoeYDL_Math is Utility {
             YDL.retrospectiveDistributions()
         );
 
-        emit Debug('rateSenior', rateSenior);
+        emit Debug('seniorProportion', seniorProportion);
 
         uint256 rateJunior_RAY = YDL.rateJunior_RAY(
             sSTT,
