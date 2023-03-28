@@ -193,7 +193,7 @@ contract Test_ZivoeYDL_Math is Utility {
         uint256 rateJunior_RAY = YDL.rateJunior_RAY(
             sSTT,
             sJTT,
-            rateSenior,    // RAY precision
+            seniorProportion,    // RAY precision
             YDL.targetRatioBIPS()
         );
 
