@@ -122,10 +122,10 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
     }
 
     function test_ZivoeYDL_seniorRateCatchup_fuzzTesting(
-        uint80 postFeeYield,
-        uint80 yT,
+        uint88 postFeeYield,
+        uint88 yT,
         uint96 depositITO,
-        uint80 initialYield,
+        uint88 initialYield,
         uint16 targetRatio
 
     ) 
