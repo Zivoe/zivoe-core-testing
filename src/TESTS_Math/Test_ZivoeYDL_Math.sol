@@ -152,6 +152,7 @@ contract Test_ZivoeYDL_Math is Utility {
 
         uint256 seniorRateCatchup_RAY = YDL.seniorRateCatchup_RAY(
             25000 ether,
+            25000 ether, // NOTE: this is "emaYield" ... 
             33500 ether, // NOTE: this is "yT" ... 
             sSTT,
             sJTT,

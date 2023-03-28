@@ -49,10 +49,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         YDL.distributeYield();
 
         uint256 postFeeYield = 280_000 ether;
+        uint256 emaYield = YDL.emaYield();
         uint256 yT = 260_000 ether;
 
         uint256 seniorRateCatchup0 = YDL.seniorRateCatchup_RAY(
             postFeeYield,
+            emaYield,
             yT,
             supplyZSTT,
             supplyZJTT,
@@ -62,11 +64,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
 
         withinDiff(seniorRateCatchup0, 908843537 ether, 100 ether);
         emit log_named_uint("seniorRateCatchup0", seniorRateCatchup0);
-        emit log_named_uint("emaYield", YDL.emaYield());
+        emit log_named_uint("emaYield", emaYield);
 
         // Test 1
         uint256 seniorRateCatchup1 = YDL.seniorRateCatchup_RAY(
             postFeeYield,
+            emaYield,
             yT,
             (supplyZSTT * 10) / 100,
             supplyZJTT,
@@ -81,6 +84,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         // Test 2
         uint256 seniorRateCatchup2 = YDL.seniorRateCatchup_RAY(
             postFeeYield,
+            emaYield,
             yT,
             supplyZSTT,
             (supplyZJTT * 10) / 100,
@@ -95,6 +99,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         // Test 3
         uint256 seniorRateCatchup3 = YDL.seniorRateCatchup_RAY(
             postFeeYield,
+            emaYield,
             yT,
             supplyZSTT,
             supplyZJTT,
@@ -109,6 +114,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         // Test 4
         uint256 seniorRateCatchup4 = YDL.seniorRateCatchup_RAY(
             postFeeYield,
+            emaYield,
             yT,
             supplyZSTT,
             supplyZJTT,
@@ -160,6 +166,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
 
         uint256 seniorRateCatchup = YDL.seniorRateCatchup_RAY(
             postFeeYield,
+            YDL.emaYield(),
             yT,
             supplyZSTT,
             supplyZJTT,
