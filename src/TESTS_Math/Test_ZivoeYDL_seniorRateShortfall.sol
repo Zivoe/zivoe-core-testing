@@ -22,7 +22,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_seniorRateShortfall is Utility {
+contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
 
     uint256 sSTT = 30_000_000 ether;
     uint256 sJTT = 6_000_000 ether;
@@ -31,7 +31,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_seniorRateShortfall_chosenValues() public {
+    function test_ZivoeYDL_seniorProportionShortfall_chosenValues() public {
 
         // State 0
         uint256 seniorRate = YDL.seniorProportionShortfall(
@@ -89,7 +89,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
 
     }
 
-    function test_ZivoeYDL_seniorRateShortfall_fuzzTesting(
+    function test_ZivoeYDL_seniorProportionShortfall_fuzzTesting(
         uint96 seniorSupply,
         uint96 juniorSupply,
         uint32 targetRatio

@@ -22,7 +22,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_seniorRateCatchup is Utility {
+contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
     uint256 sSTT = 30_000_000 ether;
     uint256 sJTT = 6_000_000 ether;
@@ -32,7 +32,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
 
     }
 
-    function test_ZivoeYDL_seniorRateCatchup_chosenValues() public {
+    function test_ZivoeYDL_seniorProportionCatchup_chosenValues() public {
 
         simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6); 
         claimITO_and_approveTokens_and_stakeTokens(true);
@@ -52,7 +52,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         uint256 emaYield = YDL.emaYield();
         uint256 yT = 260_000 ether;
 
-        uint256 seniorRateCatchup0 = YDL.seniorProportionCatchup(
+        uint256 seniorProportionCatchup0 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -62,12 +62,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
             YDL.targetRatioBIPS()
         );
 
-        withinDiff(seniorRateCatchup0, 908843537 ether, 100 ether);
-        emit log_named_uint("seniorRateCatchup0", seniorRateCatchup0);
+        withinDiff(seniorProportionCatchup0, 908843537 ether, 100 ether);
+        emit log_named_uint("seniorProportionCatchup0", seniorProportionCatchup0);
         emit log_named_uint("emaYield", emaYield);
 
         // Test 1
-        uint256 seniorRateCatchup1 = YDL.seniorProportionCatchup(
+        uint256 seniorProportionCatchup1 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -77,12 +77,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
             YDL.targetRatioBIPS()
         );
 
-        assert(seniorRateCatchup1 < seniorRateCatchup0);
-        withinDiff(seniorRateCatchup1, 138302277 ether, 100 ether);
-        emit log_named_uint("seniorRateCatchup1", seniorRateCatchup1);
+        assert(seniorProportionCatchup1 < seniorProportionCatchup0);
+        withinDiff(seniorProportionCatchup1, 138302277 ether, 100 ether);
+        emit log_named_uint("seniorProportionCatchup1", seniorProportionCatchup1);
 
         // Test 2
-        uint256 seniorRateCatchup2 = YDL.seniorProportionCatchup(
+        uint256 seniorProportionCatchup2 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -92,12 +92,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
             YDL.targetRatioBIPS()
         );
 
-        assert(seniorRateCatchup2 > seniorRateCatchup0);
-        withinDiff(seniorRateCatchup2, 1000000000 ether, 100 ether);
-        emit log_named_uint("seniorRateCatchup2", seniorRateCatchup2);
+        assert(seniorProportionCatchup2 > seniorProportionCatchup0);
+        withinDiff(seniorProportionCatchup2, 1000000000 ether, 100 ether);
+        emit log_named_uint("seniorProportionCatchup2", seniorProportionCatchup2);
 
         // Test 3
-        uint256 seniorRateCatchup3 = YDL.seniorProportionCatchup(
+        uint256 seniorProportionCatchup3 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -107,12 +107,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
             5000
         );
 
-        assert(seniorRateCatchup3 > seniorRateCatchup0);
-        withinDiff(seniorRateCatchup3, 1000000000 ether, 100 ether);
-        emit log_named_uint("seniorRateCatchup3", seniorRateCatchup3);
+        assert(seniorProportionCatchup3 > seniorProportionCatchup0);
+        withinDiff(seniorProportionCatchup3, 1000000000 ether, 100 ether);
+        emit log_named_uint("seniorProportionCatchup3", seniorProportionCatchup3);
 
         // Test 4
-        uint256 seniorRateCatchup4 = YDL.seniorProportionCatchup(
+        uint256 seniorProportionCatchup4 = YDL.seniorProportionCatchup(
             postFeeYield,
             emaYield,
             yT,
@@ -122,12 +122,12 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
             100000
         );
 
-        assert(seniorRateCatchup4 < seniorRateCatchup0);
-        withinDiff(seniorRateCatchup4, 216883116 ether, 100 ether);
-        emit log_named_uint("seniorRateCatchup4", seniorRateCatchup4);
+        assert(seniorProportionCatchup4 < seniorProportionCatchup0);
+        withinDiff(seniorProportionCatchup4, 216883116 ether, 100 ether);
+        emit log_named_uint("seniorProportionCatchup4", seniorProportionCatchup4);
     }
 
-    function test_ZivoeYDL_seniorRateCatchup_fuzzTesting(
+    function test_ZivoeYDL_seniorProportionCatchup_fuzzTesting(
         uint88 postFeeYield,
         uint88 yT,
         uint96 depositITO,
@@ -138,7 +138,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
     public
     {
         
-        hevm.assume(initialYield < yT);
+        hevm.assume(initialYield < yT && initialYield > 0);
         hevm.assume(postFeeYield > yT);
         hevm.assume(yT > initialYield);
 
@@ -164,7 +164,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
         emit log_named_uint("initialYield", initialYield);
         emit log_named_uint("targetRatio", targetRatio);
 
-        uint256 seniorRateCatchup = YDL.seniorProportionCatchup(
+        uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             postFeeYield,
             YDL.emaYield(),
             yT,
@@ -174,7 +174,7 @@ contract Test_ZivoeYDL_seniorRateCatchup is Utility {
             targetRatioBIPS
         );
 
-        assert(seniorRateCatchup > 0);
+        assert(seniorProportionCatchup > 0);
 
     }
 

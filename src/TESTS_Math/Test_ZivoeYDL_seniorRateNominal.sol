@@ -25,7 +25,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_seniorRateShortfall is Utility {
+contract Test_ZivoeYDL_seniorRateBase is Utility {
 
     uint256 sSTT = 30_000_000 ether;
     uint256 sJTT = 6_000_000 ether;
@@ -34,7 +34,7 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_seniorRateNominal_chosenValues() public {
+    function test_ZivoeYDL_seniorRateBase_chosenValues() public {
 
         uint256 yT = YDL.yieldTarget(
             sSTT, sJTT, YDL.targetAPYBIPS(), YDL.targetRatioBIPS(), 30
@@ -43,35 +43,35 @@ contract Test_ZivoeYDL_seniorRateShortfall is Utility {
         emit log_named_uint("yT", yT);
         emit log_named_uint("yT / 10**18", yT / 10**18);
 
-        uint256 seniorRateNominal = YDL.seniorRateBase(
+        uint256 seniorRateBase = YDL.seniorRateBase(
             yT,
             sSTT,
             YDL.targetAPYBIPS(),
             30
         );
         
-        emit log_named_uint("seniorRateNominal", seniorRateNominal);
-        emit log_named_uint("seniorRateNominal / (RAY/10**4)", seniorRateNominal / (RAY/10**4));
+        emit log_named_uint("seniorRateBase", seniorRateBase);
+        emit log_named_uint("seniorRateBase / (RAY/10**4)", seniorRateBase / (RAY/10**4));
 
-        seniorRateNominal = YDL.seniorRateBase(
+        seniorRateBase = YDL.seniorRateBase(
             1_000_000 ether,
             sSTT,
             YDL.targetAPYBIPS(),
             30
         );
         
-        emit log_named_uint("seniorRateNominal", seniorRateNominal);
-        emit log_named_uint("seniorRateNominal / (RAY/10**4)", seniorRateNominal / (RAY/10**4));
+        emit log_named_uint("seniorRateBase", seniorRateBase);
+        emit log_named_uint("seniorRateBase / (RAY/10**4)", seniorRateBase / (RAY/10**4));
 
-        seniorRateNominal = YDL.seniorRateBase(
+        seniorRateBase = YDL.seniorRateBase(
             2_000_000 ether,
             sSTT,
             YDL.targetAPYBIPS(),
             30
         );
         
-        emit log_named_uint("seniorRateNominal", seniorRateNominal);
-        emit log_named_uint("seniorRateNominal / (RAY/10**4)", seniorRateNominal / (RAY/10**4));
+        emit log_named_uint("seniorRateBase", seniorRateBase);
+        emit log_named_uint("seniorRateBase / (RAY/10**4)", seniorRateBase / (RAY/10**4));
 
     }
 
