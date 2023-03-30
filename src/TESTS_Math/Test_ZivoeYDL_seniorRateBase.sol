@@ -5,10 +5,6 @@ import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
-// Note: We should replace all postFeeYield by preFeeYield in YDL accounting
-// Note: rateSenior is a rate (in %) and not an amount (just for info)
-
-
 // First the idea is to test for multiple values of input parameters and it's effect on returned value.
 
 // Then in a separate test function we will also perform fuzz testing
