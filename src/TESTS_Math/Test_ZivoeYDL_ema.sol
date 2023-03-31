@@ -11,14 +11,6 @@ contract Test_ZivoeYDL_ema is Utility {
         deployCore(false);
     }    
 
-    // Helper function to substract and avoid underflow
-/*     function zSub(uint256 x, uint256 y) internal pure returns (uint256) {
-        unchecked {
-            if (y > x) return 0;
-            return (x - y);
-        }
-    } */
-
     // Testing for first window (when number of steps < number steps we are averaging over)
     function test_ZivoeYDL_ema_firstWindow_chosenValues() public {
 
