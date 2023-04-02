@@ -8,10 +8,10 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // 1) First the idea is to test for multiple values of input parameters and it's effect on returned value.
 
 // Test 1
-// sSTT = 10% of initial amount
+// eSTT = 10% of initial amount
 
 // Test 2
-// sJTT = 10% of initial amount
+// eJTT = 10% of initial amount
 
 // Test 3
 // Target annual yield for senior tranche (Y) = 1%
@@ -32,21 +32,19 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 contract Test_ZivoeYDL_yieldTarget is Utility {
 
-    uint256 sSTT = 30_000_000 ether;
-    uint256 sJTT = 6_000_000 ether;
+    uint256 eSTT = 8_000_000 ether;
+    uint256 eJTT = 2_000_000 ether;
 
     function setUp() public {
         deployCore(false);
-        //simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6);
-        //claimITO_and_approveTokens_and_stakeTokens(true);
     }
 
     function test_ZivoeYDL_yieldTarget_chosenValues() public {
 
         // State 0
         uint256 yieldTarget0 = YDL.yieldTarget(
-            sSTT, 
-            sJTT, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), 
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
@@ -57,8 +55,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 1
         uint256 yieldTarget1 = YDL.yieldTarget(
-            (sSTT * 10) / 100, 
-            sJTT, 
+            (eSTT * 10) / 100, 
+            eJTT, 
             YDL.targetAPYBIPS(), 
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
@@ -70,8 +68,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 2
         uint256 yieldTarget2 = YDL.yieldTarget(
-            sSTT, 
-            (sJTT * 10) / 100, 
+            eSTT, 
+            (eJTT * 10) / 100, 
             YDL.targetAPYBIPS(), 
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
@@ -83,8 +81,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 3
         uint256 yieldTarget3 = YDL.yieldTarget(
-            sSTT, 
-            sJTT, 
+            eSTT, 
+            eJTT, 
             100, 
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
@@ -96,8 +94,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 4
         uint256 yieldTarget4 = YDL.yieldTarget(
-            sSTT, 
-            sJTT, 
+            eSTT, 
+            eJTT, 
             2000,
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
@@ -109,8 +107,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 5
         uint256 yieldTarget5 = YDL.yieldTarget(
-            sSTT, 
-            sJTT, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), 
             5000, 
             YDL.daysBetweenDistributions()
@@ -122,8 +120,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 6
         uint256 yieldTarget6 = YDL.yieldTarget(
-            sSTT, 
-            sJTT, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), 
             100000, 
             YDL.daysBetweenDistributions()
@@ -135,8 +133,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 7
         uint256 yieldTarget7 = YDL.yieldTarget(
-            sSTT, 
-            sJTT, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), 
             YDL.targetRatioBIPS(), 
             1
@@ -148,23 +146,23 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
     }
 
     function test_ZivoeYDL_yieldTarget_fuzzTesting(
-        uint96 seniorSupply,
-        uint96 juniorSupply,
-        uint16 targetAPY,
-        uint32 targetRatio,
-        uint16 numberOfDays
+        uint96 eSTT,
+        uint96 eJTT,
+        uint16 Y,
+        uint32 Q,
+        uint16 T
     ) public {
-        hevm.assume(targetAPY < 10000 && targetAPY > 100);
-        hevm.assume(targetRatio > 0);
-        hevm.assume(numberOfDays > 0);
-        hevm.assume(seniorSupply > 1 ether);
+        hevm.assume(Y < 10000 && Y > 100);
+        hevm.assume(Q > 0);
+        hevm.assume(T > 0);
+        hevm.assume(eSTT > 1 ether);
 
         uint256 yieldTarget = YDL.yieldTarget(
-            uint256(seniorSupply), 
-            uint256(juniorSupply), 
-            uint256(targetAPY), 
-            uint256(targetRatio), 
-            numberOfDays
+            uint256(eSTT), 
+            uint256(eJTT), 
+            uint256(Y), 
+            uint256(Q), 
+            T
         );
 
         assert(yieldTarget > 0);

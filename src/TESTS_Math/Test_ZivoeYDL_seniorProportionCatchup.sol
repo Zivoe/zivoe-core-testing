@@ -48,15 +48,16 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         hevm.warp(block.timestamp + 31 days);
         YDL.distributeYield();
 
-        uint256 postFeeYield = 280_000 ether;
-        uint256 emaYield = YDL.emaYield();
+        uint256 yD = 280_000 ether;
         uint256 yT = 260_000 ether;
+        uint256 yA = YDL.emaYield();
 
+        emit log_named_uint("yA", yA);
 
         uint256 seniorProportionCatchup0 = YDL.seniorProportionCatchup(
-            postFeeYield,
+            yD,
             yT,
-            emaYield,
+            yA,
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -65,13 +66,13 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
         withinDiff(seniorProportionCatchup0, 908843537 ether, 100 ether);
         emit log_named_uint("seniorProportionCatchup0", seniorProportionCatchup0);
-        emit log_named_uint("emaYield", emaYield);
+        emit log_named_uint("yA", yA);
 
         // Test 1
         uint256 seniorProportionCatchup1 = YDL.seniorProportionCatchup(
-            postFeeYield,
+            yD,
             yT,
-            emaYield,
+            yA,
             (supplyZSTT * 10) / 100,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -84,9 +85,9 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
         // Test 2
         uint256 seniorProportionCatchup2 = YDL.seniorProportionCatchup(
-            postFeeYield,
+            yD,
             yT,
-            emaYield,
+            yA,
             supplyZSTT,
             (supplyZJTT * 10) / 100,
             YDL.retrospectiveDistributions(),
@@ -99,9 +100,9 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
         // Test 3
         uint256 seniorProportionCatchup3 = YDL.seniorProportionCatchup(
-            postFeeYield,
+            yD,
             yT,
-            emaYield,
+            yA,
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -114,9 +115,9 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
         // Test 4
         uint256 seniorProportionCatchup4 = YDL.seniorProportionCatchup(
-            postFeeYield,
+            yD,
             yT,
-            emaYield,
+            yA,
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -129,14 +130,14 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
     }
 
     function test_ZivoeYDL_seniorProportionCatchup_fuzzTesting(
-        uint88 postFeeYield,
+        uint88 yD,
         uint88 yT,
         uint96 depositITO,
         uint88 initialYield,
         uint16 targetRatio
     ) public {
         hevm.assume(initialYield < yT && initialYield > 0);
-        hevm.assume(postFeeYield > yT);
+        hevm.assume(yD > yT);
         hevm.assume(yT > initialYield);
 
         uint256 targetRatioBIPS = uint256(targetRatio) + 1;
@@ -155,14 +156,14 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         hevm.warp(block.timestamp + 31 days);
         YDL.distributeYield();
 
-        emit log_named_uint("postFeeYield", postFeeYield);
+        emit log_named_uint("yD", yD);
         emit log_named_uint("yT", yT);
         emit log_named_uint("ITOAmount", ITOAmount);
         emit log_named_uint("initialYield", initialYield);
         emit log_named_uint("targetRatio", targetRatio);
 
         uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
-            postFeeYield,
+            yD,
             yT,
             YDL.emaYield(),
             supplyZSTT,

@@ -5,57 +5,28 @@ import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
-// First the idea is to test for multiple values of input parameters and it's effect on returned value.
-
-// Then in a separate test function we will also perform fuzz testing
-
 contract Test_ZivoeYDL_seniorProportionBase is Utility {
-
-    uint256 sSTT = 30_000_000 ether;
-    uint256 sJTT = 6_000_000 ether;
 
     function setUp() public {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_seniorProportionBase_chosenValues() public {
+    function test_ZivoeYDL_seniorProportionBase_static_0() public {
 
-        uint256 yT = YDL.yieldTarget(
-            sSTT, sJTT, YDL.targetAPYBIPS(), YDL.targetRatioBIPS(), 30
+        uint256 yD = 66_666 ether;
+        uint256 eSTT = 8_000_000 ether;
+        uint256 Y = 800;
+        uint256 T = 30;
+
+        uint256 sPB = YDL.seniorProportionBase(
+            yD,     // yD
+            eSTT,   // eSTT
+            Y,      // Y
+            T       // T
         );
 
-        emit log_named_uint("yT", yT);
-        emit log_named_uint("yT / 10**18", yT / 10**18);
-
-        uint256 seniorProportionBase = YDL.seniorProportionBase(
-            yT,
-            sSTT,
-            YDL.targetAPYBIPS(),
-            30
-        );
+        emit log_named_uint("sPB", sPB);
         
-        emit log_named_uint("seniorProportionBase", seniorProportionBase);
-        emit log_named_uint("seniorProportionBase / (RAY/10**4)", seniorProportionBase / (RAY/10**4));
-
-        seniorProportionBase = YDL.seniorProportionBase(
-            1_000_000 ether,
-            sSTT,
-            YDL.targetAPYBIPS(),
-            30
-        );
-        
-        emit log_named_uint("seniorProportionBase", seniorProportionBase);
-        emit log_named_uint("seniorProportionBase / (RAY/10**4)", seniorProportionBase / (RAY/10**4));
-
-        seniorProportionBase = YDL.seniorProportionBase(
-            2_000_000 ether,
-            sSTT,
-            YDL.targetAPYBIPS(),
-            30
-        );
-        
-        emit log_named_uint("seniorProportionBase", seniorProportionBase);
-        emit log_named_uint("seniorProportionBase / (RAY/10**4)", seniorProportionBase / (RAY/10**4));
     }
 
     function test_ZivoeYDL_seniorProportionBase_fuzzTesting(
@@ -71,7 +42,7 @@ contract Test_ZivoeYDL_seniorProportionBase is Utility {
         hevm.assume(T >= 1);
         hevm.assume(eSTT > 1 ether);
 
-        assert (YDL.seniorProportionBase(yD, eSTT, Y, T) > 0);
+        assert(YDL.seniorProportionBase(yD, eSTT, Y, T) > 0);
     }
 
 }

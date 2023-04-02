@@ -61,11 +61,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
     function test_ZivoeYDL_seniorProportion_catchupScenario() public {
         // testing for yD > yT && yT >= yA (excess + catchup) here
-        uint256 yD = 251_000 ether;
-        uint256 yT = 250_000 ether;
-        uint256 yA = 230_000 ether;
-        uint256 eSTT = 30_000_000 ether;
-        uint256 eJTT = 6_000_000 ether;
+        uint256 yD = 67_000 ether;
+        uint256 yT = 66_666 ether;
+        uint256 yA = 65_000 ether;
+        uint256 eSTT = 8_000_000 ether;
+        uint256 eJTT = 2_000_000 ether;
 
         uint256 seniorProportion = YDL.seniorProportion(
             yD, // yD
@@ -109,11 +109,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
     function test_ZivoeYDL_seniorProportion_baseScenario() public {
         // testing for yD > yT && yT < yA (excess + base) here
-        uint256 yD = 251_000 ether;
-        uint256 yT = 210_000 ether;
-        uint256 yA = 230_000 ether;
-        uint256 eSTT = 30_000_000 ether;
-        uint256 eJTT = 6_000_000 ether;
+        uint256 yD = 66_000 ether;
+        uint256 yT = 66_666 ether;
+        uint256 yA = 67_000 ether;
+        uint256 eSTT = 8_000_000 ether;
+        uint256 eJTT = 2_000_000 ether;
 
         uint256 seniorProportion = YDL.seniorProportion(
             yD, // yD
