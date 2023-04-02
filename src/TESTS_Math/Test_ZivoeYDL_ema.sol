@@ -3,9 +3,14 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
+import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
+
 import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 contract Test_ZivoeYDL_ema is Utility {
+
+    using FloorMath for uint256;
+    using FloorMath for uint8;
 
     function setUp() public {
         deployCore(false);
@@ -18,8 +23,7 @@ contract Test_ZivoeYDL_ema is Utility {
         uint256 ema = YDL.ema(
             2000, // avg
             2500, // newval
-            6,    // N
-            2     // t
+            2     // N
         );
 
         assert(ema == 2250);
@@ -29,8 +33,7 @@ contract Test_ZivoeYDL_ema is Utility {
         ema = YDL.ema(
             2500, // avg
             2000, // newval
-            6,    // N
-            2     // t
+            2     // N
         );
 
         assert(ema == 2250);
@@ -45,8 +48,7 @@ contract Test_ZivoeYDL_ema is Utility {
         uint256 ema = YDL.ema(
             2000, // avg
             2500, // newval
-            6,    // N
-            10    // t
+            6     // N
         );
 
         assert(ema == 2083);
@@ -56,8 +58,7 @@ contract Test_ZivoeYDL_ema is Utility {
         ema = YDL.ema(
             2500, // avg
             2000, // newval
-            6,    // N
-            10    // t
+            6     // N
         );
 
         assert(ema == 2416);
@@ -97,8 +98,7 @@ contract Test_ZivoeYDL_ema is Utility {
         uint256 ema = YDL.ema(
             avg,
             newval,
-            retrospectiveDistributions, 
-            numDistributions  
+            retrospectiveDistributions.min(numDistributions)
         );
 
         if (newval > avg) {
