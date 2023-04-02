@@ -7,9 +7,6 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 contract Test_ZivoeYDL_juniorProportion is Utility {
 
-    uint256 sSTT = 30_000_000 ether;
-    uint256 sJTT = 6_000_000 ether;
-
     function setUp() public {
         deployCore(false);
     }
