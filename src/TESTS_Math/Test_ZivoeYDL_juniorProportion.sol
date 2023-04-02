@@ -11,18 +11,19 @@ contract Test_ZivoeYDL_juniorProportion is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_juniorProportion_fuzzInvariant(uint128 eSTT, uint128 eJTT, uint256 Y) public {
-        // The invariant for juniorProportion() is that return value never exceeds RAY (10**27).
-        hevm.assume(Y <= RAY);
+    function test_ZivoeYDL_juniorProportion_fuzzInvariant(uint128 eSTT, uint128 eJTT, uint256 sP) public {
+        // We can assume the input value for "sP" will never exceed RAY (10**27).
+        hevm.assume(sP <= RAY);
 
-        uint256 juniorProportion = YDL.juniorProportion(
+        uint256 jP = YDL.juniorProportion(
             eSTT, // eSTT
             eJTT, // eJTT
-            Y, // Y
+            sP, // sP
             YDL.targetRatioBIPS() // Q
         );
 
-        assert(juniorProportion <= RAY);
+        // The invariant for juniorProportion() is that return value never exceeds RAY (10**27).
+        assert(jP <= RAY);
     }
 
 }

@@ -7,20 +7,17 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 contract Test_ZivoeYDL_seniorProportion is Utility {
 
-    uint256 sSTT = 30_000_000 ether;
-    uint256 sJTT = 6_000_000 ether;
-
     function setUp() public {
         deployCore(false);
     }
 
     function test_ZivoeYDL_seniorProportion_shortFallScenario() public {
-        // testing for yT > yD (shortfall) here
-        uint256 yD = 200_000 ether;
-        uint256 yT = 250_000 ether;
-        uint256 yA = 230_000 ether;
-        uint256 eSTT = 30_000_000 ether;
-        uint256 eJTT = 6_000_000 ether;
+        // testing for yT > yD (shortfall)
+        uint256 yD = 66_000 ether;
+        uint256 yT = 66_666 ether;
+        uint256 yA = 65_000 ether;
+        uint256 eSTT = 8_000_000 ether;
+        uint256 eJTT = 2_000_000 ether;
 
         uint256 seniorProportion = YDL.seniorProportion(
             yD, // yD
@@ -42,8 +39,8 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
         uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             yD,
-            yA,
             yT,
+            yA,
             eSTT,
             eJTT,
             YDL.retrospectiveDistributions(),
@@ -90,8 +87,8 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
         uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             yD,
-            yA,
             yT,
+            yA,
             eSTT,
             eJTT,
             YDL.retrospectiveDistributions(),
@@ -138,8 +135,8 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
         uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             yD,
-            yA,
             yT,
+            yA,
             eSTT,
             eJTT,
             YDL.retrospectiveDistributions(),

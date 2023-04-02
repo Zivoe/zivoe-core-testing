@@ -52,10 +52,11 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         uint256 emaYield = YDL.emaYield();
         uint256 yT = 260_000 ether;
 
+
         uint256 seniorProportionCatchup0 = YDL.seniorProportionCatchup(
             postFeeYield,
-            emaYield,
             yT,
+            emaYield,
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -69,8 +70,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         // Test 1
         uint256 seniorProportionCatchup1 = YDL.seniorProportionCatchup(
             postFeeYield,
-            emaYield,
             yT,
+            emaYield,
             (supplyZSTT * 10) / 100,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -84,8 +85,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         // Test 2
         uint256 seniorProportionCatchup2 = YDL.seniorProportionCatchup(
             postFeeYield,
-            emaYield,
             yT,
+            emaYield,
             supplyZSTT,
             (supplyZJTT * 10) / 100,
             YDL.retrospectiveDistributions(),
@@ -99,8 +100,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         // Test 3
         uint256 seniorProportionCatchup3 = YDL.seniorProportionCatchup(
             postFeeYield,
-            emaYield,
             yT,
+            emaYield,
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -114,8 +115,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         // Test 4
         uint256 seniorProportionCatchup4 = YDL.seniorProportionCatchup(
             postFeeYield,
-            emaYield,
             yT,
+            emaYield,
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -162,8 +163,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
         uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             postFeeYield,
-            YDL.emaYield(),
             yT,
+            YDL.emaYield(),
             supplyZSTT,
             supplyZJTT,
             YDL.retrospectiveDistributions(),
@@ -184,7 +185,7 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         uint256 R = 6;
         uint256 Q = 16250;
 
-        uint256 sPC = YDL.seniorProportionCatchup(yD, yA, yT, eSTT, eJTT, R, Q);
+        uint256 sPC = YDL.seniorProportionCatchup(yD, yT, yA, eSTT, eJTT, R, Q);
 
         emit log_named_uint("sPC", sPC);
 
