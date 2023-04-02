@@ -15,9 +15,7 @@ contract Test_ZivoeYDL_juniorProportion is Utility {
     }
 
     function test_ZivoeYDL_juniorProportion_fuzzInvariant(uint128 eSTT, uint128 eJTT, uint256 Y) public {
-        
         // The invariant for juniorProportion() is that return value never exceeds RAY (10**27).
-
         hevm.assume(Y <= RAY);
 
         uint256 juniorProportion = YDL.juniorProportion(
@@ -28,7 +26,6 @@ contract Test_ZivoeYDL_juniorProportion is Utility {
         );
 
         assert(juniorProportion <= RAY);
-
     }
 
 }

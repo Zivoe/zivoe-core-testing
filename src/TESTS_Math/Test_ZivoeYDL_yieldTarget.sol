@@ -30,7 +30,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // 2) Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_targetYield is Utility {
+contract Test_ZivoeYDL_yieldTarget is Utility {
 
     uint256 sSTT = 30_000_000 ether;
     uint256 sJTT = 6_000_000 ether;
@@ -145,7 +145,6 @@ contract Test_ZivoeYDL_targetYield is Utility {
         assert(yieldTarget7 < yieldTarget0);
         withinDiff(yieldTarget7, 8_700 ether, 100 ether);
         emit log_named_uint("yieldTarget7", yieldTarget7);
-
     }
 
     function test_ZivoeYDL_yieldTarget_fuzzTesting(
@@ -154,13 +153,12 @@ contract Test_ZivoeYDL_targetYield is Utility {
         uint16 targetAPY,
         uint32 targetRatio,
         uint16 numberOfDays
-    ) 
-    public
-    {
+    ) public {
         hevm.assume(targetAPY < 10000 && targetAPY > 100);
         hevm.assume(targetRatio > 0);
         hevm.assume(numberOfDays > 0);
         hevm.assume(seniorSupply > 1 ether);
+
         uint256 yieldTarget = YDL.yieldTarget(
             uint256(seniorSupply), 
             uint256(juniorSupply), 
@@ -170,7 +168,6 @@ contract Test_ZivoeYDL_targetYield is Utility {
         );
 
         assert(yieldTarget > 0);
-
     }
 
 }

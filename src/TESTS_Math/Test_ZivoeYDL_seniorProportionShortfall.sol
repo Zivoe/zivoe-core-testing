@@ -32,7 +32,6 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
     }
 
     function test_ZivoeYDL_seniorProportionShortfall_chosenValues() public {
-
         // State 0
         uint256 seniorRate = YDL.seniorProportionShortfall(
             sSTT,
@@ -93,11 +92,10 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
         uint96 seniorSupply,
         uint96 juniorSupply,
         uint32 targetRatio
-    ) 
-    public
-    {
+    ) public {
         hevm.assume(seniorSupply > 1 ether);
         hevm.assume(targetRatio > 0);
+
         uint256 seniorRate = YDL.seniorProportionShortfall(
             uint256(seniorSupply),
             uint256(juniorSupply),

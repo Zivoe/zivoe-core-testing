@@ -133,11 +133,7 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         uint96 depositITO,
         uint88 initialYield,
         uint16 targetRatio
-
-    ) 
-    public
-    {
-        
+    ) public {
         hevm.assume(initialYield < yT && initialYield > 0);
         hevm.assume(postFeeYield > yT);
         hevm.assume(yT > initialYield);
@@ -175,6 +171,22 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
         );
 
         assert(seniorProportionCatchup > 0);
+    }
+
+
+    function test_seniorProportionCatchup_static_0() public {
+
+        uint256 yD = 66_675 ether;
+        uint256 yA = 65_000 ether;
+        uint256 yT = 66_666 ether;
+        uint256 eSTT = 8_000_000 ether;
+        uint256 eJTT = 2_000_000 ether;
+        uint256 R = 6;
+        uint256 Q = 16250;
+
+        uint256 sPC = YDL.seniorProportionCatchup(yD, yA, yT, eSTT, eJTT, R, Q);
+
+        emit log_named_uint("sPC", sPC);
 
     }
 

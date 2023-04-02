@@ -9,7 +9,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_seniorRateBase is Utility {
+contract Test_ZivoeYDL_seniorProportionBase is Utility {
 
     uint256 sSTT = 30_000_000 ether;
     uint256 sJTT = 6_000_000 ether;
@@ -18,7 +18,7 @@ contract Test_ZivoeYDL_seniorRateBase is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_seniorRateBase_chosenValues() public {
+    function test_ZivoeYDL_seniorProportionBase_chosenValues() public {
 
         uint256 yT = YDL.yieldTarget(
             sSTT, sJTT, YDL.targetAPYBIPS(), YDL.targetRatioBIPS(), 30
@@ -27,46 +27,43 @@ contract Test_ZivoeYDL_seniorRateBase is Utility {
         emit log_named_uint("yT", yT);
         emit log_named_uint("yT / 10**18", yT / 10**18);
 
-        uint256 seniorRateBase = YDL.seniorRateBase(
+        uint256 seniorProportionBase = YDL.seniorProportionBase(
             yT,
             sSTT,
             YDL.targetAPYBIPS(),
             30
         );
         
-        emit log_named_uint("seniorRateBase", seniorRateBase);
-        emit log_named_uint("seniorRateBase / (RAY/10**4)", seniorRateBase / (RAY/10**4));
+        emit log_named_uint("seniorProportionBase", seniorProportionBase);
+        emit log_named_uint("seniorProportionBase / (RAY/10**4)", seniorProportionBase / (RAY/10**4));
 
-        seniorRateBase = YDL.seniorRateBase(
+        seniorProportionBase = YDL.seniorProportionBase(
             1_000_000 ether,
             sSTT,
             YDL.targetAPYBIPS(),
             30
         );
         
-        emit log_named_uint("seniorRateBase", seniorRateBase);
-        emit log_named_uint("seniorRateBase / (RAY/10**4)", seniorRateBase / (RAY/10**4));
+        emit log_named_uint("seniorProportionBase", seniorProportionBase);
+        emit log_named_uint("seniorProportionBase / (RAY/10**4)", seniorProportionBase / (RAY/10**4));
 
-        seniorRateBase = YDL.seniorRateBase(
+        seniorProportionBase = YDL.seniorProportionBase(
             2_000_000 ether,
             sSTT,
             YDL.targetAPYBIPS(),
             30
         );
         
-        emit log_named_uint("seniorRateBase", seniorRateBase);
-        emit log_named_uint("seniorRateBase / (RAY/10**4)", seniorRateBase / (RAY/10**4));
-
+        emit log_named_uint("seniorProportionBase", seniorProportionBase);
+        emit log_named_uint("seniorProportionBase / (RAY/10**4)", seniorProportionBase / (RAY/10**4));
     }
 
-    function test_ZivoeYDL_seniorRateBase_fuzzTesting(
+    function test_ZivoeYDL_seniorProportionBase_fuzzTesting(
         uint88 yD,
         uint96 eSTT,
         uint16 Y,
         uint8 T
-
     ) public {
-
         // We can assume that yield distributed is greater than 0,
         // otherwise no need of distributing yield.
         hevm.assume(yD > 0);
@@ -74,7 +71,7 @@ contract Test_ZivoeYDL_seniorRateBase is Utility {
         hevm.assume(T >= 1);
         hevm.assume(eSTT > 1 ether);
 
-        assert (YDL.seniorRateBase(yD, eSTT, Y, T) > 0);
+        assert (YDL.seniorProportionBase(yD, eSTT, Y, T) > 0);
     }
 
 }

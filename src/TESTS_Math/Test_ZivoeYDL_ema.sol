@@ -3,14 +3,12 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
-
 import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
+import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
 
 contract Test_ZivoeYDL_ema is Utility {
 
     using FloorMath for uint256;
-    using FloorMath for uint8;
 
     function setUp() public {
         deployCore(false);
@@ -19,94 +17,78 @@ contract Test_ZivoeYDL_ema is Utility {
     // Testing for first window (when number of steps < number steps we are averaging over)
     function test_ZivoeYDL_ema_firstWindow_chosenValues() public {
 
-        // t < N && newval > avg
-        uint256 ema = YDL.ema(
-            2000, // avg
-            2500, // newval
+        // cV > bV
+        uint256 eV = YDL.ema(
+            2000, // bV
+            2500, // cV
             2     // N
         );
 
-        assert(ema == 2250);
-        emit log_named_uint("ema", ema);
+        assert(eV == 2250);
+        emit log_named_uint("eV", eV);
 
-        // t < N && newval < avg
-        ema = YDL.ema(
-            2500, // avg
-            2000, // newval
+        // cv < bV
+        eV = YDL.ema(
+            2500, // bV
+            2000, // cV
             2     // N
         );
 
-        assert(ema == 2250);
-        emit log_named_uint("ema", ema);
-
+        assert(eV == 2250);
+        emit log_named_uint("eV", eV);
     }
 
     // Testing for first window (when number of steps < number steps we are averaging over)
     function test_ZivoeYDL_ema_afterWindow_chosenValues() public {
 
-        // t > N && newval > avg
-        uint256 ema = YDL.ema(
-            2000, // avg
-            2500, // newval
+        // bV < cV
+        uint256 eV = YDL.ema(
+            2000, // bV
+            2500, // cV
             6     // N
         );
 
-        assert(ema == 2083);
-        emit log_named_uint("ema", ema);
+        assert(eV == 2083);
+        emit log_named_uint("eV", eV);
 
-        // t > N && newval < avg
-        ema = YDL.ema(
-            2500, // avg
-            2000, // newval
+        // bV > cV
+        eV = YDL.ema(
+            2500, // bV
+            2000, // cV
             6     // N
         );
 
-        assert(ema == 2416);
-        emit log_named_uint("ema", ema);
-
+        assert(eV == 2416);
+        emit log_named_uint("eV", eV);
     }
 
     // Testing for first window (when number of steps < number steps we are averaging over)
     function test_ZivoeYDL_ema_fuzzTesting(
-        uint96 avg,
-        uint96 newval,
-        uint8 retrospectiveDistributions,
-        uint96 numDistributions
-    ) 
-    public 
-    {
-        // We always initiate the first value for "avg" in the code
-        hevm.assume(avg > 0);
-        // We have to at least average over 1 step
-        hevm.assume(retrospectiveDistributions > 0);
+        uint96 bV,
+        uint96 cV,
+        uint96 N
+    ) public {
+        // We always initiate the first value for "bV" in the code
+        hevm.assume(bV > 0);
         // We increment the number of distributions prior calling ema()
-        hevm.assume(numDistributions > 0);
+        hevm.assume(N > 0);
 
-        // Here we have to assume that the difference between "avg" and "newval"
+        // Here we have to assume that the difference between "bV" and "cV"
         // is at least bigger than max value of "retrospectiveDistributions"
         // otherwise it will have no impact on new value as division would give 0
         // (no issue as we should deal with values in WEI and amount
         // of "retrospectiveDistributions" should be limited)
-        if (avg != newval && avg > newval) {
-            hevm.assume(avg - newval > 255);
-        }
-
-        if (avg != newval && avg < newval) {
-            hevm.assume(newval - avg > 255);
-        }
+        if (bV != cV && bV > cV) { hevm.assume(bV - cV > 255); }
+        if (bV != cV && bV < cV) { hevm.assume(cV - bV > 255); }
 
         uint256 ema = YDL.ema(
-            avg,
-            newval,
-            retrospectiveDistributions.min(numDistributions)
+            bV,
+            cV,
+            uint256(YDL.retrospectiveDistributions()).min(uint256(N))
         );
 
-        if (newval > avg) {
-            assert(ema > avg);
-        } else if (newval == avg) {
-            assert(ema == avg);
-        } else {
-            assert(ema < avg);
-        }
+        if (cV > bV) { assert(ema > bV); } 
+        else if (cV == bV) { assert(ema == bV); }
+        else { assert(ema < bV); }
     }
 }

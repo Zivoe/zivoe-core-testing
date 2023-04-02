@@ -16,7 +16,6 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
     function test_ZivoeYDL_seniorProportion_shortFallScenario() public {
         // testing for yT > yD (shortfall) here
-
         uint256 yD = 200_000 ether;
         uint256 yT = 250_000 ether;
         uint256 yA = 230_000 ether;
@@ -51,7 +50,7 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
             YDL.targetRatioBIPS()
         );
 
-        uint256 seniorRateBase = YDL.seniorRateBase(
+        uint256 seniorProportionBase = YDL.seniorProportionBase(
             yD,
             eSTT,
             YDL.targetAPYBIPS(),
@@ -60,13 +59,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
         assert(seniorProportion == seniorProportionShortfall);
         assert(seniorProportion != seniorProportionCatchup);
-        assert(seniorProportion != seniorRateBase);
-
+        assert(seniorProportion != seniorProportionBase);
     }
 
     function test_ZivoeYDL_seniorProportion_catchupScenario() public {
         // testing for yD > yT && yT >= yA (excess + catchup) here
-
         uint256 yD = 251_000 ether;
         uint256 yT = 250_000 ether;
         uint256 yA = 230_000 ether;
@@ -101,7 +98,7 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
             YDL.targetRatioBIPS()
         );
 
-        uint256 seniorRateBase = YDL.seniorRateBase(
+        uint256 seniorProportionBase = YDL.seniorProportionBase(
             yD,
             eSTT,
             YDL.targetAPYBIPS(),
@@ -110,13 +107,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
         assert(seniorProportion != seniorProportionShortfall);
         assert(seniorProportion == seniorProportionCatchup);
-        assert(seniorProportion != seniorRateBase);
-
+        assert(seniorProportion != seniorProportionBase);
     }   
 
     function test_ZivoeYDL_seniorProportion_baseScenario() public {
         // testing for yD > yT && yT < yA (excess + base) here
-
         uint256 yD = 251_000 ether;
         uint256 yT = 210_000 ether;
         uint256 yA = 230_000 ether;
@@ -151,7 +146,7 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
             YDL.targetRatioBIPS()
         );
 
-        uint256 seniorRateBase = YDL.seniorRateBase(
+        uint256 seniorProportionBase = YDL.seniorProportionBase(
             yD,
             eSTT,
             YDL.targetAPYBIPS(),
@@ -160,8 +155,7 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
         assert(seniorProportion != seniorProportionShortfall);
         assert(seniorProportion != seniorProportionCatchup);
-        assert(seniorProportion == seniorRateBase);
-
+        assert(seniorProportion == seniorProportionBase);
     } 
 
 }
