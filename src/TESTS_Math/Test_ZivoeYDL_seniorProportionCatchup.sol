@@ -24,47 +24,49 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
-    uint256 sSTT = 30_000_000 ether;
-    uint256 sJTT = 6_000_000 ether;
 
     function setUp() public {
         deployCore(false);
 
     }
 
+    /// @notice Returns the smallest of two numbers.
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
     function test_ZivoeYDL_seniorProportionCatchup_chosenValues() public {
 
-        simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6); 
+/*         simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6); 
         claimITO_and_approveTokens_and_stakeTokens(true);
 
         (uint256 supplyZSTT, uint256 supplyZJTT) = GBL.adjustedSupplies();
 
         emit log_named_uint("zSTT", supplyZSTT);
-        emit log_named_uint("zJTT", supplyZJTT);
+        emit log_named_uint("zJTT", supplyZJTT); */
 
-        // State 0
+   /*      // State 0
         // As a first step we will distributeYield() in order to set initial variable "ema" needed 
         deal(DAI, address(YDL), 240_000 ether); 
         hevm.warp(block.timestamp + 31 days);
-        YDL.distributeYield();
-
-        uint256 yD = 280_000 ether;
-        uint256 yT = 260_000 ether;
-        uint256 yA = YDL.emaYield();
-
-        emit log_named_uint("yA", yA);
+        YDL.distributeYield(); */
+        uint256 eSTT = 8_000_000 ether;
+        uint256 eJTT = 2_000_000 ether;
+        uint256 yD = 68_000 ether;
+        uint256 yT = 66_666 ether;
+        uint256 yA = 64_000 ether;
 
         uint256 seniorProportionCatchup0 = YDL.seniorProportionCatchup(
             yD,
             yT,
             yA,
-            supplyZSTT,
-            supplyZJTT,
+            eSTT,
+            eJTT,
             YDL.retrospectiveDistributions(),
             YDL.targetRatioBIPS()
         );
 
-        withinDiff(seniorProportionCatchup0, 908843537 ether, 100 ether);
+        withinDiff(seniorProportionCatchup0, 864439215 ether, 100 ether);
         emit log_named_uint("seniorProportionCatchup0", seniorProportionCatchup0);
         emit log_named_uint("yA", yA);
 
@@ -73,14 +75,14 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
             yD,
             yT,
             yA,
-            (supplyZSTT * 10) / 100,
-            supplyZJTT,
+            (eSTT * 10) / 100,
+            eJTT,
             YDL.retrospectiveDistributions(),
             YDL.targetRatioBIPS()
         );
 
         assert(seniorProportionCatchup1 < seniorProportionCatchup0);
-        withinDiff(seniorProportionCatchup1, 138302277 ether, 100 ether);
+        withinDiff(seniorProportionCatchup1, 240122004 ether, 100 ether);
         emit log_named_uint("seniorProportionCatchup1", seniorProportionCatchup1);
 
         // Test 2
@@ -88,8 +90,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
             yD,
             yT,
             yA,
-            supplyZSTT,
-            (supplyZJTT * 10) / 100,
+            eSTT,
+            (eJTT * 10) / 100,
             YDL.retrospectiveDistributions(),
             YDL.targetRatioBIPS()
         );
@@ -103,8 +105,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
             yD,
             yT,
             yA,
-            supplyZSTT,
-            supplyZJTT,
+            eSTT,
+            eJTT,
             YDL.retrospectiveDistributions(),
             5000
         );
@@ -118,56 +120,47 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
             yD,
             yT,
             yA,
-            supplyZSTT,
-            supplyZJTT,
+            eSTT,
+            eJTT,
             YDL.retrospectiveDistributions(),
             100000
         );
 
         assert(seniorProportionCatchup4 < seniorProportionCatchup0);
-        withinDiff(seniorProportionCatchup4, 216883116 ether, 100 ether);
+        withinDiff(seniorProportionCatchup4, 347319327 ether, 100 ether);
         emit log_named_uint("seniorProportionCatchup4", seniorProportionCatchup4);
     }
 
     function test_ZivoeYDL_seniorProportionCatchup_fuzzTesting(
         uint88 yD,
         uint88 yT,
-        uint96 depositITO,
-        uint88 initialYield,
+        uint88 yA,
+        uint96 eSTT,
+        uint96 eJTT,
         uint16 targetRatio
     ) public {
-        hevm.assume(initialYield < yT && initialYield > 0);
+        hevm.assume(yA < yT && yA > 0);
         hevm.assume(yD > yT);
-        hevm.assume(yT > initialYield);
+        hevm.assume(yT > yA);
 
         uint256 targetRatioBIPS = uint256(targetRatio) + 1;
-        uint256 ITOAmount = uint256(depositITO) + 1_000 ether;
-
-        simulateITO(ITOAmount, ITOAmount, ITOAmount/10**12, ITOAmount/10**12); 
-        claimITO_and_approveTokens_and_stakeTokens(true);
-
-        (uint256 supplyZSTT, uint256 supplyZJTT) = GBL.adjustedSupplies();
-
-        emit log_named_uint("zSTT", supplyZSTT);
-        emit log_named_uint("zJTT", supplyZJTT);
-
-        // As a first step we will distributeYield() in order to set initial variable "ema" needed 
-        deal(DAI, address(YDL), initialYield); 
-        hevm.warp(block.timestamp + 31 days);
-        YDL.distributeYield();
+        uint256 eJTT = uint256(eJTT) + 1 ether;
+        uint256 eSTT = uint256(eSTT) + 1 ether;
+        // here we'll assume that the senior tranche cover will not be less than 10% of junior,
+        // otherwise we could obtain 0 as result
+        eSTT < ((eJTT * 10) / 100) ? eSTT = ((eJTT * 10) / 100) : eSTT;
 
         emit log_named_uint("yD", yD);
         emit log_named_uint("yT", yT);
-        emit log_named_uint("ITOAmount", ITOAmount);
-        emit log_named_uint("initialYield", initialYield);
+        emit log_named_uint("yA", yA);
         emit log_named_uint("targetRatio", targetRatio);
 
         uint256 seniorProportionCatchup = YDL.seniorProportionCatchup(
             yD,
             yT,
-            YDL.emaYield(),
-            supplyZSTT,
-            supplyZJTT,
+            yA,
+            eSTT,
+            eJTT,
             YDL.retrospectiveDistributions(),
             targetRatioBIPS
         );
