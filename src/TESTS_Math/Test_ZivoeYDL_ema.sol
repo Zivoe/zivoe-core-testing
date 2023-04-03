@@ -12,7 +12,7 @@ contract Test_ZivoeYDL_ema is Utility {
 
     function setUp() public {
         deployCore(false);
-    }    
+    }
 
     // Testing for first window (when number of steps < number steps we are averaging over)
     function test_ZivoeYDL_ema_firstWindow_chosenValues() public {
