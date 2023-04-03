@@ -30,26 +30,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
     }
 
-    /// @notice Returns the smallest of two numbers.
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
-    }
-
     function test_ZivoeYDL_seniorProportionCatchup_chosenValues() public {
 
-/*         simulateITO(1_000_000 ether, 1_000_000 ether, 1_000_000 * 10**6, 1_000_000 * 10**6); 
-        claimITO_and_approveTokens_and_stakeTokens(true);
-
-        (uint256 supplyZSTT, uint256 supplyZJTT) = GBL.adjustedSupplies();
-
-        emit log_named_uint("zSTT", supplyZSTT);
-        emit log_named_uint("zJTT", supplyZJTT); */
-
-   /*      // State 0
-        // As a first step we will distributeYield() in order to set initial variable "ema" needed 
-        deal(DAI, address(YDL), 240_000 ether); 
-        hevm.warp(block.timestamp + 31 days);
-        YDL.distributeYield(); */
         uint256 eSTT = 8_000_000 ether;
         uint256 eJTT = 2_000_000 ether;
         uint256 yD = 68_000 ether;
