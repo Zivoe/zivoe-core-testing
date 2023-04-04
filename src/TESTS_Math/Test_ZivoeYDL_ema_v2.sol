@@ -92,7 +92,6 @@ contract Test_ZivoeYDL_ema is Utility {
         uint96 cV,
         uint96 N
     ) public {
-
         // We always initiate the first value for "bV" in the code
         hevm.assume(bV > 100 ether);
 
@@ -107,15 +106,20 @@ contract Test_ZivoeYDL_ema is Utility {
         if (bV != cV && bV > cV) { hevm.assume(bV - cV > 255); }
         if (bV != cV && bV < cV) { hevm.assume(cV - bV > 255); }
 
-        uint256 ema = YDL.ema_v2(
+        uint256 eV = YDL.ema_v2(
             bV,
             cV,
             YDL.retrospectiveDistributions().min(N)
         );
 
-        if (cV > bV) { assert(ema > bV); } 
-        else if (cV == bV) { assert(ema == bV); }
-        else { assert(ema < bV); }
+        // The three invariants we want to test (fundamentally for an average calculation):
+        //   1| When current-value is greater than base-value, we assume output is greater than base-value.
+        //   2| When current-value is equal to base-value, we assume output is equal to base-value.
+        //   3| When current-value is less than base-value, we assume output is less than base-value.
+
+        if (cV > bV) { assert(eV > bV); } 
+        else if (cV == bV) { assert(eV == bV); }
+        else { assert(eV < bV); }
     }
 
 }
