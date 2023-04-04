@@ -129,7 +129,7 @@ contract Test_ZivoeYDL_ema is Utility {
     // Here the objective is to test for zero values till "eV" reaches a value of 0 as well.
     function test_ZivoeYDL_ema_example_zeroValues() public {
 
-        uint256 eV = 500;
+        uint256 eV = 500 ether;
         uint8 N = 1;
 
         for (uint8 i = 0; i < 25; i++) {
@@ -140,6 +140,30 @@ contract Test_ZivoeYDL_ema is Utility {
                 N > 6 ? 6 : N
             );
             emit log_named_uint("eV", eV);
+        }
+    }
+
+    function test_ZivoeYDL_ema_example_calcs() public {
+
+        uint256 eV = 10_000_000;
+        uint256 eV_v2 = 10_000_000;
+        uint8 N = 6;
+
+        uint256[6] memory arr = [uint256(10_000_000), 10_500_000, 10_900_000, 11_900_000, 13_500_000, 16_500_000];
+        
+        for (uint8 i = 0; i < arr.length; i++) {
+            eV = YDL.ema(
+                eV,
+                arr[i],
+                6
+            );
+            eV_v2 = YDL.ema_v2(
+                eV_v2,
+                arr[i],
+                6
+            );
+            emit log_named_uint("eV", eV);
+            emit log_named_uint("eV_v2", eV_v2);
         }
     }
 
