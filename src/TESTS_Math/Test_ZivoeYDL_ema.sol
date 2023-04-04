@@ -91,4 +91,56 @@ contract Test_ZivoeYDL_ema is Utility {
         else if (cV == bV) { assert(ema == bV); }
         else { assert(ema < bV); }
     }
+
+    function test_ZivoeYDL_ema_example_increaseHigh() public {
+        
+        uint8 increaseFactor = 3;
+        // We assume on first step that "eV" has been initialized to 2000
+        uint256 eV = 2000;
+        uint8 N = 1;
+
+        for (uint8 i = 0; i < 12; i++) {
+            N += 1;
+            eV = YDL.ema(
+                eV,
+                eV * increaseFactor, // We increase "eV" at each step by a factor of 3
+                N > 6 ? 6 : N
+            );
+            emit log_named_uint("eV", eV);
+        }
+    }
+
+    function test_ZivoeYDL_ema_example_decreaseHigh() public {
+
+        uint256 eV = 2000;
+        uint8 N = 1;
+
+        for (uint8 i = 0; i < 12; i++) {
+            N += 1;
+            eV = YDL.ema(
+                eV,
+                (eV * 50) / 100, // We decrease "eV" at each step by 50%
+                N > 6 ? 6 : N
+            );
+            emit log_named_uint("eV", eV);
+        }
+    }
+
+    // Here the objective is to test for zero values till "eV" reaches a value of 0 as well.
+    function test_ZivoeYDL_ema_example_zeroValues() public {
+
+        uint256 eV = 500;
+        uint8 N = 1;
+
+        for (uint8 i = 0; i < 25; i++) {
+            N += 1;
+            eV = YDL.ema(
+                eV,
+                0, // We have a "0" value for a certain period of time
+                N > 6 ? 6 : N
+            );
+            emit log_named_uint("eV", eV);
+        }
+    }
+
 }
