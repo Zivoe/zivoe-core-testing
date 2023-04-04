@@ -31,7 +31,7 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_seniorProportionShortfall_chosenValues() public {
+    function test_ZivoeYDL_seniorProportionShortfall_static() public {
         // State 0
         uint256 seniorRate = YDL.seniorProportionShortfall(
             eSTT,

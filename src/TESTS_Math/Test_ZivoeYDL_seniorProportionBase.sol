@@ -11,22 +11,50 @@ contract Test_ZivoeYDL_seniorProportionBase is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_seniorProportionBase_static_0() public {
+    function test_ZivoeYDL_seniorProportionBase_static() public {
 
         uint256 yD = 66_666 ether;
         uint256 eSTT = 8_000_000 ether;
-        uint256 Y = 800;
-        uint256 T = 30;
 
-        uint256 sPB = YDL.seniorProportionBase(
+        uint256 sPB1 = YDL.seniorProportionBase(
             yD,     
             eSTT,   
-            Y,      
-            T       
+            YDL.targetAPYBIPS(), // Y
+            YDL.daysBetweenDistributions() // T       
         );
 
-        emit log_named_uint("sPB", sPB);
-        
+        withinDiff(sPB1, 789048986 ether, 100 ether);
+
+        uint256 sPB2 = YDL.seniorProportionBase(
+            yD * 50 / 100,     
+            eSTT,   
+            YDL.targetAPYBIPS(), // Y
+            YDL.daysBetweenDistributions() // T       
+        );
+
+        assert(sPB1 < sPB2);
+        assert(sPB2 == RAY);
+
+        uint256 sPB3 = YDL.seniorProportionBase(
+            yD,     
+            eSTT * 10 / 100,   
+            YDL.targetAPYBIPS(), // Y
+            YDL.daysBetweenDistributions() // T       
+        );
+
+        assert(sPB3 < sPB1);
+        withinDiff(sPB3, 78904899 ether, 100 ether);
+
+        uint256 sPB4 = YDL.seniorProportionBase(
+            yD,     
+            eSTT,   
+            YDL.targetAPYBIPS() + 200, // Y
+            YDL.daysBetweenDistributions() // T       
+        );
+
+        assert(sPB4 > sPB1);
+        withinDiff(sPB4, 986311233 ether, 100 ether);
+
     }
 
     function test_ZivoeYDL_seniorProportionBase_fuzzTesting(

@@ -39,7 +39,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_yieldTarget_chosenValues() public {
+    function test_ZivoeYDL_yieldTarget_static() public {
 
         // State 0
         uint256 yieldTarget0 = YDL.yieldTarget(

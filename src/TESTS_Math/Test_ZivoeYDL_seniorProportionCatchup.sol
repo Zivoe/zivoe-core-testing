@@ -30,7 +30,7 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
     }
 
-    function test_ZivoeYDL_seniorProportionCatchup_chosenValues() public {
+    function test_ZivoeYDL_seniorProportionCatchup_static() public {
 
         uint256 eSTT = 8_000_000 ether;
         uint256 eJTT = 2_000_000 ether;

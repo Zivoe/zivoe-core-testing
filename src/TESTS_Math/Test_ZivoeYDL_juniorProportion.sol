@@ -33,7 +33,7 @@ contract Test_ZivoeYDL_juniorProportion is Utility {
     }
 
     // Here we will test for specific cases
-    function test_ZivoeYDL_juniorProportion_chosenValues() public {
+    function test_ZivoeYDL_juniorProportion_static() public {
         uint256 eSTT = 8_000_000 ether;
         uint256 eJTT = 2_000_000 ether;
         uint256 sP = 600000000 ether; // 60%

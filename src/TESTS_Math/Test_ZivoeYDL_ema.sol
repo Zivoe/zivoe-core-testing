@@ -15,7 +15,7 @@ contract Test_ZivoeYDL_ema is Utility {
     }
 
     // Testing for first window (when number of steps < number steps we are averaging over)
-    function test_ZivoeYDL_ema_firstWindow_chosenValues() public {
+    function test_ZivoeYDL_ema_firstWindow_static() public {
 
         // cV > bV
         uint256 eV = YDL.ema(
