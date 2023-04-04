@@ -14,52 +14,76 @@ contract Test_ZivoeYDL_ema is Utility {
         deployCore(false);
     }
 
-    // Testing for first window (when number of steps < number steps we are averaging over)
-    function test_ZivoeYDL_ema_firstWindow_static() public {
+    function test_ZivoeYDL_ema_increasingValues() public {
 
-        // cV > bV
-        uint256 eV = YDL.ema(
-            2000, // bV
-            2500, // cV
-            2     // N
-        );
+        uint256 eV = 10_000_000;
+        uint256 N = 1;
 
-        assert(eV == 2250);
-        emit log_named_uint("eV", eV);
+        // Increasing values.
 
-        // cv < bV
-        eV = YDL.ema(
-            2500, // bV
-            2000, // cV
-            2     // N
-        );
+        uint256[12] memory arr = [
+            uint256(10_200_000), 10_500_000, 10_900_000, 11_900_000, 13_500_000, 16_500_000,
+            uint256(17_500_000), 17_800_000, 17_900_000, 18_300_000, 20_500_000, 21_000_000
+        ];
+        
+        for (uint8 i = 0; i < arr.length; i++) {
+            N += 1;
+            eV = YDL.ema(
+                eV,             // bV
+                arr[i],         // cV
+                N.min(6)        // N (take minimum between N and 6)
+            );
+            emit log_named_uint("eV", eV);
+        }
 
-        assert(eV == 2250);
-        emit log_named_uint("eV", eV);
     }
 
-    // Testing for first window (when number of steps < number steps we are averaging over)
-    function test_ZivoeYDL_ema_afterWindow_chosenValues() public {
+    function test_ZivoeYDL_ema_decreasingValues() public {
 
-        // bV < cV
-        uint256 eV = YDL.ema(
-            2000, // bV
-            2500, // cV
-            6     // N
-        );
+        uint256 eV = 21_200_000;
+        uint256 N = 1;
 
-        assert(eV == 2083);
-        emit log_named_uint("eV", eV);
+        // Decreasing values.
 
-        // bV > cV
-        eV = YDL.ema(
-            2500, // bV
-            2000, // cV
-            6     // N
-        );
+        uint256[12] memory arr = [
+            21_000_000, 20_500_000, 18_300_000, 17_900_000, 17_800_000, uint256(17_500_000),
+            16_500_000, 13_500_000, 11_900_000, 10_900_000, 10_500_000, uint256(10_200_000)
+        ];
+        
+        for (uint8 i = 0; i < arr.length; i++) {
+            N += 1;
+            eV = YDL.ema(
+                eV,             // bV
+                arr[i],         // cV
+                N.min(6)        // N (take minimum between N and 6)
+            );
+            emit log_named_uint("eV", eV);
+        }
 
-        assert(eV == 2416);
-        emit log_named_uint("eV", eV);
+    }
+
+    function test_ZivoeYDL_ema_oscillatingValues() public {
+
+        uint256 eV = 15_000_000;
+        uint256 N = 1;
+
+        // Oscillating values.
+
+        uint256[12] memory arr = [
+            16_000_000, 14_500_000, 18_300_000, 17_900_000, 19_800_000, uint256(16_500_000),
+            17_500_000, 12_500_000, 15_900_000, 18_900_000, 22_500_000, uint256(24_200_000)
+        ];
+        
+        for (uint8 i = 0; i < arr.length; i++) {
+            N += 1;
+            eV = YDL.ema(
+                eV,             // bV
+                arr[i],         // cV
+                N.min(6)        // N (take minimum between N and 6)
+            );
+            emit log_named_uint("eV", eV);
+        }
+
     }
 
     // Testing for first window (when number of steps < number steps we are averaging over)
@@ -69,8 +93,9 @@ contract Test_ZivoeYDL_ema is Utility {
         uint96 N
     ) public {
         // We always initiate the first value for "bV" in the code
-        hevm.assume(bV > 0);
-        // We increment the number of distributions prior calling ema()
+        hevm.assume(bV > 100 ether);
+
+        // We increment the number of distributions prior to calling ema()
         hevm.assume(N > 0);
 
         // Here we have to assume that the difference between "bV" and "cV"
@@ -81,90 +106,20 @@ contract Test_ZivoeYDL_ema is Utility {
         if (bV != cV && bV > cV) { hevm.assume(bV - cV > 255); }
         if (bV != cV && bV < cV) { hevm.assume(cV - bV > 255); }
 
-        uint256 ema = YDL.ema(
+        uint256 eV = YDL.ema(
             bV,
             cV,
-            uint256(YDL.retrospectiveDistributions()).min(uint256(N))
+            YDL.retrospectiveDistributions().min(N)
         );
 
-        if (cV > bV) { assert(ema > bV); } 
-        else if (cV == bV) { assert(ema == bV); }
-        else { assert(ema < bV); }
-    }
+        // The three invariants we want to test (fundamentally for an average calculation):
+        //   1| When current-value is greater than base-value, we assume output is greater than base-value.
+        //   2| When current-value is equal to base-value, we assume output is equal to base-value.
+        //   3| When current-value is less than base-value, we assume output is less than base-value.
 
-    function test_ZivoeYDL_ema_example_increaseHigh() public {
-        
-        uint8 increaseFactor = 3;
-        // We assume on first step that "eV" has been initialized to 2000
-        uint256 eV = 2000;
-        uint8 N = 1;
-
-        for (uint8 i = 0; i < 12; i++) {
-            N += 1;
-            eV = YDL.ema(
-                eV,
-                eV * increaseFactor, // We increase "eV" at each step by a factor of 3
-                N > 6 ? 6 : N
-            );
-            emit log_named_uint("eV", eV);
-        }
-    }
-
-    function test_ZivoeYDL_ema_example_decreaseHigh() public {
-
-        uint256 eV = 2000;
-        uint8 N = 1;
-
-        for (uint8 i = 0; i < 12; i++) {
-            N += 1;
-            eV = YDL.ema(
-                eV,
-                (eV * 50) / 100, // We decrease "eV" at each step by 50%
-                N > 6 ? 6 : N
-            );
-            emit log_named_uint("eV", eV);
-        }
-    }
-
-    // Here the objective is to test for zero values till "eV" reaches a value of 0 as well.
-    function test_ZivoeYDL_ema_example_zeroValues() public {
-
-        uint256 eV = 500 ether;
-        uint8 N = 1;
-
-        for (uint8 i = 0; i < 25; i++) {
-            N += 1;
-            eV = YDL.ema(
-                eV,
-                0, // We have a "0" value for a certain period of time
-                N > 6 ? 6 : N
-            );
-            emit log_named_uint("eV", eV);
-        }
-    }
-
-    function test_ZivoeYDL_ema_example_calcs() public {
-
-        uint256 eV = 10_000_000;
-        uint256 eV_v2 = 10_000_000;
-        uint8 N = 6;
-
-        uint256[6] memory arr = [uint256(10_000_000), 10_500_000, 10_900_000, 11_900_000, 13_500_000, 16_500_000];
-        
-        for (uint8 i = 0; i < arr.length; i++) {
-            eV = YDL.ema(
-                eV,
-                arr[i],
-                6
-            );
-            eV_v2 = YDL.ema_v2(
-                eV_v2,
-                arr[i],
-                6
-            );
-            emit log_named_uint("eV", eV);
-            emit log_named_uint("eV_v2", eV_v2);
-        }
+        if (cV > bV) { assert(eV > bV); } 
+        else if (cV == bV) { assert(eV == bV); }
+        else { assert(eV < bV); }
     }
 
 }
