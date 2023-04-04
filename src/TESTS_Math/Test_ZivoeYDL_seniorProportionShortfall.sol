@@ -15,17 +15,17 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // sJTT = 10% of initial amount
 
 // Test 3
-// Multiplication factor = 0.5
+// targetRatioBIPS = 5000
 
 // Test 4
-// Multiplication factor = 10
+// targetRatioBIPS = 100000
 
 // Then in a separate test function we will also perform fuzz testing
 
 contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
 
-    uint256 sSTT = 30_000_000 ether;
-    uint256 sJTT = 6_000_000 ether;
+    uint256 eSTT = 30_000_000 ether;
+    uint256 eJTT = 6_000_000 ether;
 
     function setUp() public {
         deployCore(false);
@@ -34,8 +34,8 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
     function test_ZivoeYDL_seniorProportionShortfall_chosenValues() public {
         // State 0
         uint256 seniorRate = YDL.seniorProportionShortfall(
-            sSTT,
-            sJTT,
+            eSTT,
+            eJTT,
             YDL.targetRatioBIPS()
         );
 
@@ -44,8 +44,8 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
 
         // state 1
         uint256 seniorRate1 = YDL.seniorProportionShortfall(
-            (sSTT * 10) / 100,
-            sJTT,
+            (eSTT * 10) / 100,
+            eJTT,
             YDL.targetRatioBIPS()
         );
 
@@ -55,8 +55,8 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
 
         // state 2
         uint256 seniorRate2 = YDL.seniorProportionShortfall(
-            sSTT,
-            (sJTT * 10) / 100,
+            eSTT,
+            (eJTT * 10) / 100,
             YDL.targetRatioBIPS()
         );
 
@@ -66,8 +66,8 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
 
         // state 3
         uint256 seniorRate3 = YDL.seniorProportionShortfall(
-            sSTT,
-            sJTT,
+            eSTT,
+            eJTT,
             5000
         );
 
@@ -77,8 +77,8 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
 
         // state 4
         uint256 seniorRate4 = YDL.seniorProportionShortfall(
-            sSTT,
-            sJTT,
+            eSTT,
+            eJTT,
             100000
         );
 
@@ -89,17 +89,17 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
     }
 
     function test_ZivoeYDL_seniorProportionShortfall_fuzzTesting(
-        uint96 seniorSupply,
-        uint96 juniorSupply,
-        uint32 targetRatio
+        uint96 eSTT,
+        uint96 eJTT,
+        uint32 targetRatioBIPS
     ) public {
-        hevm.assume(seniorSupply > 1 ether);
-        hevm.assume(targetRatio > 0);
+        hevm.assume(eSTT > 1 ether);
+        hevm.assume(targetRatioBIPS > 0);
 
         uint256 seniorRate = YDL.seniorProportionShortfall(
-            uint256(seniorSupply),
-            uint256(juniorSupply),
-            uint256(targetRatio)
+            uint256(eSTT),
+            uint256(eJTT),
+            uint256(targetRatioBIPS)
         );
 
         assert(seniorRate > 0);

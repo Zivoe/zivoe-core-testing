@@ -16,9 +16,9 @@ contract Test_ZivoeYDL_juniorProportion is Utility {
         hevm.assume(sP <= RAY);
 
         uint256 jP = YDL.juniorProportion(
-            eSTT, // eSTT
-            eJTT, // eJTT
-            sP, // sP
+            eSTT, 
+            eJTT, 
+            sP, 
             YDL.targetRatioBIPS() // Q
         );
 

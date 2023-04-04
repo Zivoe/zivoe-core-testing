@@ -14,10 +14,10 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // sJTT = 10% of initial amount
 
 // Test 3
-// Multiplication factor = 0.5
+// targetRatioBIPS = 5000
 
 // Test 4
-// Multiplication factor = 10
+// targetRatioBIPS = 100000
 
 
 // Then in a separate test function we will also perform fuzz testing
