@@ -9,10 +9,10 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // First the idea is to test for multiple values of input parameters and it's effect on returned value.
 
 // Test 1
-// sSTT = 10% of initial amount
+// eSTT = 10% of initial amount
 
 // Test 2
-// sJTT = 10% of initial amount
+// eJTT = 10% of initial amount
 
 // Test 3
 // targetRatioBIPS = 5000
