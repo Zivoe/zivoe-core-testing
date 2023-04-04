@@ -20,11 +20,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
         uint256 eJTT = 2_000_000 ether;
 
         uint256 seniorProportion = YDL.seniorProportion(
-            yD, // yD
-            yT, // yT
-            yA, // yA
-            eSTT, // eSTT
-            eJTT, // eJTT
+            yD, 
+            yT, 
+            yA, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), // Y
             YDL.targetRatioBIPS(), // Q
             YDL.daysBetweenDistributions(), // T
@@ -32,8 +32,8 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
         );
 
         uint256 seniorProportionShortfall = YDL.seniorProportionShortfall(
-            eSTT, // eSTT
-            eJTT, // eJTT
+            eSTT, 
+            eJTT, 
             16250 // Q
         );
 
@@ -43,15 +43,15 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
             yA,
             eSTT,
             eJTT,
-            YDL.retrospectiveDistributions(),
-            YDL.targetRatioBIPS()
+            YDL.retrospectiveDistributions(), // R
+            YDL.targetRatioBIPS() // Q
         );
 
         uint256 seniorProportionBase = YDL.seniorProportionBase(
             yD,
             eSTT,
-            YDL.targetAPYBIPS(),
-            YDL.daysBetweenDistributions()
+            YDL.targetAPYBIPS(), // Y
+            YDL.daysBetweenDistributions() // T
         );
 
         assert(seniorProportion == seniorProportionShortfall);
@@ -68,11 +68,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
         uint256 eJTT = 2_000_000 ether;
 
         uint256 seniorProportion = YDL.seniorProportion(
-            yD, // yD
-            yT, // yT
-            yA, // yA
-            eSTT, // eSTT
-            eJTT, // eJTT
+            yD, 
+            yT, 
+            yA, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), // Y
             YDL.targetRatioBIPS(), // Q
             YDL.daysBetweenDistributions(), // T
@@ -80,8 +80,8 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
         );
 
         uint256 seniorProportionShortfall = YDL.seniorProportionShortfall(
-            eSTT, // eSTT
-            eJTT, // eJTT
+            eSTT, 
+            eJTT, 
             16250 // Q
         );
 
@@ -91,15 +91,15 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
             yA,
             eSTT,
             eJTT,
-            YDL.retrospectiveDistributions(),
-            YDL.targetRatioBIPS()
+            YDL.retrospectiveDistributions(), // R
+            YDL.targetRatioBIPS() // Q
         );
 
         uint256 seniorProportionBase = YDL.seniorProportionBase(
             yD,
             eSTT,
-            YDL.targetAPYBIPS(),
-            YDL.daysBetweenDistributions()
+            YDL.targetAPYBIPS(), // Y
+            YDL.daysBetweenDistributions() // T
         );
 
         assert(seniorProportion != seniorProportionShortfall);
@@ -116,11 +116,11 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
         uint256 eJTT = 2_000_000 ether;
 
         uint256 seniorProportion = YDL.seniorProportion(
-            yD, // yD
-            yT, // yT
-            yA, // yA
-            eSTT, // eSTT
-            eJTT, // eJTT
+            yD, 
+            yT, 
+            yA, 
+            eSTT, 
+            eJTT, 
             YDL.targetAPYBIPS(), // Y
             YDL.targetRatioBIPS(), // Q
             YDL.daysBetweenDistributions(), // T
@@ -128,8 +128,8 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
         );
 
         uint256 seniorProportionShortfall = YDL.seniorProportionShortfall(
-            eSTT, // eSTT
-            eJTT, // eJTT
+            eSTT, 
+            eJTT, 
             16250 // Q
         );
 
@@ -139,15 +139,15 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
             yA,
             eSTT,
             eJTT,
-            YDL.retrospectiveDistributions(),
-            YDL.targetRatioBIPS()
+            YDL.retrospectiveDistributions(), // R
+            YDL.targetRatioBIPS() // Q
         );
 
         uint256 seniorProportionBase = YDL.seniorProportionBase(
             yD,
             eSTT,
-            YDL.targetAPYBIPS(),
-            YDL.daysBetweenDistributions()
+            YDL.targetAPYBIPS(), // Y
+            YDL.daysBetweenDistributions() // R
         );
 
         assert(seniorProportion != seniorProportionShortfall);

@@ -19,10 +19,10 @@ contract Test_ZivoeYDL_seniorProportionBase is Utility {
         uint256 T = 30;
 
         uint256 sPB = YDL.seniorProportionBase(
-            yD,     // yD
-            eSTT,   // eSTT
-            Y,      // Y
-            T       // T
+            yD,     
+            eSTT,   
+            Y,      
+            T       
         );
 
         emit log_named_uint("sPB", sPB);
