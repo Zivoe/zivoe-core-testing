@@ -67,7 +67,7 @@ contract Test_ZivoeYDL_ema is Utility {
         uint256 eV = 15_000_000;
         uint256 N = 1;
 
-        // Decreasing values.
+        // Oscillating values.
 
         uint256[12] memory arr = [
             16_000_000, 14_500_000, 18_300_000, 17_900_000, 19_800_000, uint256(16_500_000),
