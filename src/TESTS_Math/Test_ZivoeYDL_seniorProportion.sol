@@ -109,7 +109,7 @@ contract Test_ZivoeYDL_seniorProportion is Utility {
 
     function test_ZivoeYDL_seniorProportion_baseScenario() public {
         // testing for yD > yT && yT < yA (excess + base) here
-        uint256 yD = 66_000 ether;
+        uint256 yD = 66_700 ether;
         uint256 yT = 66_666 ether;
         uint256 yA = 67_000 ether;
         uint256 eSTT = 8_000_000 ether;
