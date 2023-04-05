@@ -70,7 +70,9 @@ contract Test_ZivoeYDL_seniorProportionBase is Utility {
         hevm.assume(T >= 1);
         hevm.assume(eSTT > 1 ether);
 
-        assert(YDL.seniorProportionBase(yD, eSTT, Y, T) > 0);
+        uint256 sPB = YDL.seniorProportionBase(yD, eSTT, Y, T);
+        
+        assert(sPB > 0 && sPB <= RAY);
     }
 
 }

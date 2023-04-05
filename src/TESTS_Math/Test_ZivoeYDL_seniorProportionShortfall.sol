@@ -102,7 +102,7 @@ contract Test_ZivoeYDL_seniorProportionShortfall is Utility {
             uint256(targetRatioBIPS)
         );
 
-        assert(seniorRate > 0);
+        assert(seniorRate > 0 && seniorRate <= RAY);
     }
 
 }

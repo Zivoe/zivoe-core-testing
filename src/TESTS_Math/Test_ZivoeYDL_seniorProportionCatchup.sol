@@ -123,7 +123,8 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
     ) public {
         hevm.assume(yA < yT && yA > 0);
         hevm.assume(yD > yT);
-        hevm.assume(yT > yA);
+        // We can assume that target yield for senior tranche is at least 1%.
+        hevm.assume(yT >= 100);
 
         uint256 targetRatioBIPS = uint256(targetRatio) + 1;
         uint256 eJTT = uint256(eJTT) + 1 ether;
@@ -147,7 +148,7 @@ contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
             targetRatioBIPS
         );
 
-        assert(seniorProportionCatchup > 0);
+        assert(seniorProportionCatchup > 0 && seniorProportionCatchup <= RAY);
     }
 
 
