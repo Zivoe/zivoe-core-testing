@@ -20,10 +20,10 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 // Target annual yield for senior tranche (Y) = 20%
 
 // Test 5
-// Multiplication factor = 0.5
+// targetRatioBIPS = 5_000
 
 // Test 6
-// Multiplication factor = 10
+// targetRatioBIPS = 100_000
 
 // Test 7
 // Number of days (T) = 1
@@ -53,7 +53,8 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         withinDiff(yieldTarget0, 261_300 ether, 100 ether);
         emit log_named_uint("yieldTarget0", yieldTarget0);
 
-        // Test 1
+        // Test 1, examine yieldTarget() changes when senior tranche is reduced by 90%
+        // We expect that the yield target should reduce greatly.
         uint256 yieldTarget1 = YDL.yieldTarget(
             (eSTT * 10) / 100, 
             eJTT, 
@@ -62,6 +63,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
             YDL.daysBetweenDistributions()
         );
 
+        // yieldTarget0 is our base-case, yieldTarget1 is our reduced yield as expected
         assert(yieldTarget1 < yieldTarget0);
         withinDiff(yieldTarget1, 83_800 ether, 100 ether);
         emit log_named_uint("yieldTarget1", yieldTarget1);
@@ -96,7 +98,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         uint256 yieldTarget4 = YDL.yieldTarget(
             eSTT, 
             eJTT, 
-            2000,
+            2_000,
             YDL.targetRatioBIPS(), 
             YDL.daysBetweenDistributions()
         );
@@ -110,7 +112,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
             eSTT, 
             eJTT, 
             YDL.targetAPYBIPS(), 
-            5000, 
+            5_000, 
             YDL.daysBetweenDistributions()
         );
 
@@ -123,7 +125,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
             eSTT, 
             eJTT, 
             YDL.targetAPYBIPS(), 
-            100000, 
+            100_000, 
             YDL.daysBetweenDistributions()
         );
 
@@ -152,7 +154,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         uint32 Q,
         uint16 T
     ) public {
-        hevm.assume(Y < 10000 && Y > 100);
+        hevm.assume(Y < 10_000 && Y > 100);
         hevm.assume(Q > 0);
         hevm.assume(T > 0);
         hevm.assume(eSTT > 1 ether);

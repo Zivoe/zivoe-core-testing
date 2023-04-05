@@ -24,10 +24,8 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 contract Test_ZivoeYDL_seniorProportionCatchup is Utility {
 
-
     function setUp() public {
         deployCore(false);
-
     }
 
     function test_ZivoeYDL_seniorProportionCatchup_static() public {
