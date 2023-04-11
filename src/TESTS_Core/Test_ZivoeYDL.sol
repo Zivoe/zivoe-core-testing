@@ -56,6 +56,28 @@ contract Test_ZivoeYDL is Utility {
         goodProportions[3] = 2500;
     }
 
+    // ------------
+    //    Events
+    // ------------
+
+    event AssetConverted(address indexed fromAsset, uint256 amountConverted, uint256 amountReceived);
+
+    event UpdatedDistributedAsset(address indexed oldAsset, address indexed newAsset);
+
+    event UpdatedProtocolEarningsRateBIPS(uint256 oldValue, uint256 newValue);
+
+    event UpdatedProtocolRecipients(address[] recipients, uint256[] proportion);
+
+    event UpdatedResidualRecipients(address[] recipients, uint256[] proportion);
+
+    event UpdatedTargetAPYBIPS(uint256 oldValue, uint256 newValue);
+
+    event UpdatedTargetRatioBIPS(uint256 oldValue, uint256 newValue);
+
+    event YieldDistributed(uint256[] protocol, uint256 senior, uint256 junior, uint256[] residual);
+
+    event YieldDistributedSingle(address indexed asset, address indexed recipient, uint256 amount);
+
     // ----------------
     //    Unit Tests
     // ----------------
@@ -170,6 +192,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.targetAPYBIPS(), 800);
         
         // setTargetAPYBIPS().
+        hevm.expectEmit(false, false, false, true, address(YDL));
+        emit UpdatedTargetAPYBIPS(YDL.targetAPYBIPS(), amount);
         assert(god.try_setTargetAPYBIPS(address(YDL), amount));
 
         // Post-state.
@@ -201,6 +225,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.targetRatioBIPS(), 16250);
         
         // setTargetRatioBIPS().
+        hevm.expectEmit(false, false, false, true, address(YDL));
+        emit UpdatedTargetRatioBIPS(YDL.targetRatioBIPS(), amount);
         assert(god.try_setTargetRatioBIPS(address(YDL), amount));
 
         // Post-state.
@@ -212,7 +238,7 @@ contract Test_ZivoeYDL is Utility {
     // Validate setProtocolEarningsRateBIPS() restrictions.
     // This includes:
     //  - Caller must be TLC
-    //  - Amount must be <= 10000.
+    //  - Amount must be <= 3000.
 
     function test_ZivoeYDL_setProtocolEarningsRateBIPS_restrictions_msgSender(uint96 random) public {
         
@@ -228,7 +254,7 @@ contract Test_ZivoeYDL is Utility {
         assert(god.try_setProtocolEarningsRateBIPS(address(YDL), 1200));
     }
 
-    function test_ZivoeYDL_setProtocolEarningsRateBIPS_restrictions_max10000() public {
+    function test_ZivoeYDL_setProtocolEarningsRateBIPS_restrictions_max3000() public {
         
         // Can't call if > 3000.
         hevm.startPrank(address(god));
@@ -245,6 +271,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.protocolEarningsRateBIPS(), 2000);
         
         // setProtocolEarningsRateBIPS().
+        hevm.expectEmit(false, false, false, true, address(YDL));
+        emit UpdatedProtocolEarningsRateBIPS(YDL.protocolEarningsRateBIPS(), amount);
         assert(god.try_setProtocolEarningsRateBIPS(address(YDL), amount));
 
         // Post-state.
@@ -295,6 +323,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.distributedAsset(), DAI);
 
         // Example success call.
+        hevm.expectEmit(true, true, false, false, address(YDL));
+        emit UpdatedDistributedAsset(YDL.distributedAsset(), USDC);
         assert(god.try_setDistributedAsset(address(YDL), USDC));
 
         // Post-state.
@@ -409,32 +439,32 @@ contract Test_ZivoeYDL is Utility {
         //     return (protocolRecipients.recipients, protocolRecipients.proportion, residualRecipients.recipients, residualRecipients.proportion);
         // }
 
-        // uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
+        uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
-        // address[] memory recipients = new address[](4);
-        // uint256[] memory proportions = new uint256[](4);
+        address[] memory recipients = new address[](4);
+        uint256[] memory proportions = new uint256[](4);
 
-        // recipients[0] = address(1);
-        // recipients[1] = address(2);
-        // recipients[2] = address(3);
-        // recipients[3] = address(4);
+        recipients[0] = address(1);
+        recipients[1] = address(2);
+        recipients[2] = address(3);
+        recipients[3] = address(4);
 
-        // proportions[0] = 1;
-        // proportions[1] = 1;
-        // proportions[2] = 1;
-        // proportions[3] = 1;
+        proportions[0] = 1;
+        proportions[1] = 1;
+        proportions[2] = 1;
+        proportions[3] = 1;
 
-        // proportions[0] += amount % 2500;
-        // proportions[1] += amount % 2500;
-        // proportions[2] += amount % 2500;
-        // proportions[3] += amount % 2500;
+        proportions[0] += amount % 2500;
+        proportions[1] += amount % 2500;
+        proportions[2] += amount % 2500;
+        proportions[3] += amount % 2500;
 
-        // if (proportions[0] + proportions[1] + proportions[2] + proportions[3] < 10000) {
-        //     proportions[3] = 10000 - proportions[0] - proportions[1] - proportions[2];
-        // }
+        if (proportions[0] + proportions[1] + proportions[2] + proportions[3] < 10000) {
+            proportions[3] = 10000 - proportions[0] - proportions[1] - proportions[2];
+        }
 
-        // // Simulating the ITO will "unlock" the YDL, and allow calls to updateRecipients().
-        // simulateITO(amount, amount, amount / 10**12, amount / 10**12);
+        // Simulating the ITO will "unlock" the YDL, and allow calls to updateRecipients().
+        simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
         // // Pre-state.
         // (
@@ -451,8 +481,10 @@ contract Test_ZivoeYDL is Utility {
         // assertEq(protocolEarningsProportion[1], 2500);
         // assertEq(protocolEarningsProportion.length, 2);
 
-        // // updateRecipients().        
-        // assert(god.try_updateRecipients(address(YDL), recipients, proportions, true));
+        // updateRecipients().
+        hevm.expectEmit(false, false, false, true, address(YDL));
+        emit UpdatedProtocolRecipients(recipients, proportions);
+        assert(god.try_updateRecipients(address(YDL), recipients, proportions, true));
 
         // // Post-state.
         // (
@@ -582,32 +614,32 @@ contract Test_ZivoeYDL is Utility {
         //     return (protocolRecipients.recipients, protocolRecipients.proportion, residualRecipients.recipients, residualRecipients.proportion);
         // }
 
-        // uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
+        uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
-        // address[] memory recipients = new address[](4);
-        // uint256[] memory proportions = new uint256[](4);
+        address[] memory recipients = new address[](4);
+        uint256[] memory proportions = new uint256[](4);
 
-        // recipients[0] = address(1);
-        // recipients[1] = address(2);
-        // recipients[2] = address(3);
-        // recipients[3] = address(4);
+        recipients[0] = address(1);
+        recipients[1] = address(2);
+        recipients[2] = address(3);
+        recipients[3] = address(4);
 
-        // proportions[0] = 1;
-        // proportions[1] = 1;
-        // proportions[2] = 1;
-        // proportions[3] = 1;
+        proportions[0] = 1;
+        proportions[1] = 1;
+        proportions[2] = 1;
+        proportions[3] = 1;
 
-        // proportions[0] += amount % 2500;
-        // proportions[1] += amount % 2500;
-        // proportions[2] += amount % 2500;
-        // proportions[3] += amount % 2500;
+        proportions[0] += amount % 2500;
+        proportions[1] += amount % 2500;
+        proportions[2] += amount % 2500;
+        proportions[3] += amount % 2500;
 
-        // if (proportions[0] + proportions[1] + proportions[2] + proportions[3] < 10000) {
-        //     proportions[3] = 10000 - proportions[0] - proportions[1] - proportions[2];
-        // }
+        if (proportions[0] + proportions[1] + proportions[2] + proportions[3] < 10000) {
+            proportions[3] = 10000 - proportions[0] - proportions[1] - proportions[2];
+        }
 
-        // // Simulating the ITO will "unlock" the YDL, and offer initial settings.
-        // simulateITO(amount, amount, amount / 10**12, amount / 10**12);
+        // Simulating the ITO will "unlock" the YDL, and offer initial settings.
+        simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
         // // Pre-state.
         // (
@@ -629,8 +661,10 @@ contract Test_ZivoeYDL is Utility {
         // assertEq(residualEarningsProportion[3], 2500);
         // assertEq(residualEarningsProportion.length, 4);
 
-        // // updateRecipients().        
-        // assert(god.try_updateRecipients(address(YDL), recipients, proportions, false));
+        // updateRecipients().
+        hevm.expectEmit(false, false, false, true, address(YDL));
+        emit UpdatedResidualRecipients(recipients, proportions);
+        assert(god.try_updateRecipients(address(YDL), recipients, proportions, false));
 
         // // Post-state.
         // (
@@ -672,9 +706,7 @@ contract Test_ZivoeYDL is Utility {
     function test_ZivoeYDL_distributeYield_restrictions_distributionPeriod(
         uint96 randomSenior, 
         uint96 randomJunior
-    ) 
-    public
-    {
+    ) public {
         uint256 amtSenior = uint256(randomSenior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
         uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
@@ -733,5 +765,8 @@ contract Test_ZivoeYDL is Utility {
         // assertEq(YDL.numDistributions(), 1);
 
     }
+
+
+    // TODO: convert() state / restrictions
 
 }
