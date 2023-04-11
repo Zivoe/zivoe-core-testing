@@ -3,6 +3,8 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
+import "lib/zivoe-core-foundry/src/ZivoeMath.sol";
+
 import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
 
 contract Test_ZivoeYDL is Utility {
@@ -15,9 +17,7 @@ contract Test_ZivoeYDL is Utility {
     }
 
     function setUp() public {
-
         deployCore(false);
-        
     }
 
     // ----------------------
@@ -288,97 +288,14 @@ contract Test_ZivoeYDL is Utility {
 
     }
 
-
-    // Validate recoverAsset() state changes.
-    // Validate recoverAsset() restrictions.
-    // This includes:
-    //  - Can not withdraw distributedAsset (asset != distributedAsset)
-    // TODO: Test the additional restriction added
-    // TODO: Reimplement state change
-
-    function test_ZivoeYDL_recoverAsset_restrictions_locked() public {
-        
-        // Can't call recoverAsset() if !YDL.unlocked().
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::recoverAsset() !unlocked");
-        YDL.recoverAsset(DAI);
-        hevm.stopPrank();
-    }
-
-    function test_ZivoeYDL_recoverAsset_restrictions_distributedAsset(uint96 random) public {
-
-        uint256 amount = uint256(random);
-
-        // Simulating the ITO will "unlock" the YDL, and allow calls to recoverAsset().
-        simulateITO(amount, amount, amount / 10**12, amount / 10**12);
-
-        mint("DAI", address(YDL), 1000 ether);
-
-        // Can't call recoverAsset() if asset == distributedAsset().
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::recoverAsset() asset == distributedAsset");
-        YDL.recoverAsset(DAI);
-        hevm.stopPrank();
-    }
-
-    function test_ZivoeYDL_recoverAsset_state(uint96 random) public {
-
-        // TODO: Ensure caller is keeper here to pass this test
-
-        // uint256 amount = uint256(random) + 100 * USD; // Minimum mint() settings.
-        
-        // mint("WETH", address(YDL), amount);
-        // mint("WBTC", address(YDL), amount);
-        // mint("FRAX", address(YDL), amount);
-        // mint("USDC", address(YDL), amount);
-        // mint("USDT", address(YDL), amount);
-
-        // // Simulating the ITO will "unlock" the YDL, and allow calls to recoverAsset().
-        // simulateITO(amount, amount, amount / 10**12, amount / 10**12);
-
-        // // Pre-state.
-        // assertEq(IERC20(WETH).balanceOf(address(YDL)), amount);
-        // assertEq(IERC20(WBTC).balanceOf(address(YDL)), amount);
-        // assertEq(IERC20(FRAX).balanceOf(address(YDL)), amount);
-        // assertEq(IERC20(USDC).balanceOf(address(YDL)), amount);
-        // assertEq(IERC20(USDT).balanceOf(address(YDL)), amount);
-
-        // uint256 _preDAO_WETH = IERC20(WETH).balanceOf(address(DAO));
-        // uint256 _preDAO_WBTC = IERC20(WBTC).balanceOf(address(DAO));
-        // uint256 _preDAO_FRAX = IERC20(FRAX).balanceOf(address(DAO));
-        // uint256 _preDAO_USDC = IERC20(USDC).balanceOf(address(DAO));
-        // uint256 _preDAO_USDT = IERC20(USDT).balanceOf(address(DAO));
-
-        // // recoverAsset().
-        // assert(bob.try_recoverAsset(address(YDL), WETH));
-        // assert(bob.try_recoverAsset(address(YDL), WBTC));
-        // assert(bob.try_recoverAsset(address(YDL), FRAX));
-        // assert(bob.try_recoverAsset(address(YDL), USDC));
-        // assert(bob.try_recoverAsset(address(YDL), USDT));
-
-        // // Post-state.
-        // assertEq(IERC20(WETH).balanceOf(address(YDL)), 0);
-        // assertEq(IERC20(WBTC).balanceOf(address(YDL)), 0);
-        // assertEq(IERC20(FRAX).balanceOf(address(YDL)), 0);
-        // assertEq(IERC20(USDC).balanceOf(address(YDL)), 0);
-        // assertEq(IERC20(USDT).balanceOf(address(YDL)), 0);
-
-        // assertEq(IERC20(WETH).balanceOf(address(DAO)), _preDAO_WETH + amount);
-        // assertEq(IERC20(WBTC).balanceOf(address(DAO)), _preDAO_WBTC + amount);
-        // assertEq(IERC20(FRAX).balanceOf(address(DAO)), _preDAO_FRAX + amount);
-        // assertEq(IERC20(USDC).balanceOf(address(DAO)), _preDAO_USDC + amount);
-        // assertEq(IERC20(USDT).balanceOf(address(DAO)), _preDAO_USDT + amount);
-
-    }
-
-    // Validate updateProtocolRecipients() state changes.
-    // Validate updateProtocolRecipients() restrictions.
+    // Validate updateRecipients() (protocol) state changes.
+    // Validate updateRecipients() (protocol) restrictions.
     // This includes:
     //  - Input parameter arrays must have equal length (recipients.length == proportions.length)
     //  - Sum of proporitions values must equal 10000 (BIPS)
     //  - Caller must be TLC()
 
-    function test_ZivoeYDL_updateProtocolRecipients_restrictions_msgSender() public {
+    function test_ZivoeYDL_updateRecipientsTrue_restrictions_msgSender() public {
         
         (,,,,
         address[] memory goodRecipients,
@@ -387,13 +304,13 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if _msgSender() != TLC.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::updateProtocolRecipients() _msgSender() != TLC()");
-        YDL.updateProtocolRecipients(goodRecipients, goodProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() _msgSender() != TLC()");
+        YDL.updateRecipients(goodRecipients, goodProportions, true);
         hevm.stopPrank();
 
     }
 
-    function test_ZivoeYDL_updateProtocoRecipients_restrictions_length() public {
+    function test_ZivoeYDL_updateRecipientsTrue_restrictions_length() public {
         
         (,,
         address[] memory badRecipients,
@@ -403,12 +320,12 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if recipients.length == proportions.length.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateProtocolRecipients() recipients.length != proportions.length || recipients.length == 0");
-        YDL.updateProtocolRecipients(badRecipients, goodProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() recipients.length != proportions.length || recipients.length == 0");
+        YDL.updateRecipients(badRecipients, goodProportions, true);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_updateProtocolRecipients_restrictions_recipientsLength0() public {
+    function test_ZivoeYDL_updateRecipientsTrue_restrictions_recipientsLength0() public {
         
         (address[] memory zeroRecipients,
         uint256[] memory zeroProportions,
@@ -418,12 +335,12 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if recipients.length == 0.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateProtocolRecipients() recipients.length != proportions.length || recipients.length == 0");
-        YDL.updateProtocolRecipients(zeroRecipients, zeroProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() recipients.length != proportions.length || recipients.length == 0");
+        YDL.updateRecipients(zeroRecipients, zeroProportions, true);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_updateProtocolRecipients_restrictions_locked() public {
+    function test_ZivoeYDL_updateRecipientsTrue_restrictions_locked() public {
         
         (,,,,
         address[] memory goodRecipients,
@@ -432,12 +349,12 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if !YDL.unlocked().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateProtocolRecipients() !unlocked");
-        YDL.updateProtocolRecipients(goodRecipients, goodProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() !unlocked");
+        YDL.updateRecipients(goodRecipients, goodProportions, true);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_updateProtocolRecipients_restrictions_maxProportions(uint96 random) public {
+    function test_ZivoeYDL_updateRecipientsTrue_restrictions_maxProportions(uint96 random) public {
         
         (,,,
         uint256[] memory badProportions,
@@ -447,20 +364,20 @@ contract Test_ZivoeYDL is Utility {
 
         uint256 amount = uint256(random);
 
-        // Simulating the ITO will "unlock" the YDL, and allow calls to updateProtocolRecipients().
+        // Simulating the ITO will "unlock" the YDL, and allow calls to updateRecipients().
         simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
         // Can't call if proportions total != 10000 (BIPS).
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateProtocolRecipients() proportionTotal != BIPS (10,000)");
-        YDL.updateProtocolRecipients(goodRecipients, badProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() proportionTotal != BIPS (10,000)");
+        YDL.updateRecipients(goodRecipients, badProportions, true);
         hevm.stopPrank();
 
         // Example success call.
-        assert(god.try_updateProtocolRecipients(address(YDL), goodRecipients, goodProportions));
+        assert(god.try_updateRecipients(address(YDL), goodRecipients, goodProportions, true));
     }
 
-    function test_ZivoeYDL_updateProtocolRecipients_state(uint96 random) public {
+    function test_ZivoeYDL_updateRecipientsTrue_state(uint96 random) public {
 
         uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
@@ -486,7 +403,7 @@ contract Test_ZivoeYDL is Utility {
             proportions[3] = 10000 - proportions[0] - proportions[1] - proportions[2];
         }
 
-        // Simulating the ITO will "unlock" the YDL, and allow calls to updateProtocolRecipients().
+        // Simulating the ITO will "unlock" the YDL, and allow calls to updateRecipients().
         simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
         // Pre-state.
@@ -504,8 +421,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(protocolEarningsProportion[1], 2500);
         assertEq(protocolEarningsProportion.length, 2);
 
-        // updateProtocolRecipients().        
-        assert(god.try_updateProtocolRecipients(address(YDL), recipients, proportions));
+        // updateRecipients().        
+        assert(god.try_updateRecipients(address(YDL), recipients, proportions, true));
 
         // Post-state.
         (
@@ -528,14 +445,14 @@ contract Test_ZivoeYDL is Utility {
 
     }
 
-    // Validate updateResidualRecipients() state changes.
-    // Validate updateResidualRecipients() restrictions.
+    // Validate updateRecipients() (residual) state changes.
+    // Validate updateRecipients() (residual) restrictions.
     // This includes:
     //  - Input parameter arrays must have equal length (recipients.length == proportions.length)
     //  - Sum of proporitions values must equal 10000 (BIPS)
     //  - Caller must be TLC
 
-    function test_ZivoeYDL_updateResidualRecipients_restrictions_msgSender() public {
+    function test_ZivoeYDL_updateRecipientsFalse_restrictions_msgSender() public {
         
         (,,,,
         address[] memory goodRecipients,
@@ -544,13 +461,13 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if _msgSender() != TLC.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::updateResidualRecipients() _msgSender() != TLC()");
-        YDL.updateResidualRecipients(goodRecipients, goodProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() _msgSender() != TLC()");
+        YDL.updateRecipients(goodRecipients, goodProportions, false);
         hevm.stopPrank();
 
     }
 
-    function test_ZivoeYDL_updateResidualRecipients_restrictions_length() public {
+    function test_ZivoeYDL_updateRecipientsFalse_restrictions_length() public {
         
         (,,
         address[] memory badRecipients,
@@ -560,12 +477,12 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if recipients.length == proportions.length.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateResidualRecipients() recipients.length != proportions.length || recipients.length == 0");
-        YDL.updateResidualRecipients(badRecipients, goodProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() recipients.length != proportions.length || recipients.length == 0");
+        YDL.updateRecipients(badRecipients, goodProportions, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_updateResidualRecipients_restrictions_recipientsLength0() public {
+    function test_ZivoeYDL_updateRecipientsFalse_restrictions_recipientsLength0() public {
         
         (address[] memory zeroRecipients,
         uint256[] memory zeroProportions,
@@ -575,12 +492,12 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if recipients.length == 0.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateResidualRecipients() recipients.length != proportions.length || recipients.length == 0");
-        YDL.updateResidualRecipients(zeroRecipients, zeroProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() recipients.length != proportions.length || recipients.length == 0");
+        YDL.updateRecipients(zeroRecipients, zeroProportions, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_updateResidualRecipients_restrictions_locked() public {
+    function test_ZivoeYDL_updateRecipientsFalse_restrictions_locked() public {
         
         (,,,,
         address[] memory goodRecipients,
@@ -589,12 +506,12 @@ contract Test_ZivoeYDL is Utility {
 
         // Can't call if !YDL.unlocked().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateResidualRecipients() !unlocked");
-        YDL.updateResidualRecipients(goodRecipients, goodProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() !unlocked");
+        YDL.updateRecipients(goodRecipients, goodProportions, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_updateResidualRecipients_restrictions_maxProportions(uint96 random) public {
+    function test_ZivoeYDL_updateRecipientsFalse_restrictions_maxProportions(uint96 random) public {
         
         (,,,
         uint256[] memory badProportions,
@@ -604,20 +521,20 @@ contract Test_ZivoeYDL is Utility {
 
         uint256 amount = uint256(random);
 
-        // Simulating the ITO will "unlock" the YDL, and allow calls to updateResidualRecipients().
+        // Simulating the ITO will "unlock" the YDL, and allow calls to updateRecipients().
         simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
         // Can't call if proportions total != 10000 (BIPS).
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateResidualRecipients() proportionTotal != BIPS (10,000)");
-        YDL.updateResidualRecipients(goodRecipients, badProportions);
+        hevm.expectRevert("ZivoeYDL::updateRecipients() proportionTotal != BIPS (10,000)");
+        YDL.updateRecipients(goodRecipients, badProportions, false);
         hevm.stopPrank();
 
         // Example success call.
-        assert(god.try_updateResidualRecipients(address(YDL), goodRecipients, goodProportions));
+        assert(god.try_updateRecipients(address(YDL), goodRecipients, goodProportions, false));
     }
 
-    function test_ZivoeYDL_updateResidualRecipients_state(uint96 random) public {
+    function test_ZivoeYDL_updateRecipientsFalse_state(uint96 random) public {
 
         uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
@@ -666,8 +583,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(residualEarningsProportion[3], 2500);
         assertEq(residualEarningsProportion.length, 4);
 
-        // updateProtocolRecipients().        
-        assert(god.try_updateResidualRecipients(address(YDL), recipients, proportions));
+        // updateRecipients().        
+        assert(god.try_updateRecipients(address(YDL), recipients, proportions, false));
 
         // Post-state.
         (
@@ -715,7 +632,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amtSenior = uint256(randomSenior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
         uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
-        // Simulating the ITO will "unlock" the YDL, and allow calls to recoverAsset().
+        // Simulating the ITO will "unlock" the YDL
         simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
         
         // Can't call distributeYield() if block.timestamp < lastDistribution + daysBetweenDistributions * 86400
@@ -741,7 +658,7 @@ contract Test_ZivoeYDL is Utility {
         // uint256 amtSenior = uint256(randomSenior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
         // uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
-        // // Simulating the ITO will "unlock" the YDL, and allow calls to recoverAsset().
+        // // Simulating the ITO will "unlock" the YDL
         // simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
 
         // // Must warp forward to make successfull distributYield() call.
@@ -768,56 +685,6 @@ contract Test_ZivoeYDL is Utility {
         // assertEq(YDL.emaJTT(), zJTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
 
         // assertEq(YDL.numDistributions(), 1);
-
-    }
-
-    // Validate supplementYield() state changes.
-    // Validate supplementYield() restrictions.
-    // This includes:
-    //  - YDL must be unlocked
-
-    function test_ZivoeYDL_supplementYield_restrictions(uint96 random) public {
-        
-        // Can't call if !YDL.unlocked().
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::supplementYield() !unlocked");
-        YDL.supplementYield(uint256(random));
-        hevm.stopPrank();
-    }
-
-    function test_ZivoeYDL_supplementYield_state(uint96 randomSenior, uint96 randomJunior) public {
-
-        uint256 amtSenior = uint256(randomSenior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
-        uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
-
-        // Simulating the ITO will "unlock" the YDL, and allow calls to recoverAsset().
-        simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
-
-        uint256 deposit = uint256(randomSenior) + 10000 ether;
-        mint("DAI", address(bob), deposit);
-
-        // Pre-state.
-        assertEq(IERC20(DAI).balanceOf(address(stSTT)), 0);
-        assertEq(IERC20(DAI).balanceOf(address(stJTT)), 0);
-        
-        // supplementYield().
-        assert(bob.try_approveToken(address(DAI), address(YDL), deposit));
-        assert(bob.try_supplementYield(address(YDL), deposit));
-        
-        // Post-state.
-        (uint256 seniorSupp,) = GBL.adjustedSupplies();
-    
-        uint256 seniorRate = YDL.seniorProportionBase(
-            deposit, 
-            seniorSupp, 
-            YDL.targetAPYBIPS(), 
-            YDL.daysBetweenDistributions()
-        );
-        uint256 toSenior = (deposit * seniorRate) / RAY;
-        uint256 toJunior = deposit.zSub(toSenior);
-
-        assertEq(IERC20(DAI).balanceOf(address(stSTT)), toSenior);
-        assertEq(IERC20(DAI).balanceOf(address(stJTT)), toJunior);
 
     }
 

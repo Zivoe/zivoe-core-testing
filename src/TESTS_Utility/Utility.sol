@@ -15,6 +15,7 @@ import "lib/zivoe-core-foundry/src/ZivoeDAO.sol";
 import "lib/zivoe-core-foundry/src/ZivoeGlobals.sol";
 import "lib/zivoe-core-foundry/src/ZivoeGovernorV2.sol";
 import "lib/zivoe-core-foundry/src/ZivoeITO.sol";
+import "lib/zivoe-core-foundry/src/ZivoeMath.sol";
 import "lib/zivoe-core-foundry/src/ZivoeToken.sol";
 import "lib/zivoe-core-foundry/src/ZivoeTranches.sol";
 import "lib/zivoe-core-foundry/src/ZivoeTrancheToken.sol";
@@ -117,6 +118,7 @@ contract Utility is DSTest, Test {
     ZivoeGlobals        GBL;
     ZivoeGovernorV2     GOV;
     ZivoeITO            ITO;
+    ZivoeMath           MATH;
     ZivoeToken          ZVE;
     ZivoeTranches       ZVT;
     ZivoeTrancheToken   zSTT;
@@ -559,7 +561,6 @@ contract Utility is DSTest, Test {
     ///         for more simplistic control over governance-based actions (and testing).
     function deployCore(bool live) public {
 
-
         // Step #0 --- Run initial setup functions for simulations.
 
         createActors();
@@ -718,6 +719,8 @@ contract Utility is DSTest, Test {
             address(GBL),
             DAI
         );
+
+        MATH = YDL.MATH();
 
 
         // Step #10 --- Deploy ZivoeRewardsVesting.sol.

@@ -398,19 +398,9 @@ contract Blackhat {
         (ok,) = address(loc).call(abi.encodeWithSignature(sig));
     }
 
-    function try_recoverAsset(address ydl, address asset) external returns (bool ok) {
-        string memory sig = "recoverAsset(address)";
-        (ok,) = address(ydl).call(abi.encodeWithSignature(sig, asset));
-    }
-
-    function try_updateProtocolRecipients(address ydl, address[] memory recipients, uint256[] memory proportions) external returns (bool ok) {
-        string memory sig = "updateProtocolRecipients(address[],uint256[])";
-        (ok,) = address(ydl).call(abi.encodeWithSignature(sig, recipients, proportions));
-    }
-
-    function try_updateResidualRecipients(address ydl, address[] memory recipients, uint256[] memory proportions) external returns (bool ok) {
-        string memory sig = "updateResidualRecipients(address[],uint256[])";
-        (ok,) = address(ydl).call(abi.encodeWithSignature(sig, recipients, proportions));
+    function try_updateRecipients(address ydl, address[] memory recipients, uint256[] memory proportions, bool protocol) external returns (bool ok) {
+        string memory sig = "updateRecipients(address[],uint256[],bool)";
+        (ok,) = address(ydl).call(abi.encodeWithSignature(sig, recipients, proportions, protocol));
     }
 
     function try_setTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
@@ -431,11 +421,6 @@ contract Blackhat {
     function try_setDistributedAsset(address ydl, address asset) external returns (bool ok) {
         string memory sig = "setDistributedAsset(address)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, asset));
-    }
-
-    function try_supplementYield(address ydl, uint256 amount) external returns (bool ok) {
-        string memory sig = "supplementYield(uint256)";
-        (ok,) = address(ydl).call(abi.encodeWithSignature(sig, amount));
     }
 
     function try_distributeYield(address ydl) external returns (bool ok) {

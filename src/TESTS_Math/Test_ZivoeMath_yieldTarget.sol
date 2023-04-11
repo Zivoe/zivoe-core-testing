@@ -3,8 +3,6 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
-
 // 1) First the idea is to test for multiple values of input parameters and it's effect on returned value.
 
 // Test 1
@@ -30,7 +28,7 @@ import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 // 2) Then in a separate test function we will also perform fuzz testing
 
-contract Test_ZivoeYDL_yieldTarget is Utility {
+contract Test_ZivoeMath_yieldTarget is Utility {
 
     uint256 eSTT = 8_000_000 ether;
     uint256 eJTT = 2_000_000 ether;
@@ -39,10 +37,10 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_yieldTarget_static() public {
+    function test_ZivoeMath_yieldTarget_static() public {
 
         // State 0
-        uint256 yieldTarget0 = YDL.yieldTarget(
+        uint256 yieldTarget0 = MATH.yieldTarget(
             eSTT, 
             eJTT, 
             YDL.targetAPYBIPS(), 
@@ -55,7 +53,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
 
         // Test 1, examine yieldTarget() changes when senior tranche is reduced by 90%
         // We expect that the yield target should reduce greatly.
-        uint256 yieldTarget1 = YDL.yieldTarget(
+        uint256 yieldTarget1 = MATH.yieldTarget(
             (eSTT * 10) / 100, 
             eJTT, 
             YDL.targetAPYBIPS(), 
@@ -69,7 +67,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget1", yieldTarget1);
 
         // Test 2
-        uint256 yieldTarget2 = YDL.yieldTarget(
+        uint256 yieldTarget2 = MATH.yieldTarget(
             eSTT, 
             (eJTT * 10) / 100, 
             YDL.targetAPYBIPS(), 
@@ -82,7 +80,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget2", yieldTarget2);
 
         // Test 3
-        uint256 yieldTarget3 = YDL.yieldTarget(
+        uint256 yieldTarget3 = MATH.yieldTarget(
             eSTT, 
             eJTT, 
             100, 
@@ -95,7 +93,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget3", yieldTarget3);
 
         // Test 4
-        uint256 yieldTarget4 = YDL.yieldTarget(
+        uint256 yieldTarget4 = MATH.yieldTarget(
             eSTT, 
             eJTT, 
             2_000,
@@ -108,7 +106,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget4", yieldTarget4);
 
         // Test 5
-        uint256 yieldTarget5 = YDL.yieldTarget(
+        uint256 yieldTarget5 = MATH.yieldTarget(
             eSTT, 
             eJTT, 
             YDL.targetAPYBIPS(), 
@@ -121,7 +119,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget5", yieldTarget5);
 
         // Test 6
-        uint256 yieldTarget6 = YDL.yieldTarget(
+        uint256 yieldTarget6 = MATH.yieldTarget(
             eSTT, 
             eJTT, 
             YDL.targetAPYBIPS(), 
@@ -134,7 +132,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget6", yieldTarget6);
 
         // Test 7
-        uint256 yieldTarget7 = YDL.yieldTarget(
+        uint256 yieldTarget7 = MATH.yieldTarget(
             eSTT, 
             eJTT, 
             YDL.targetAPYBIPS(), 
@@ -147,7 +145,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         emit log_named_uint("yieldTarget7", yieldTarget7);
     }
 
-    function test_ZivoeYDL_yieldTarget_fuzzTesting(
+    function test_ZivoeMath_yieldTarget_fuzzTesting(
         uint96 eSTT,
         uint96 eJTT,
         uint16 Y,
@@ -159,7 +157,7 @@ contract Test_ZivoeYDL_yieldTarget is Utility {
         hevm.assume(T > 0);
         hevm.assume(eSTT > 1 ether);
 
-        uint256 yieldTarget = YDL.yieldTarget(
+        uint256 yieldTarget = MATH.yieldTarget(
             uint256(eSTT), 
             uint256(eJTT), 
             uint256(Y), 
