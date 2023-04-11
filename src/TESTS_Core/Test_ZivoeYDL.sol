@@ -85,7 +85,6 @@ contract Test_ZivoeYDL is Utility {
         // Pre-state.
         assertEq(YDL.emaSTT(), 0);
         assertEq(YDL.emaJTT(), 0);
-        assertEq(YDL.emaYield(), 0);
         assertEq(YDL.lastDistribution(), 0);
 
         assert(!YDL.unlocked());
@@ -101,7 +100,6 @@ contract Test_ZivoeYDL is Utility {
 
         assertEq(YDL.emaSTT(), zSTT.totalSupply());
         assertEq(YDL.emaJTT(), zSTT.totalSupply());
-        assertEq(YDL.emaYield(), 0);
 
         assert(YDL.unlocked());
 

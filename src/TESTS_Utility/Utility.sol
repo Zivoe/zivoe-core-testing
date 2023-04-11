@@ -719,9 +719,6 @@ contract Utility is DSTest, Test {
             DAI
         );
 
-        // YDL.owner() MUST renounce ownership.
-        YDL.renounceOwnership();
-
 
         // Step #10 --- Deploy ZivoeRewardsVesting.sol.
 
