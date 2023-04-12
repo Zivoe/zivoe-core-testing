@@ -922,6 +922,15 @@ contract Test_ZivoeYDL is Utility {
             uint256 pre_emaSTT = YDL.emaSTT();
             uint256 pre_emaJTT = YDL.emaJTT();
 
+            mint("DAI", address(sam), uint256(deposits) * 80/100);
+            assert(sam.try_approveToken(address(DAI), address(ZVT), uint256(deposits) * 80/100));
+            assert(sam.try_depositSenior(address(ZVT), uint256(deposits) * 80/100, address(DAI)));
+            if (ZVT.isJuniorOpen(uint256(deposits) * 20/100, DAI)) {
+                mint("DAI", address(jim), uint256(deposits) * 20/100);
+                assert(jim.try_approveToken(address(DAI), address(ZVT), uint256(deposits) * 20/100));
+                assert(jim.try_depositJunior(address(ZVT), uint256(deposits) * 20/100, address(DAI)));
+            }
+
             // distributeYield().
             YDL.distributeYield();
 
