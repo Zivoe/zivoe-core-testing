@@ -348,15 +348,11 @@ contract Test_DeployCore_Modular is Utility {
 
         address _YDL = IZivoeGlobals(_GBL).YDL();
 
-        // Ownership.
-        assertEq(IZivoeYDL(_YDL).owner(), address(0));
-
         // State variables.
         assertEq(IZivoeYDL(_YDL).GBL(), _GBL);
         assertEq(IZivoeYDL(_YDL).distributedAsset(), DAI);
         assertEq(IZivoeYDL(_YDL).emaSTT(), 0);
         assertEq(IZivoeYDL(_YDL).emaJTT(), 0);
-        assertEq(IZivoeYDL(_YDL).emaYield(), 0);
         assertEq(IZivoeYDL(_YDL).numDistributions(), 0);
         assertEq(IZivoeYDL(_YDL).lastDistribution(), 0);
         assertEq(IZivoeYDL(_YDL).targetAPYBIPS(), 800);

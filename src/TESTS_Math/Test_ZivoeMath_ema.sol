@@ -3,10 +3,9 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
 
-contract Test_ZivoeYDL_ema is Utility {
+contract Test_ZivoeMath_ema is Utility {
 
     using FloorMath for uint256;
 
@@ -14,7 +13,7 @@ contract Test_ZivoeYDL_ema is Utility {
         deployCore(false);
     }
 
-    function test_ZivoeYDL_ema_increasingValues() public {
+    function test_ZivoeMath_ema_increasingValues() public {
 
         uint256 eV = 10_000_000;
         uint256 N = 1;
@@ -28,7 +27,7 @@ contract Test_ZivoeYDL_ema is Utility {
         
         for (uint8 i = 0; i < arr.length; i++) {
             N += 1;
-            eV = YDL.ema(
+            eV = MATH.ema(
                 eV,             // bV
                 arr[i],         // cV
                 N.min(6)        // N (take minimum between N and 6)
@@ -38,7 +37,7 @@ contract Test_ZivoeYDL_ema is Utility {
 
     }
 
-    function test_ZivoeYDL_ema_decreasingValues() public {
+    function test_ZivoeMath_ema_decreasingValues() public {
 
         uint256 eV = 21_200_000;
         uint256 N = 1;
@@ -52,7 +51,7 @@ contract Test_ZivoeYDL_ema is Utility {
         
         for (uint8 i = 0; i < arr.length; i++) {
             N += 1;
-            eV = YDL.ema(
+            eV = MATH.ema(
                 eV,             // bV
                 arr[i],         // cV
                 N.min(6)        // N (take minimum between N and 6)
@@ -62,7 +61,7 @@ contract Test_ZivoeYDL_ema is Utility {
 
     }
 
-    function test_ZivoeYDL_ema_oscillatingValues() public {
+    function test_ZivoeMath_ema_oscillatingValues() public {
 
         uint256 eV = 15_000_000;
         uint256 N = 1;
@@ -76,7 +75,7 @@ contract Test_ZivoeYDL_ema is Utility {
         
         for (uint8 i = 0; i < arr.length; i++) {
             N += 1;
-            eV = YDL.ema(
+            eV = MATH.ema(
                 eV,             // bV
                 arr[i],         // cV
                 N.min(6)        // N (take minimum between N and 6)
@@ -87,7 +86,7 @@ contract Test_ZivoeYDL_ema is Utility {
     }
 
     // Testing for first window (when number of steps < number steps we are averaging over)
-    function test_ZivoeYDL_ema_fuzzTesting(
+    function test_ZivoeMath_ema_fuzzTesting(
         uint96 bV,
         uint96 cV,
         uint96 N
@@ -106,7 +105,7 @@ contract Test_ZivoeYDL_ema is Utility {
         if (bV != cV && bV > cV) { hevm.assume(bV - cV > 255); }
         if (bV != cV && bV < cV) { hevm.assume(cV - bV > 255); }
 
-        uint256 eV = YDL.ema(
+        uint256 eV = MATH.ema(
             bV,
             cV,
             YDL.retrospectiveDistributions().min(N)

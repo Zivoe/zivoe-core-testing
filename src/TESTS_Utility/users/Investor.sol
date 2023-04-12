@@ -47,10 +47,6 @@ contract Investor {
         string memory sig = "depositSenior(uint256,address)";
         (ok,) = address(ito).call(abi.encodeWithSignature(sig, amount, asset));
     }
-    function try_supplementYield(address ydl, uint256 amount) external returns (bool ok){
-        string memory sig = "supplementYield(uint256)";
-        (ok,) = address(ydl).call(abi.encodeWithSignature(sig, amount));
-    }
     
     function try_burnSenior(address token, uint256 amount, address asset) external returns (bool ok) {
         string memory sig = "burnSenior(uint256,address)";
