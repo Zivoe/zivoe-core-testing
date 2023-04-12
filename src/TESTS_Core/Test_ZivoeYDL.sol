@@ -914,7 +914,7 @@ contract Test_ZivoeYDL is Utility {
             mint("DAI", address(YDL), uint256(random));
 
             // Pre-state.
-            if (YDL.numDistributions() == 1) {
+            if (YDL.numDistributions() == 0 || YDL.numDistributions() == 1) {
                 assertEq(YDL.emaSTT(), zSTT.totalSupply());
                 assertEq(YDL.emaJTT(), zJTT.totalSupply());
             }
