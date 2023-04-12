@@ -729,40 +729,82 @@ contract Test_ZivoeYDL is Utility {
         assert(bob.try_distributeYield(address(YDL)));
     }
 
-    function test_ZivoeYDL_distributeYield_state(uint96 randomSenior, uint96 randomJunior) public {
+    function test_ZivoeYDL_distributeYield_state_single(uint96 randomJunior, uint96 randomSenior, uint96 random) public {
+        
+        uint256 amtSenior = uint256(randomSenior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
+        uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
-        // TODO: Reimplement ...
+        uint256 amount = uint256(random);
 
-        // uint256 amtSenior = uint256(randomSenior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
-        // uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
+        // Simulating the ITO will "unlock" the YDL
+        simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
 
-        // // Simulating the ITO will "unlock" the YDL
-        // simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
+        // Must warp forward to make successfull distributYield() call.
+        hevm.warp(YDL.lastDistribution() + YDL.daysBetweenDistributions() * 86400);
 
-        // // Must warp forward to make successfull distributYield() call.
-        // hevm.warp(YDL.lastDistribution() + YDL.daysBetweenDistributions() * 86400);
+        // Deal DAI to the YDL
+        mint("DAI", address(YDL), uint256(amount));
 
-        // mint("DAI", address(YDL), uint256(amtSenior));
+        // Use earningsTrancheuse() to identify where yield is distributed
+        uint256 protocolEarnings = YDL.protocolEarningsRateBIPS() * amount / BIPS;
+        uint256 postFeeYield = amount - protocolEarnings;
 
-        // (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
+        (
+            uint256[] memory protocol, 
+            uint256 senior, 
+            uint256 junior, 
+            uint256[] memory residual
+        ) = YDL.earningsTrancheuse(protocolEarnings, postFeeYield);
 
-        // // Pre-state.
-        // assertEq(YDL.numDistributions(), 0);
+        (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
 
-        // assertEq(YDL.emaYield(), 0);
-        // assertEq(YDL.emaSTT(), zSTT.totalSupply());
-        // assertEq(YDL.emaJTT(), zJTT.totalSupply());
+        // Pre-state.
+        assertEq(YDL.numDistributions(), 0);
+        assertEq(YDL.lastDistribution(), block.timestamp - YDL.daysBetweenDistributions() * 86400);
 
-        // // distributeYield().
-        // YDL.distributeYield();
+        assertEq(YDL.emaSTT(), zSTT.totalSupply());
+        assertEq(YDL.emaJTT(), zJTT.totalSupply());
 
-        // // Post-state.
-        // assertEq(YDL.emaYield(), uint256(amtSenior) * (BIPS - YDL.protocolEarningsRateBIPS())/BIPS);
+        uint256 _preDAO = IERC20(DAI).balanceOf(address(DAO));
 
-        // assertEq(YDL.emaSTT(), zSTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
-        // assertEq(YDL.emaJTT(), zJTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
+        assertEq(IERC20(DAI).balanceOf(address(YDL)),       amount);
+        assertEq(IERC20(DAI).balanceOf(address(stSTT)),     0);
+        assertEq(IERC20(DAI).balanceOf(address(stJTT)),     0);
+        assertEq(IERC20(DAI).balanceOf(address(DAO)),       _preDAO);
+        assertEq(IERC20(DAI).balanceOf(address(stZVE)),     0);
+        assertEq(IERC20(DAI).balanceOf(address(vestZVE)),   0);
 
-        // assertEq(YDL.numDistributions(), 1);
+        // distributeYield().
+        YDL.distributeYield();
+
+        uint256 residualAmt = postFeeYield - senior - junior;
+
+        // Post-state.
+        assertEq(YDL.emaSTT(), zSTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
+        assertEq(YDL.emaJTT(), zJTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
+
+        assertEq(YDL.numDistributions(), 1);
+        assertEq(YDL.lastDistribution(), block.timestamp);
+
+        emit log_named_uint("protocol[0] - stZVE", protocol[0]);
+        emit log_named_uint("protocol[1] - DAO", protocol[1]);
+        emit log_named_uint("senior", residualAmt);
+        emit log_named_uint("junior", residualAmt);
+        emit log_named_uint("residual[0] - stJTT", residual[0]);
+        emit log_named_uint("residual[1] - stSTT", residual[1]);
+        emit log_named_uint("residual[2] - stZVE", residual[2]);
+        emit log_named_uint("residual[3] - DAO", residual[3]);
+        emit log_named_uint("residualAmt", residualAmt);
+
+        withinDiff(IERC20(DAI).balanceOf(address(YDL)),     0, 10);
+        withinDiff(IERC20(DAI).balanceOf(address(stSTT)),   senior + residual[1], 10);
+        withinDiff(IERC20(DAI).balanceOf(address(stJTT)),   junior + residual[0], 10);
+        withinDiff(IERC20(DAI).balanceOf(address(DAO)),     _preDAO + protocol[1] + residual[3], 10);
+
+        uint256 splitBIPS = (stZVE.totalSupply() * BIPS) / (stZVE.totalSupply() + vestZVE.totalSupply());
+
+        withinDiff(IERC20(DAI).balanceOf(address(stZVE)),     (protocol[0] + residual[2]) * splitBIPS / BIPS, 10);
+        withinDiff(IERC20(DAI).balanceOf(address(vestZVE)),   (protocol[0] + residual[2]) * (BIPS - splitBIPS) / BIPS, 10);
 
     }
 
