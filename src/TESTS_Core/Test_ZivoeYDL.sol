@@ -774,7 +774,23 @@ contract Test_ZivoeYDL is Utility {
         assertEq(IERC20(DAI).balanceOf(address(stZVE)),     0);
         assertEq(IERC20(DAI).balanceOf(address(vestZVE)),   0);
 
+        uint256 splitBIPS = (stZVE.totalSupply() * BIPS) / (stZVE.totalSupply() + vestZVE.totalSupply());
+
         // distributeYield().
+        vm.expectEmit(false, false, false, false);
+        emit YieldDistributed(protocol, senior, junior, residual);
+        vm.expectEmit(true, true, false, false);
+        emit YieldDistributedSingle(DAI, address(stZVE),    protocol[0] * splitBIPS / BIPS);
+        emit YieldDistributedSingle(DAI, address(vestZVE),  protocol[0] * (BIPS - splitBIPS) / BIPS);
+        emit YieldDistributedSingle(DAI, address(DAO),      protocol[1]);
+        emit YieldDistributedSingle(DAI, address(stSTT),    senior);
+        emit YieldDistributedSingle(DAI, address(stJTT),    junior);
+        emit YieldDistributedSingle(DAI, address(stJTT),    residual[0]);
+        emit YieldDistributedSingle(DAI, address(stSTT),    residual[1]);
+        emit YieldDistributedSingle(DAI, address(stZVE),    residual[2] * splitBIPS / BIPS);
+        emit YieldDistributedSingle(DAI, address(vestZVE),  residual[2] * (BIPS - splitBIPS) / BIPS);
+        emit YieldDistributedSingle(DAI, address(DAO),      residual[3]);
+
         YDL.distributeYield();
 
         uint256 residualAmt = postFeeYield - senior - junior;
@@ -800,8 +816,6 @@ contract Test_ZivoeYDL is Utility {
         withinDiff(IERC20(DAI).balanceOf(address(stSTT)),   senior + residual[1], 10);
         withinDiff(IERC20(DAI).balanceOf(address(stJTT)),   junior + residual[0], 10);
         withinDiff(IERC20(DAI).balanceOf(address(DAO)),     _preDAO + protocol[1] + residual[3], 10);
-
-        uint256 splitBIPS = (stZVE.totalSupply() * BIPS) / (stZVE.totalSupply() + vestZVE.totalSupply());
 
         withinDiff(IERC20(DAI).balanceOf(address(stZVE)),     (protocol[0] + residual[2]) * splitBIPS / BIPS, 10);
         withinDiff(IERC20(DAI).balanceOf(address(vestZVE)),   (protocol[0] + residual[2]) * (BIPS - splitBIPS) / BIPS, 10);
