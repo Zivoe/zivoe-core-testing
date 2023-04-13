@@ -7,15 +7,18 @@ import "lib/zivoe-core-foundry/src/lockers/OCR/OCR_Modular.sol";
 
 contract Test_OCR_Modular is Utility {
 
+    using SafeERC20 for IERC20;
+
     OCR_Modular OCR_Modular_DAI;
 
-    function setup() public {
+    function setUp() public {
 
         deployCore(false);
+        simulateITO_byTranche_stakeTokens(16_000_000 ether, 4_000_000 ether);
 
         // Initialize and whitelist OCR_Modular lockers.
-        OCR_Modular_DAI = new OCR_Modular(address(DAO), address(DAI), address(GBL));
-        zvl.try_updateIsLocker(address(GBL), address(OCC_Modular_DAI), true);
+        OCR_Modular_DAI = new OCR_Modular(address(DAO), address(DAI), address(GBL), 1000);
+        zvl.try_updateIsLocker(address(GBL), address(OCR_Modular_DAI), true);
 
     }
 
@@ -36,10 +39,66 @@ contract Test_OCR_Modular is Utility {
         // State variables.
         assertEq(OCR_Modular_DAI.stablecoin(), address(DAI));
         assertEq(OCR_Modular_DAI.GBL(), address(GBL));
+        assertEq(OCR_Modular_DAI.currentEpochDistribution(), block.timestamp);
+        assertEq(OCR_Modular_DAI.nextEpochDistribution(), block.timestamp + 30 days);
+        assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
+        assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
+        assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), 0);
+        assertEq(OCR_Modular_DAI.amountWithdrawableInEpoch(), 0);
+
 
         // Permissions
         assert(OCR_Modular_DAI.canPush());
         assert(OCR_Modular_DAI.canPull());
 
     }
+
+    // Validate initial state.
+    function test_OCR_redemptionRequestJunior_state() public {
+
+        uint256 amountToRedeem = 2_000_000 ether;
+        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+
+        // Withdraw staked tranche tokens
+        hevm.startPrank(address(jim));
+        stJTT.fullWithdraw();
+        IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        // initial values
+        uint256 userInitBalance = IERC20(zJTT).balanceOf(address(jim));
+        // call function
+        OCR_Modular_DAI.redemptionRequestJunior(amountToRedeem);
+        hevm.stopPrank();
+
+        // checks
+        assert(IERC20(zJTT).balanceOf(address(jim)) == userInitBalance - amountToRedeem);
+        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem);
+        assert(OCR_Modular_DAI.userClaimTimestamp(address(jim)) == block.timestamp);
+    }    
+
+    // Validate initial state.
+    function test_OCR_redemptionRequestSenior_state() public {
+
+        uint256 amountToRedeem = 10_000_000 ether;
+        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+
+        // Withdraw staked tranche tokens
+        hevm.startPrank(address(sam));
+        stSTT.fullWithdraw();
+        IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        // initial values
+        uint256 userInitBalance = IERC20(zSTT).balanceOf(address(sam));
+        // call function
+        OCR_Modular_DAI.redemptionRequestSenior(amountToRedeem);
+        hevm.stopPrank();
+
+        // checks
+        assert(IERC20(zSTT).balanceOf(address(sam)) == userInitBalance - amountToRedeem);
+        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem);
+        assert(OCR_Modular_DAI.userClaimTimestamp(address(sam)) == block.timestamp);
+    }  
+
+
+
 }
