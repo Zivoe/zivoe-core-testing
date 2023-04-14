@@ -35,11 +35,11 @@ contract Test_OCC_Modular is Utility {
 
     function createRandomOffer(uint96 random, bool choice, address asset) internal returns (uint256 loanID) {
         
-        uint32[5] memory paymentInterval = [86400 * 7.5, 86400 * 15, 86400 * 30, 86400 * 90, 86400 * 360];
+        uint32[5] memory paymentInterval = [86400 * 7, 86400 * 14, 86400 * 28, 86400 * 91, 86400 * 364];
 
         uint256 borrowAmount = uint256(random);
-        uint256 APR = uint256(random) % 3601;
-        uint256 APRLateFee = uint256(random) % 3601;
+        uint256 APR = uint256(random) % 5000;
+        uint256 APRLateFee = uint256(random) % 5000;
         uint256 term = uint256(random) % 25 + 1;
         uint256 gracePeriod = uint256(random) % 90 days;
         uint256 option = uint256(random) % 5;
@@ -425,7 +425,7 @@ contract Test_OCC_Modular is Utility {
     ) public {
 
         uint32[5] memory paymentInterval = [
-            86400 * 7, 86400 * 14, 86400 * 28, 86400 * 84, 86400 * 364
+            86400 * 7, 86400 * 14, 86400 * 28, 86400 * 91, 86400 * 364
         ];
 
         uint256 borrowAmount = uint256(random);
@@ -635,7 +635,7 @@ contract Test_OCC_Modular is Utility {
 
         // Can't createOffer with invalid paymentInterval (only 5 valid options).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::createOffer() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 84 || 364)");
+        hevm.expectRevert("OCC_Modular::createOffer() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 91 || 364)");
         OCC_Modular_DAI.createOffer(address(bob),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
@@ -648,7 +648,7 @@ contract Test_OCC_Modular is Utility {
     ) public {
 
         uint32[5] memory options = [
-            86400 * 7, 86400 * 14, 86400 * 28, 86400 * 84, 86400 * 364
+            86400 * 7, 86400 * 14, 86400 * 28, 86400 * 91, 86400 * 364
         ];
 
         uint256 borrowAmount = uint256(random);
