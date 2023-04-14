@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.16;
+// SPDX-License-Identifier: GPL-3.0-only
+pragma solidity ^0.8.17;
 pragma experimental ABIEncoderV2;
 
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";

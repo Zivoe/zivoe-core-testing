@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.16;
+// SPDX-License-Identifier: GPL-3.0-only
+pragma solidity ^0.8.17;
 
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC721.sol";
