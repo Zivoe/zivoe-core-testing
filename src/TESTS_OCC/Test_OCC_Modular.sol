@@ -394,16 +394,6 @@ contract Test_OCC_Modular is Utility {
         assert(OCC_Modular_USDC.canPull());
         assert(OCC_Modular_USDT.canPull());
         
-        assert(OCC_Modular_DAI.canPushMulti());
-        assert(OCC_Modular_FRAX.canPushMulti());
-        assert(OCC_Modular_USDC.canPushMulti());
-        assert(OCC_Modular_USDT.canPushMulti());
-        
-        assert(OCC_Modular_DAI.canPullMulti());
-        assert(OCC_Modular_FRAX.canPullMulti());
-        assert(OCC_Modular_USDC.canPullMulti());
-        assert(OCC_Modular_USDT.canPullMulti());
-        
         assert(OCC_Modular_DAI.canPullPartial());
         assert(OCC_Modular_FRAX.canPullPartial());
         assert(OCC_Modular_USDC.canPullPartial());
@@ -437,6 +427,8 @@ contract Test_OCC_Modular is Utility {
         int8 paymentSchedule = choice ? int8(0) : int8(1);
         
         uint256 loanID;
+
+        hevm.startPrank(address(roy));
 
         if (modularity % 4 == 0) {
 
@@ -589,6 +581,8 @@ contract Test_OCC_Modular is Utility {
             assertEq(OCC_Modular_USDT.counterID(), loanID + 1);
 
         }
+
+        hevm.stopPrank();
         
     }
 
@@ -609,9 +603,34 @@ contract Test_OCC_Modular is Utility {
         APRLateFee = uint256(random) % 5000;
 
         // Can't createOffer with term == 0.
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::createOffer() term == 0");
-        OCC_Modular_DAI.createOffer(address(bob),
+        OCC_Modular_DAI.createOffer(address(tim),
+            borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
+        );
+        hevm.stopPrank();
+    }
+
+    function test_OCC_Modular_createOffer_restrictions_underwriter(
+        uint96 random
+    ) public {
+
+        uint256 borrowAmount = uint256(random);
+        uint256 APR;
+        uint256 APRLateFee;
+        uint256 term;
+        uint256 paymentInterval;
+        uint256 gracePeriod;
+        int8 paymentSchedule = 2;
+
+        APR = uint256(random) % 5000;
+        APRLateFee = uint256(random) % 5000;
+        term = uint256(random) % 100 + 1;
+
+        // Can't createOffer with invalid paymentInterval (only 5 valid options).
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.createOffer(address(tim),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
         hevm.stopPrank();
@@ -634,9 +653,9 @@ contract Test_OCC_Modular is Utility {
         term = uint256(random) % 100 + 1;
 
         // Can't createOffer with invalid paymentInterval (only 5 valid options).
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::createOffer() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 91 || 364)");
-        OCC_Modular_DAI.createOffer(address(bob),
+        OCC_Modular_DAI.createOffer(address(tim),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
         hevm.stopPrank();
@@ -665,9 +684,9 @@ contract Test_OCC_Modular is Utility {
         paymentInterval = options[uint256(random) % 5];
         
         // Can't createOffer with invalid paymentSchedule (0 || 1).
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::createOffer() paymentSchedule > 1");
-        OCC_Modular_DAI.createOffer(address(bob),
+        OCC_Modular_DAI.createOffer(address(tim),
             borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
         );
         hevm.stopPrank();
@@ -2892,7 +2911,7 @@ contract Test_OCC_Modular is Utility {
             1800,
             600,
             24,
-            uint256(86400 * 30),
+            uint256(86400 * 28),
             86400 * 90,
             int8(1)
         ));
