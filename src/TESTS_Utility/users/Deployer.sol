@@ -148,8 +148,8 @@ contract Deployer {
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
-    function try_fundLoan(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "fundLoan(uint256)";
+    function try_acceptOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "acceptOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 

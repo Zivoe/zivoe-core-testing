@@ -23,8 +23,8 @@ contract Manager {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, to, amount));
     }
 
-    function try_fundLoan(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "fundLoan(uint256)";
+    function try_acceptOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "acceptOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -36,6 +36,21 @@ contract Manager {
     function try_processPayment(address occ, uint256 id) external returns (bool ok) {
         string memory sig = "processPayment(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_createOffer(
+        address occ, 
+        address borrower,
+        uint256 borrowAmount,
+        uint256 APR,
+        uint256 APRLateFee,
+        uint256 term,
+        uint256 paymentInterval,
+        uint256 gracePeriod,
+        int8 schedule
+    ) external returns (bool ok) {
+        string memory sig = "createOffer(address,uint256,uint256,uint256,uint256,uint256,uint256,int8)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, schedule));
     }
     
 }

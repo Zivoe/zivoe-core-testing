@@ -24,7 +24,7 @@ contract Borrower {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, to, amount));
     }
 
-    function try_requestLoan(
+    function try_createOffer(
         address occ, 
         address borrower,
         uint256 borrowAmount,
@@ -35,7 +35,7 @@ contract Borrower {
         uint256 gracePeriod,
         int8 schedule
     ) external returns (bool ok) {
-        string memory sig = "requestLoan(address,uint256,uint256,uint256,uint256,uint256,uint256,int8)";
+        string memory sig = "createOffer(address,uint256,uint256,uint256,uint256,uint256,uint256,int8)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, schedule));
     }
 
@@ -44,8 +44,8 @@ contract Borrower {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_fundLoan(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "fundLoan(uint256)";
+    function try_acceptOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "acceptOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
