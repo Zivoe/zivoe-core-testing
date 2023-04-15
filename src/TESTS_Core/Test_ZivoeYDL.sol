@@ -114,7 +114,7 @@ contract Test_ZivoeYDL is Utility {
         claimITO_and_approveTokens_and_stakeTokens(true);
 
         // Post-state.
-        assertEq(YDL.lastDistribution(), block.timestamp);
+        assertEq(YDL.lastDistribution(), block.timestamp + 30 days);
 
         assertEq(YDL.emaSTT(), zSTT.totalSupply());
         assertEq(YDL.emaJTT(), zSTT.totalSupply());
