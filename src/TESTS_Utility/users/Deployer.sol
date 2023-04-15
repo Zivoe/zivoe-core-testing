@@ -153,8 +153,8 @@ contract Deployer {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_cancelRequest(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "cancelRequest(uint256)";
+    function try_cancelOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "cancelOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 

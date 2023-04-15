@@ -695,13 +695,13 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    // Validate cancelRequest() state changes.
-    // Validate cancelRequest() restrictions.
+    // Validate cancelOffer() state changes.
+    // Validate cancelOffer() restrictions.
     // This includes:
-    //  - _msgSender() must equal borrower
+    //  - _msgSender() must equal underwriter
     //  - loans[id].state must equal LoanState.Initialized
 
-    function test_OCC_Modular_cancelLoan_restrictions_msgSender(uint96 random, bool choice) public {
+    function test_OCC_Modular_cancelOffer_restrictions_msgSender(uint96 random, bool choice) public {
 
         uint256 amount = uint256(random);
 
@@ -717,18 +717,18 @@ contract Test_OCC_Modular is Utility {
         uint256 _loanID_USDC = createRandomOffer(random, choice, USDC);
         uint256 _loanID_USDT = createRandomOffer(random, choice, USDT);
 
-        // Can't cancelRequest() unless _msgSender() == borrower.
+        // Can't cancelOffer() unless _msgSender() == underwriter.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::cancelRequest() _msgSender() != loans[id].borrower");
-        OCC_Modular_DAI.cancelRequest(_loanID_DAI);
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.cancelOffer(_loanID_DAI);
         hevm.stopPrank();
 
-        assert(!bob.try_cancelRequest(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_cancelRequest(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_cancelRequest(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!bob.try_cancelOffer(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!bob.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!bob.try_cancelOffer(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
-    function test_OCC_Modular_cancelLoan_restrictions_loanState(uint96 random, bool choice) public {
+    function test_OCC_Modular_cancelOffer_restrictions_loanState(uint96 random, bool choice) public {
 
         uint256 amount = uint256(random);
 
@@ -749,21 +749,21 @@ contract Test_OCC_Modular is Utility {
         man_acceptOffer(_loanID_FRAX, FRAX);
 
         // Cancel two of these loans (in advance) of restrictions check.
-        assert(tim.try_cancelRequest(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(tim.try_cancelRequest(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(roy.try_cancelOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
-        // Can't cancelRequest() if state != LoanState.Initialized.
-        hevm.startPrank(address(tim));
-        hevm.expectRevert("OCC_Modular::cancelRequest() loans[id].state != LoanState.Initialized");
-        OCC_Modular_DAI.cancelRequest(_loanID_DAI);
+        // Can't cancelOffer() if state != LoanState.Initialized.
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::cancelOffer() loans[id].state != LoanState.Initialized");
+        OCC_Modular_DAI.cancelOffer(_loanID_DAI);
         hevm.stopPrank();   
 
-        assert(!tim.try_cancelRequest(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!tim.try_cancelRequest(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!tim.try_cancelRequest(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_cancelOffer(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_cancelOffer(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
-    function test_OCC_Modular_cancelLoan_state(uint96 random, bool choice) public {
+    function test_OCC_Modular_cancelOffer_state(uint96 random, bool choice) public {
         
         uint256 _loanID_DAI = createRandomOffer(random, choice, DAI);
         uint256 _loanID_FRAX = createRandomOffer(random, choice, FRAX);
@@ -781,10 +781,10 @@ contract Test_OCC_Modular is Utility {
         assertEq(details_USDC[9], 1);
         assertEq(details_USDT[9], 1);
 
-        assert(tim.try_cancelRequest(address(OCC_Modular_DAI), _loanID_DAI));
-        assert(tim.try_cancelRequest(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(tim.try_cancelRequest(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(tim.try_cancelRequest(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
+        assert(roy.try_cancelOffer(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(roy.try_cancelOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Post-state.
         (,, details_DAI) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
@@ -811,9 +811,9 @@ contract Test_OCC_Modular is Utility {
             uint256 _loanID_USDC, 
         ) = simulateITO_and_createOffers(random, choice);
 
-        // Cancel two loan requests.
-        assert(tim.try_cancelRequest(address(OCC_Modular_DAI), _loanID_DAI));
-        assert(tim.try_cancelRequest(address(OCC_Modular_USDC), _loanID_USDC));
+        // Cancel two loan offers.
+        assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
+        assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
 
         // Can't fund loan if state != LoanState.Initialized.
         hevm.startPrank(address(roy));
@@ -833,9 +833,9 @@ contract Test_OCC_Modular is Utility {
             uint256 _loanID_USDT 
         ) = simulateITO_and_createOffers(random, choice);
 
-        // Cancel two loan requests.
-        assert(tim.try_cancelRequest(address(OCC_Modular_DAI), _loanID_DAI));
-        assert(tim.try_cancelRequest(address(OCC_Modular_USDC), _loanID_USDC));
+        // Cancel two loan offers.
+        assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
+        assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
 
         // Warp past expiry time (14 days past loan creation).
         hevm.warp(block.timestamp + 14 days + 1 seconds);
