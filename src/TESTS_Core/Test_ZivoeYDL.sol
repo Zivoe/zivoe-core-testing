@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.16;
+// SPDX-License-Identifier: GPL-3.0-only
+pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
@@ -114,7 +114,7 @@ contract Test_ZivoeYDL is Utility {
         claimITO_and_approveTokens_and_stakeTokens(true);
 
         // Post-state.
-        assertEq(YDL.lastDistribution(), block.timestamp);
+        assertEq(YDL.lastDistribution(), block.timestamp + 30 days);
 
         assertEq(YDL.emaSTT(), zSTT.totalSupply());
         assertEq(YDL.emaJTT(), zSTT.totalSupply());

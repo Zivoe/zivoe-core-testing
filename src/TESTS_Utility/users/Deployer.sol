@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.16;
+// SPDX-License-Identifier: GPL-3.0-only
+pragma solidity ^0.8.17;
 pragma experimental ABIEncoderV2;
 
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
@@ -148,13 +148,13 @@ contract Deployer {
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
-    function try_fundLoan(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "fundLoan(uint256)";
+    function try_acceptOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "acceptOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_cancelRequest(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "cancelRequest(uint256)";
+    function try_cancelOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "cancelOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 

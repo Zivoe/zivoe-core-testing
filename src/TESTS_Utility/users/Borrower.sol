@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.16;
+// SPDX-License-Identifier: GPL-3.0-only
+pragma solidity ^0.8.17;
 pragma experimental ABIEncoderV2;
 
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
@@ -24,7 +24,7 @@ contract Borrower {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, to, amount));
     }
 
-    function try_requestLoan(
+    function try_createOffer(
         address occ, 
         address borrower,
         uint256 borrowAmount,
@@ -35,17 +35,17 @@ contract Borrower {
         uint256 gracePeriod,
         int8 schedule
     ) external returns (bool ok) {
-        string memory sig = "requestLoan(address,uint256,uint256,uint256,uint256,uint256,uint256,int8)";
+        string memory sig = "createOffer(address,uint256,uint256,uint256,uint256,uint256,uint256,int8)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, schedule));
     }
 
-    function try_cancelRequest(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "cancelRequest(uint256)";
+    function try_cancelOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "cancelOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_fundLoan(address occ, uint256 id) external returns (bool ok) {
-        string memory sig = "fundLoan(uint256)";
+    function try_acceptOffer(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "acceptOffer(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 

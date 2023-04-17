@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.16;
+// SPDX-License-Identifier: GPL-3.0-only
+pragma solidity ^0.8.17;
 
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 
