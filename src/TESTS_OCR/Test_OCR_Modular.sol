@@ -26,6 +26,7 @@ contract Test_OCR_Modular is Utility {
     //    Helper Functions
     // ----------------------
 
+    // helper function to initiate a redemption request
     function redemptionRequestJunior(uint256 amount) public returns (uint256 userInitBalance) {
 
         // Withdraw staked tranche tokens
@@ -41,6 +42,7 @@ contract Test_OCR_Modular is Utility {
         return userInitBalance;
     }
 
+    // helper function to initiate a redemption request
     function redemptionRequestSenior(uint256 amount) public returns (uint256 userInitBalance) {
 
         // Withdraw staked tranche tokens
@@ -58,7 +60,6 @@ contract Test_OCR_Modular is Utility {
     }
 
 
-
     // ----------------
     //    Unit Tests
     // ----------------
@@ -73,6 +74,7 @@ contract Test_OCR_Modular is Utility {
         assertEq(OCR_Modular_DAI.stablecoin(), address(DAI));
         assertEq(OCR_Modular_DAI.GBL(), address(GBL));
         assertEq(OCR_Modular_DAI.currentEpochDistribution(), block.timestamp);
+        assertEq(OCR_Modular_DAI.previousEpochDistribution(), 0);
         assertEq(OCR_Modular_DAI.nextEpochDistribution(), block.timestamp + 30 days);
         assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
         assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
@@ -169,7 +171,7 @@ contract Test_OCR_Modular is Utility {
         OCR_Modular_DAI.pushToLocker(DAI, amountToDistribute, "");
         hevm.stopPrank();
 
-        // simulate a redemption request
+        // initiate a redemption request
         redemptionRequestSenior(amountToRedeem);
 
         // warp time to next epoch distribution
@@ -178,6 +180,7 @@ contract Test_OCR_Modular is Utility {
         // pre check
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == amountToDistribute);
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        uint256 currentEpochDistribution = OCR_Modular_DAI.currentEpochDistribution();
         // distribute new epoch
         OCR_Modular_DAI.distributeEpoch();
 
@@ -185,6 +188,7 @@ contract Test_OCR_Modular is Utility {
         assertEq(OCR_Modular_DAI.amountWithdrawableInEpoch(), amountToDistribute);
         assertEq(OCR_Modular_DAI.nextEpochDistribution(), block.timestamp + 30 days);
         assertEq(OCR_Modular_DAI.currentEpochDistribution(), block.timestamp);
+        assertEq(OCR_Modular_DAI.previousEpochDistribution(), currentEpochDistribution);
         assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), amountToRedeem);
         assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
 
@@ -200,7 +204,7 @@ contract Test_OCR_Modular is Utility {
         OCR_Modular_DAI.pushToLocker(DAI, amountToDistribute, "");
         hevm.stopPrank();
 
-        // simulate a redemption request
+        // initiate a redemption request
         redemptionRequestSenior(amountToRedeem);
 
         // warp time 1 day before next distribution
@@ -213,16 +217,93 @@ contract Test_OCR_Modular is Utility {
 
     }
 
-/*     // validate a scenario where amount of stablecoins >= total redemption amount
+    // validate a scenario where amount of stablecoins >= total redemption amount
     function test_OCR_redeemJunior_full_state() public {
+        uint256 amountToRedeem = 2_000_000 ether;
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToRedeem, "");
+        hevm.stopPrank(); 
 
+        // pre check
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == amountToRedeem);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == 0);
+        uint256 initSupplyJTT = zJTT.totalSupply();
+
+        // initiate a redemption request
+        redemptionRequestJunior(amountToRedeem);
+        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.userClaimTimestampJunior(address(jim)));
+
+        // warp time to next redemption epoch
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+        emit log_named_uint("previousEpochDistribution", OCR_Modular_DAI.previousEpochDistribution());
+
+        // warp time + 1 day
+        hevm.warp(block.timestamp + 1 days);
+
+        // redeem
+        hevm.startPrank(address(jim));
+        OCR_Modular_DAI.redeemJunior();
+        hevm.stopPrank();
+
+        // checks
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
+        assert(OCR_Modular_DAI.userClaimTimestampJunior(address(jim)) == 0);
+        assert(OCR_Modular_DAI.juniorBalances(address(jim)) == 0);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == amountToRedeem);
+        assert(zJTT.totalSupply() == initSupplyJTT - amountToRedeem);
 
     }
 
-    // validate a scenario where amount of stablecoins <= total redemption amount
+/*     // validate a scenario where amount of stablecoins <= total redemption amount
     function test_OCR_redeemJunior_partial_state() public {
 
     } */
+
+    // validate a scenario where amount of stablecoins <= total redemption amount
+    function test_OCR_redeemSenior_full_state() public {
+        uint256 amountToRedeem = 6_000_000 ether;
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToRedeem, "");
+        hevm.stopPrank(); 
+
+        // pre check
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == amountToRedeem);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == 0);
+        uint256 initSupplySTT = zSTT.totalSupply();
+
+        // initiate a redemption request
+        redemptionRequestSenior(amountToRedeem);
+
+        // warp time to next redemption epoch
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // warp time + 1 day
+        hevm.warp(block.timestamp + 1 days);
+
+        // redeem
+        hevm.startPrank(address(sam));
+        OCR_Modular_DAI.redeemSenior();
+        hevm.stopPrank();
+
+        // checks
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
+        assert(OCR_Modular_DAI.userClaimTimestampSenior(address(sam)) == 0);
+        assert(OCR_Modular_DAI.seniorBalances(address(sam)) == 0);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == amountToRedeem);
+        assert(zSTT.totalSupply() == initSupplySTT - amountToRedeem);
+
+
+    } 
 
 
 
