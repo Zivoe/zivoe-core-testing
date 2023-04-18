@@ -91,6 +91,59 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.canPull());
     }
 
+    // validate pullFromLocker() state changes
+    function test_OCR_pullFromLocker_state() public {
+        uint256 amountToPush = 4_000_000 ether;
+
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
+
+        // warp time to next epoch distribution
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // pre check
+        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+
+        // pull from locker
+        hevm.startPrank(address(DAO));
+        OCR_Modular_DAI.pullFromLocker(DAI, "");
+        hevm.stopPrank();
+
+        // check
+        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == 0);
+        assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == 0);
+    }
+
+    // pullFromLocker() should not be able to withdraw zJTT
+    function test_OCR_pullFromLocker_zJTT_restrictions() public {
+
+        redemptionRequestJunior(1_000_000 ether);
+
+        // pull from locker
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLocker(address(zJTT), "");
+        hevm.stopPrank();
+    }
+
+    // pullFromLocker() should not be able to withdraw zSTT
+    function test_OCR_pullFromLocker_zSTT_restrictions() public {
+
+        redemptionRequestSenior(1_000_000 ether);
+
+        // pull from locker
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLocker(address(zSTT), "");
+        hevm.stopPrank();
+    }
+
     // Validate redemptionRequestJunior() state changes
     function test_OCR_redemptionRequestJunior_state() public {
         
