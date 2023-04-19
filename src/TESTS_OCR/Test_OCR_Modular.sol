@@ -6,6 +6,7 @@ import "../TESTS_Utility/Utility.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCR/OCR_Modular.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_Defaults.sol";
 
+// todo: restrictions testing redeem() fcts
 contract Test_OCR_Modular is Utility {
 
     using SafeERC20 for IERC20;
@@ -16,7 +17,7 @@ contract Test_OCR_Modular is Utility {
     function setUp() public {
 
         deployCore(false);
-        simulateITO_byTranche_stakeTokens(16_000_000 ether, 4_000_000 ether);
+        simulateITO_byTranche_stakeTokens(21_000_000 ether, 4_000_000 ether);
 
         // Initialize and whitelist OCR_Modular lockers.
         OCR_Modular_DAI = new OCR_Modular(address(DAO), address(DAI), address(GBL), 1000);
@@ -520,5 +521,128 @@ contract Test_OCR_Modular is Utility {
         assert(zSTT.totalSupply() == initSupplySTT - (amountInLocker));
     }
 
+    // perform a fuzz testing on a dynamic basis (have to add defaults)
+    function test_OCR_fuzzTest(
+        uint88 depositTranches
+    ) public {
+        // In order to have a minimum of "depositJTT" = 1
+        // we have to assume the following:
+        hevm.assume(depositTranches >= 5);
+        // accounting
+        uint256 depositJTT = uint256((20 * uint256(depositTranches)) / 100);
+        uint256 depositSTT = uint256(depositTranches);
+
+        // start epoch 1
+        // fund accounts with DAI
+        deal(DAI, address(jim), depositJTT);
+        deal(DAI, address(sam), depositSTT);
+
+        // deposit in tranches
+        // senior
+        hevm.startPrank(address(sam));
+        IERC20(DAI).safeApprove(address(ZVT), depositSTT);
+        ZVT.depositSenior(depositSTT, DAI);
+        hevm.stopPrank();
+        // junior
+        hevm.startPrank(address(jim));
+        IERC20(DAI).safeApprove(address(ZVT), depositJTT);
+        ZVT.depositJunior(depositJTT, DAI);
+        hevm.stopPrank();
+
+        // push half of deposits to the locker in epoch 1
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), (depositJTT / 2) + (depositSTT / 2));
+        OCR_Modular_DAI.pushToLocker(DAI, (depositJTT / 2) + (depositSTT / 2), "");
+        hevm.stopPrank();
+
+        // warp 2 days through time
+        hevm.warp(block.timestamp + 2 days);
+
+        // make redemption request for full amount
+        redemptionRequestJunior(depositJTT);
+        redemptionRequestSenior(depositSTT);
+
+        assert(OCR_Modular_DAI.juniorBalances(address(jim)) == depositJTT);
+        assert(OCR_Modular_DAI.seniorBalances(address(sam)) == depositSTT);
+
+        // go to end of epoch
+        hevm.warp(block.timestamp + 29 days);
+
+        // distribute epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // start epoch 2
+        // +2 days 
+        hevm.warp(block.timestamp + 2 days);
+
+        // redeem junior
+        hevm.startPrank(address(jim));
+        OCR_Modular_DAI.redeemJunior();
+        hevm.stopPrank();
+
+        // +2 days 
+        hevm.warp(block.timestamp + 2 days);
+
+        // redeem senior
+        hevm.startPrank(address(sam));
+        OCR_Modular_DAI.redeemSenior();
+        hevm.stopPrank();
+
+        // push other half of deposits to the locker in epoch 2
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), (depositJTT / 2) + (depositSTT / 2));
+        OCR_Modular_DAI.pushToLocker(DAI, (depositJTT / 2) + (depositSTT / 2), "");
+        hevm.stopPrank();
+
+        // warp to end of epoch
+        hevm.warp(block.timestamp + 27 days);
+
+        // distribute epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // redeem junior
+        hevm.startPrank(address(jim));
+        OCR_Modular_DAI.redeemJunior();
+        hevm.stopPrank();
+
+        // redeem senior
+        hevm.startPrank(address(sam));
+        OCR_Modular_DAI.redeemSenior();
+        hevm.stopPrank();
+        
+        assert(OCR_Modular_DAI.juniorBalances(address(jim)) + OCR_Modular_DAI.seniorBalances(address(sam))
+        == OCR_Modular_DAI.unclaimedWithdrawRequests());
+
+        // If we have some unclaimed amounts due to roundings
+        // we continue redeeming in the next epoch
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), OCR_Modular_DAI.unclaimedWithdrawRequests());
+        OCR_Modular_DAI.pushToLocker(DAI, OCR_Modular_DAI.unclaimedWithdrawRequests(), "");
+        hevm.stopPrank();
+
+        // warp to end of epoch
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // if we have remaining amounts for junior, redeem
+        if (OCR_Modular_DAI.juniorBalances(address(jim)) > 0) {
+            hevm.startPrank(address(jim));
+            OCR_Modular_DAI.redeemJunior();
+            hevm.stopPrank();
+        }
+
+        // if we have remaining amounts for senior, redeem
+        if (OCR_Modular_DAI.seniorBalances(address(sam)) > 0) {
+            hevm.startPrank(address(sam));
+            OCR_Modular_DAI.redeemSenior();
+            hevm.stopPrank();
+        }
+
+        // checks
+        assert(OCR_Modular_DAI.juniorBalances(address(jim)) == 0);
+        assert(OCR_Modular_DAI.seniorBalances(address(sam)) == 0);
+    }
 
 }
