@@ -840,9 +840,9 @@ contract Test_OCC_Modular is Utility {
         // Warp past expiry time (14 days past loan creation).
         hevm.warp(block.timestamp + 14 days + 1 seconds);
 
-        // Can't fund loan if block.timestamp > loans[id].requestExpiry.
+        // Can't fund loan if block.timestamp > loans[id].offerExpiry.
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::acceptOffer() block.timestamp >= loans[id].requestExpiry");
+        hevm.expectRevert("OCC_Modular::acceptOffer() block.timestamp >= loans[id].offerExpiry");
         OCC_Modular_FRAX.acceptOffer(_loanID_FRAX);
         hevm.stopPrank();
        
