@@ -6,7 +6,6 @@ import "../TESTS_Utility/Utility.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCR/OCR_Modular.sol";
 import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_Defaults.sol";
 
-// todo: restrictions testing redeem() fcts
 contract Test_OCR_Modular is Utility {
 
     using SafeERC20 for IERC20;
@@ -17,7 +16,7 @@ contract Test_OCR_Modular is Utility {
     function setUp() public {
 
         deployCore(false);
-        simulateITO_byTranche_stakeTokens(21_000_000 ether, 4_000_000 ether);
+        simulateITO_byTranche_stakeTokens(25_000_000 ether, 4_000_000 ether);
 
         // Initialize and whitelist OCR_Modular lockers.
         OCR_Modular_DAI = new OCR_Modular(address(DAO), address(DAI), address(GBL), 1000);
@@ -27,6 +26,8 @@ contract Test_OCR_Modular is Utility {
         OCG_Defaults_Test = new OCG_Defaults(address(DAO), address(GBL));
         zvl.try_updateIsLocker(address(GBL), address(OCG_Defaults_Test), true);
     }
+
+
 
     // ----------------------
     //    Helper Functions
@@ -64,6 +65,7 @@ contract Test_OCR_Modular is Utility {
         return userInitBalance;
 
     }
+
 
 
     // ----------------
@@ -199,7 +201,7 @@ contract Test_OCR_Modular is Utility {
     // Validate redemptionRequestSenior() restrictions
     function test_OCR_redemptionRequestSenior_restrictions() public {
 
-        uint256 amountToRedeem = 20_000_000 ether;
+        uint256 amountToRedeem = 26_000_000 ether;
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
 
         // Withdraw staked tranche tokens
@@ -297,16 +299,72 @@ contract Test_OCR_Modular is Utility {
         // warp time + 1 day
         hevm.warp(block.timestamp + 1 days);
 
+        // check init stablecoin balance of DAO
+        uint256 initBalanceDAO = IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(DAO));
+
         // redeem
         hevm.startPrank(address(jim));
         OCR_Modular_DAI.redeemJunior();
         hevm.stopPrank();
 
         // checks
+        uint256 fee = (amountToRedeem * OCR_Modular_DAI.redemptionFee()) / BIPS;
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == 0);
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == amountToRedeem);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == amountToRedeem - fee);
         assert(zJTT.totalSupply() == initSupplyJTT - amountToRedeem);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(DAO)) == initBalanceDAO + fee);
+    }
+
+    // test for restriction on redeemJunior() when balance = 0
+    function test_OCR_redeemJunior_restrictions_balance() public {
+        // redeem
+        hevm.startPrank(address(jim));
+        hevm.expectRevert("OCR_Modular::redeemJunior() juniorBalances[_msgSender] == 0");
+        OCR_Modular_DAI.redeemJunior();
+        hevm.stopPrank();
+    }
+
+    // test for restriction on redeemJunior() when claim time is >= "currentEpochDistribution"
+    function test_OCR_redeemJunior_restrictions_timestamp() public {
+        uint256 amountToRedeem = 2_000_000 ether;
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToRedeem, "");
+        hevm.stopPrank(); 
+
+        // initiate a redemption request
+        redemptionRequestJunior(amountToRedeem);
+
+        // redeem
+        hevm.startPrank(address(jim));
+        hevm.expectRevert("OCR_Modular::redeemJunior() userClaimTimestampJunior[_msgSender()] >= currentEpochDistribution");
+        OCR_Modular_DAI.redeemJunior();
+        hevm.stopPrank();
+    }
+
+    // test for restriction on redeemJunior() when no amount to withdraw in epoch
+    function test_OCR_redeemJunior_restrictions_noStables() public {
+        uint256 amountToRedeem = 2_000_000 ether;
+
+        // initiate a redemption request
+        redemptionRequestJunior(amountToRedeem);
+
+        // warp time to next redemption epoch
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // warp time + 1 day
+        hevm.warp(block.timestamp + 1 days);
+
+        // redeem
+        hevm.startPrank(address(jim));
+        hevm.expectRevert("OCR_Modular::redeemJunior() amountWithdrawableInEpoch == 0");
+        OCR_Modular_DAI.redeemJunior();
+        hevm.stopPrank();
     }
 
     // validate a scenario where amount of stablecoins <= total redemption amount
@@ -343,10 +401,11 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
 
         // checks
+        uint256 fee = (amountInLocker * OCR_Modular_DAI.redemptionFee()) / BIPS;
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem - amountInLocker);
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == amountToRedeem - amountInLocker);
-        assert(zJTT.totalSupply() == initSupplyJTT - (amountInLocker));
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == amountToRedeem - amountInLocker - fee);
+        assert(zJTT.totalSupply() == initSupplyJTT - amountInLocker);
     }
 
     // validate a scenario where amount of stablecoins <= total redemption amount
@@ -375,17 +434,73 @@ contract Test_OCR_Modular is Utility {
         // warp time + 1 day
         hevm.warp(block.timestamp + 1 days);
 
+        // check init stablecoin balance of DAO
+        uint256 initBalanceDAO = IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(DAO));
+
         // redeem
         hevm.startPrank(address(sam));
         OCR_Modular_DAI.redeemSenior();
         hevm.stopPrank();
 
         // checks
+        uint256 fee = (amountToRedeem * OCR_Modular_DAI.redemptionFee()) / BIPS;
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == 0);
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == amountToRedeem);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == amountToRedeem - fee);
         assert(zSTT.totalSupply() == initSupplySTT - amountToRedeem);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(DAO)) == initBalanceDAO + fee);
     } 
+
+    // test for restriction on redeemSenior() when balance = 0
+    function test_OCR_redeemSenior_restrictions_balance() public {
+        // redeem
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("OCR_Modular::redeemSenior() seniorBalances[_msgSender] == 0");
+        OCR_Modular_DAI.redeemSenior();
+        hevm.stopPrank();
+    }
+
+    // test for restriction on redeemSenior() when claim time is >= "currentEpochDistribution"
+    function test_OCR_redeemSenior_restrictions_timestamp() public {
+        uint256 amountToRedeem = 2_000_000 ether;
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToRedeem, "");
+        hevm.stopPrank(); 
+
+        // initiate a redemption request
+        redemptionRequestSenior(amountToRedeem);
+
+        // redeem
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("OCR_Modular::redeemSenior() userClaimTimestampSenior[_msgSender()] >= currentEpochDistribution");
+        OCR_Modular_DAI.redeemSenior();
+        hevm.stopPrank();
+    }
+
+    // test for restriction on redeemSenior() when no amount to withdraw in epoch
+    function test_OCR_redeemSenior_restrictions_noStables() public {
+        uint256 amountToRedeem = 2_000_000 ether;
+
+        // initiate a redemption request
+        redemptionRequestSenior(amountToRedeem);
+
+        // warp time to next redemption epoch
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // warp time + 1 day
+        hevm.warp(block.timestamp + 1 days);
+
+        // redeem
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("OCR_Modular::redeemJunior() amountWithdrawableInEpoch == 0");
+        OCR_Modular_DAI.redeemSenior();
+        hevm.stopPrank();
+    }
 
     // validate a scenario where amount of stablecoins <= total redemption amount
     function test_OCR_redeemSenior_partial_state() public {
@@ -420,11 +535,11 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
 
         // checks
+        uint256 fee = (amountInLocker * OCR_Modular_DAI.redemptionFee()) / BIPS;
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem - amountInLocker);
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == amountToRedeem - amountInLocker);
-        assert(zSTT.totalSupply() == initSupplySTT - (amountInLocker));
-
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == amountToRedeem - amountInLocker - fee);
+        assert(zSTT.totalSupply() == initSupplySTT - amountInLocker);
     }
 
     // validate a scenario where amount of stablecoins < total redemption amount
@@ -467,11 +582,12 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
 
         // checks
+        uint256 fee = (75 * amountInLocker * OCR_Modular_DAI.redemptionFee()) / (BIPS * 100);
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 
         (25 * (amountInLocker)) / 100);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem - amountInLocker);
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == (75 * (amountInLocker)) / 100); 
-        assert(zJTT.totalSupply() == initSupplyJTT - (amountInLocker));
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == ((75 * (amountInLocker)) / 100) - fee); 
+        assert(zJTT.totalSupply() == initSupplyJTT - amountInLocker);
     }
 
     // validate a scenario where amount of stablecoins < total redemption amount
@@ -514,14 +630,14 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
 
         // checks
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 
-        (25 * (amountInLocker)) / 100);
+        uint256 fee = (84 * amountInLocker * OCR_Modular_DAI.redemptionFee()) / (BIPS * 100);
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == (16 * amountInLocker) / 100);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem - amountInLocker);
-        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == (75 * (amountInLocker)) / 100); 
-        assert(zSTT.totalSupply() == initSupplySTT - (amountInLocker));
+        assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == ((84 * (amountInLocker)) / 100) - fee); 
+        assert(zSTT.totalSupply() == initSupplySTT - amountInLocker);
     }
 
-    // perform a fuzz testing on a dynamic basis (have to add defaults)
+    // perform a fuzz testing on a dynamic basis over 2 epochs
     function test_OCR_fuzzTest(
         uint88 depositTranches
     ) public {
