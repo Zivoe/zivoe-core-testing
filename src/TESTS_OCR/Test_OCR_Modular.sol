@@ -88,6 +88,7 @@ contract Test_OCR_Modular is Utility {
         assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), 0);
         assertEq(OCR_Modular_DAI.amountWithdrawableInEpoch(), 0);
         assertEq(OCR_Modular_DAI.unclaimedWithdrawRequests(), 0);
+        assertEq(OCR_Modular_DAI.amountPushedInCurrentEpoch(), 0);
 
         // Permissions
         assert(OCR_Modular_DAI.canPush());
@@ -237,6 +238,7 @@ contract Test_OCR_Modular is Utility {
         // pre check
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == amountToDistribute);
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToDistribute);
         uint256 currentEpochDistribution = OCR_Modular_DAI.currentEpochDistribution();
         // distribute new epoch
         OCR_Modular_DAI.distributeEpoch();
@@ -248,6 +250,7 @@ contract Test_OCR_Modular is Utility {
         assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), amountToRedeem);
         assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
         assertEq(OCR_Modular_DAI.unclaimedWithdrawRequests(), amountToRedeem);
+        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
     }
 
     // Validate distributeEpoch restrictions
