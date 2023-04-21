@@ -869,8 +869,9 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory _postDetails) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
         uint256 _postStable_borrower = IERC20(DAI).balanceOf(address(tim));
         uint256 _postStable_occ = IERC20(DAI).balanceOf(address(OCC_Modular_DAI));
-        
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+
+        // block.timestamp - block.timestamp % 7 days + 9 days + loans[id].paymentInterval
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
@@ -887,7 +888,7 @@ contract Test_OCC_Modular is Utility {
         _postStable_borrower = IERC20(FRAX).balanceOf(address(tim));
         _postStable_occ = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
         
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
@@ -904,7 +905,7 @@ contract Test_OCC_Modular is Utility {
         _postStable_borrower = IERC20(USDC).balanceOf(address(tim));
         _postStable_occ = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
         
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
@@ -921,7 +922,7 @@ contract Test_OCC_Modular is Utility {
         _postStable_borrower = IERC20(USDT).balanceOf(address(tim));
         _postStable_occ = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
         
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
