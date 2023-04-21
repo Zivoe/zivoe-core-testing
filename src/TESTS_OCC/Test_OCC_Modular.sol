@@ -876,7 +876,6 @@ contract Test_OCC_Modular is Utility {
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
 
-
         // Pre-state FRAX.
         _preStable_borrower = IERC20(FRAX).balanceOf(address(tim));
         _preStable_occ = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
@@ -893,7 +892,6 @@ contract Test_OCC_Modular is Utility {
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
 
-
         // Pre-state USDC.
         _preStable_borrower = IERC20(USDC).balanceOf(address(tim));
         _preStable_occ = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
@@ -909,7 +907,6 @@ contract Test_OCC_Modular is Utility {
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
-
 
         // Pre-state USDT.
         _preStable_borrower = IERC20(USDT).balanceOf(address(tim));
