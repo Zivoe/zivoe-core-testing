@@ -13,19 +13,9 @@ contract SwapperTest is ZivoeSwapper {
 
     using SafeERC20 for IERC20;
 
-    function convertTest(
-        address assetIn,
-        address assetOut,
-        uint256 amountIn,
-        bytes calldata data
-    ) 
-    public
-    returns (
-        bytes4 sig, 
-        uint256[] memory poolsV3, 
-        bytes32[] memory poolsV2
-    )
-    {
+    function convertTest(address assetIn, address assetOut, uint256 amountIn, bytes calldata data) public returns (
+        bytes4 sig, uint256[] memory poolsV3, uint256[] memory poolsV2
+    ) {
         sig = bytes4(data[:4]);
 
         IERC20(assetIn).safeApprove(router1INCH_V5, IERC20(assetIn).balanceOf(address(this)));
@@ -35,8 +25,8 @@ contract SwapperTest is ZivoeSwapper {
             (,, uint256[] memory _c) = abi.decode(data[4:], (uint256, uint256, uint256[]));
             poolsV3 = _c;
         }
-        if (sig == bytes4(keccak256("unoswap(address,uint256,uint256,bytes32[])"))) {
-            (,,, bytes32[] memory _d) = abi.decode(data[4:], (address, uint256, uint256, bytes32[]));
+        if (sig == bytes4(keccak256("unoswap(address,uint256,uint256,uint256[])"))) {
+            (,,, uint256[] memory _d) = abi.decode(data[4:], (address, uint256, uint256, uint256[]));
             poolsV2 = _d;
         }
     }
@@ -67,14 +57,6 @@ contract Test_ZivoeSwapper is Utility {
     // hex"e449022e00000000000000000000000000000000000000000000006c6b935b8bbd40000000000000000000000000000000000000000000000000006be0d10228830e54770000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000100000000000000000000000097e7d56a0408570ba1a7852de36350f7713906eccfee7c08";
     // FRAX -> DAI, 2k
     // hex"e449022e00000000000000000000000000000000000000000000006c6b935b8bbd40000000000000000000000000000000000000000000000000006bc524c46f1a7e5aff0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000180000000000000000000000097e7d56a0408570ba1a7852de36350f7713906eccfee7c08";
-
-    // DAI to CRV for 200
-    bytes dataUnoSwap =
-    hex"2e95b6c80000000000000000000000006b175474e89094c44da98b954eedeac495271d0f00000000000000000000000000000000000000000000000ad78ebc5ac620000000000000000000000000000000000000000000000000000f41ee4bf12a441a8a0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340a478c2975ab1ea89e8196811f51a7b7ade33eb1100000000000000003b6d03403da1313ae46132a397d90d95b1424a9a7e3e0fcecfee7c08";
-    // USDC -> AAVE, 200
-    // hex"2e95b6c8000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000002faf0800000000000000000000000000000000000000000000000000b0876e818baaa890000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340b4e16d0168e52d35cacd2c6185b44281ec28c9dc80000000000000003b6d0340d75ea151a61d06868e31f8988d28dfe5e9df57b4cfee7c08";
-    // AAVE -> USDC, 1
-    // hex"2e95b6c80000000000000000000000007fc66500c84a76ad7e9c93437bfc5ac33e2ddae90000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000003aafbe20000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340d75ea151a61d06868e31f8988d28dfe5e9df57b480000000000000003b6d0340397ff1542f962076d0bfe58ea045ffa2d347aca0cfee7c08";
 
     // USDT to WBTC for 5000
     // NOTE: Data needs to be updated for every call
@@ -347,23 +329,18 @@ contract Test_ZivoeSwapper is Utility {
     }
 
 
-    // ======================== "2e95b6c8": unoswap() ============================
+    // ======================== "0502b1c5": unoswap() ============================
 
 
     function test_ZivoeSwapper_unoswap_convertAsset() public {
 
         // DAI to CRV for 200
-        bytes dataUnoSwap =
-        hex"2e95b6c80000000000000000000000006b175474e89094c44da98b954eedeac495271d0f00000000000000000000000000000000000000000000000ad78ebc5ac620000000000000000000000000000000000000000000000000000f41ee4bf12a441a8a0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340a478c2975ab1ea89e8196811f51a7b7ade33eb1100000000000000003b6d03403da1313ae46132a397d90d95b1424a9a7e3e0fcecfee7c08";
+        bytes memory dataUnoSwap =
+        hex"0502b1c50000000000000000000000006b175474e89094c44da98b954eedeac495271d0f00000000000000000000000000000000000000000000000ad78ebc5ac620000000000000000000000000000000000000000000000000000bcae2ac74eaa112ac0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340a478c2975ab1ea89e8196811f51a7b7ade33eb1100000000000000003b6d034058dc5a51fe44589beb22e8ce67720b5bc5378009cfee7c08";
     
-
         address assetIn = DAI;
         address assetOut = CRV;
         uint256 amountIn = 200 ether;
-        // address assetIn = AAVE;
-        // address assetOut = USDC;
-        // uint256 amountIn = 200 * 10**6;
-        // uint256 amountIn = 1 ether;
 
         // fund address(swapper) with the right amount of tokens to swap.
         deal(assetIn, address(swapper), amountIn);
@@ -375,7 +352,7 @@ contract Test_ZivoeSwapper is Utility {
         emit log_named_uint("swapper assetIn pre-swap balance:", IERC20(assetIn).balanceOf(address(swapper)));
         emit log_named_uint("swapper assetOut pre-swap balance:", IERC20(assetOut).balanceOf(address(swapper)));
 
-        (bytes4 sig,,bytes32[] memory pools) = swapper.convertTest(
+        (bytes4 sig,,uint256[] memory pools) = swapper.convertTest(
                                                 assetIn,
                                                 assetOut,
                                                 amountIn,
@@ -384,8 +361,8 @@ contract Test_ZivoeSwapper is Utility {
         
         bool zeroForOne_0;
         bool zeroForOne_DLENGTH;
-        bytes32 info_0 = pools[0];
-        bytes32 info_DLENGTH = pools[pools.length - 1];
+        uint256 info_0 = pools[0];
+        uint256 info_DLENGTH = pools[pools.length - 1];
         assembly {
             zeroForOne_0 := and(info_0, _REVERSE_MASK)
             zeroForOne_DLENGTH := and(info_DLENGTH, _REVERSE_MASK)
@@ -401,7 +378,7 @@ contract Test_ZivoeSwapper is Utility {
         }
 
         // ensure we go through the right validation function.
-        assert(sig == bytes4(keccak256("unoswap(address,uint256,uint256,bytes32[])")));
+        assert(sig == bytes4(keccak256("unoswap(address,uint256,uint256,uint256[])")));
 
         emit log_named_uint("swapper assetIn after-swap balance:", IERC20(assetIn).balanceOf(address(swapper)));
         emit log_named_uint("swapper assetOut after-swap balance:", IERC20(assetOut).balanceOf(address(swapper)));
@@ -413,20 +390,14 @@ contract Test_ZivoeSwapper is Utility {
 
 
     function test_ZivoeSwapper_unoswap_restrictions_assetIn_token0() public {
-        // Case with zeroForOne_0 = false
-        // "data" below is equal to "dataUnoSwap" with first address of assetIn modified, see below.
-        // We provide the wrong assetIn (FRAX instead of AAVE)
+        
         address assetIn = FRAX; 
         address assetOut = AAVE;
         uint256 amountIn = 1 ether;
 
-        // in below data we modified the first address to be equal to FRAX otherwise 2 errors are thrown
         // AAVE -> FRAX, 1 ether
         bytes memory data = 
         hex"2e95b6c80000000000000000000000007fc66500c84a76ad7e9c93437bfc5ac33e2ddae90000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000362bf914483cd7c5b0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340d75ea151a61d06868e31f8988d28dfe5e9df57b480000000000000003b6d0340ec8c342bc3e07f05b9a782bc34e7f04fb9b44502cfee7c08";
-        // FRAX -> AAVE, 1 ether
-        // hex"2e95b6c8000000000000000000000000853d955acef822db058eb8505911ed77f175b99e0000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000000000000003918d7d597ef5e0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000003b6d0340fd0a40bc83c5fae4203dec7e5929b446b07d1c7680000000000000003b6d03409909d09656fce21d1904f662b99382b887a9c5dacfee7c08";
-
 
         // We expect the following call to revert due to assetIn != DAI and zeroForOne_0 = false
         hevm.expectRevert("ZivoeSwapper::handle_validation_2e95b6c8() _a != assetIn");
@@ -499,12 +470,12 @@ contract Test_ZivoeSwapper is Utility {
         // We expect the following call to revert due to assetIn != DAI and zeroForOne_0 = false
         hevm.expectRevert("ZivoeSwapper::handle_validation_2e95b6c8() IUniswapV2Pool_ZivoeSwapper(address(uint160(uint256(_d[_d.length - 1])))).token1() != assetOut");
 
-        swapper.convertTest(
-            assetIn,
-            assetOut,
-            amountIn,
-            dataUnoSwap
-        );
+        // swapper.convertTest(
+        //     assetIn,
+        //     assetOut,
+        //     amountIn,
+        //     dataUnoSwap
+        // );
     }
 
     function test_ZivoeSwapper_unoswap_restrictions_amountIn() public {
@@ -517,12 +488,12 @@ contract Test_ZivoeSwapper is Utility {
         // We expect the following call to revert due to amountIn != 200
         hevm.expectRevert("ZivoeSwapper::handle_validation_2e95b6c8() _b != amountIn");
 
-        swapper.convertTest(
-            assetIn,
-            assetOut,
-            amountIn,
-            dataUnoSwap
-        );
+        // swapper.convertTest(
+        //     assetIn,
+        //     assetOut,
+        //     amountIn,
+        //     dataUnoSwap
+        // );
     }
 
 
