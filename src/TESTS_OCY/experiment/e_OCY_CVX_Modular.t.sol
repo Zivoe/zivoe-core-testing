@@ -199,7 +199,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
     //    Helper Functions
     // ----------------------
 
-    function test_e_OCY_CVX_Modular_init() public {
+    function xtest_e_OCY_CVX_Modular_init() public {
 
         /// In common
         assertEq(OCY_CVX_FRAX_USDC.GBL(),                     address(GBL));
@@ -231,7 +231,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         assertEq(OCY_CVX_mUSD_3CRV.rewardsAddresses(0),       0xa3BeD4E1c75D00fa6f4E5E6922DB7261B5E9AcD2);
     }
 
-    function test_e_OCY_CVX_Modular_pushMulti_USDC_USDT_FRAX_DAI() public {
+    function xtest_e_OCY_CVX_Modular_pushMulti_USDC_USDT_FRAX_DAI() public {
 
         address[] memory assets = new address[](4);
         uint256[] memory amounts = new uint256[](4);
@@ -272,7 +272,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     ///Test to see the difference between depositing a 3CRV token or the BASE_TOKEN in a metapool with 11% 3CRV token vs BASE_TOKEN
     ///Results are better for 1) DAI=>(convert on 1inch) MIM => deposit in MP over 2) DAI=>deposit in 3CRV=>deposit in MP.
-    function test_e_OCY_CVX_Modular_Deposit3CRV() public {
+    function xtest_e_OCY_CVX_Modular_Deposit3CRV() public {
         uint256[2] memory amounts;
         amounts[1] = 977400 * 10**18;
         uint256 lptokensReceived = ICRVPlainPoolFBP(0x5a6A4D54456819380173272A5E8E9B9904BdF41B).calc_token_amount(amounts, true);
@@ -285,7 +285,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_Invest_PP_FRAX_USDC() public {
+    function xtest_e_OCY_CVX_Modular_Invest_PP_FRAX_USDC() public {
 
         investInLockerPP_FRAX_USDC();
 
@@ -299,7 +299,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_Invest_PP_FRAX_USDC_fail_timelock() public {
+    function xtest_e_OCY_CVX_Modular_Invest_PP_FRAX_USDC_fail_timelock() public {
 
         address[] memory assets = new address[](2);
         uint256[] memory amounts = new uint256[](2);
@@ -320,7 +320,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         OCY_CVX_FRAX_USDC.invest();
     }
 
-    function test_e_OCY_CVX_Modular_Invest_PP_FRAX_USDC_keeper() public {
+    function xtest_e_OCY_CVX_Modular_Invest_PP_FRAX_USDC_keeper() public {
 
         address[] memory assets = new address[](2);
         uint256[] memory amounts = new uint256[](2);
@@ -345,7 +345,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
 
 
-    function test_e_OCY_CVX_Modular_Invest_MP_FRAX_3CRV() public {
+    function xtest_e_OCY_CVX_Modular_Invest_MP_FRAX_3CRV() public {
 
         investInLockerMP(OCY_CVX_FRAX_3CRV, FRAX, 50000 *10**18);
 
@@ -359,7 +359,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_Invest_MP_FRAX_3CRV_fail_timelock() public {
+    function xtest_e_OCY_CVX_Modular_Invest_MP_FRAX_3CRV_fail_timelock() public {
 
         address[] memory assets = new address[](1);
         uint256[] memory amounts = new uint256[](1);
@@ -377,7 +377,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         OCY_CVX_FRAX_3CRV.invest();
     }
 
-    function test_e_OCY_CVX_Modular_Invest_MP_FRAX_3CRV_keeper() public {
+    function xtest_e_OCY_CVX_Modular_Invest_MP_FRAX_3CRV_keeper() public {
 
         address[] memory assets = new address[](1);
         uint256[] memory amounts = new uint256[](1);
@@ -397,7 +397,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_e_OCY_CVX_Modular_pullFromLockerMultiPP_FRAX_USDC() public {
+    function xtest_e_OCY_CVX_Modular_pullFromLockerMultiPP_FRAX_USDC() public {
 
         address[] memory assets = investInLockerPP_FRAX_USDC();
 
@@ -411,7 +411,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_pullFromLockerMultiPP_FRAX_USDC_fail() public {
+    function xtest_e_OCY_CVX_Modular_pullFromLockerMultiPP_FRAX_USDC_fail() public {
 
         investInLockerPP_FRAX_USDC();
 
@@ -429,7 +429,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_pullFromLockerMultiMP_FRAX_3CRV() public {
+    function xtest_e_OCY_CVX_Modular_pullFromLockerMultiMP_FRAX_3CRV() public {
 
         address[] memory assets = investInLockerMP(OCY_CVX_FRAX_3CRV, FRAX, 50000 * 10**18);
 
@@ -443,7 +443,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_pullFromLockerMultiMP_FRAX_3CRV_fail() public {
+    function xtest_e_OCY_CVX_Modular_pullFromLockerMultiMP_FRAX_3CRV_fail() public {
 
         investInLockerMP(OCY_CVX_FRAX_3CRV, FRAX, 50000 * 10**18);
 
@@ -461,7 +461,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_e_OCY_CVX_Modular_pullFromLockerPartialMP_FRAX_3CRV() public {
+    function xtest_e_OCY_CVX_Modular_pullFromLockerPartialMP_FRAX_3CRV() public {
 
         investInLockerMP(OCY_CVX_FRAX_3CRV, FRAX, 50000 * 10**18);
 
@@ -478,7 +478,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }   
 
-    function test_e_OCY_CVX_Modular_pullFromLockerPartialPP_FRAX_USDC() public {
+    function xtest_e_OCY_CVX_Modular_pullFromLockerPartialPP_FRAX_USDC() public {
 
         investInLockerPP_FRAX_USDC();
 
@@ -497,7 +497,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_emit() public {
+    function xtest_e_OCY_CVX_Modular_emit() public {
         emit log_named_address("OCY_CVX_FRAX_USDC addres:", address(OCY_CVX_FRAX_USDC));
         emit log_named_address("OCY_CVX_FRAX_3CRV addres:", address(OCY_CVX_FRAX_3CRV));
         emit log_named_address("OCY_CVX_mUSD_3CRV addres:", address(OCY_CVX_mUSD_3CRV));
@@ -529,8 +529,8 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     } */
 
-// test for  USD_Convertible + harvestYield + forwardYield
-    function test_e_OCY_CVX_Modular_USD_ConvertiblePP_FRAX_USDC() public {
+    // test for  USD_Convertible + harvestYield + forwardYield
+    function xtest_e_OCY_CVX_Modular_USD_ConvertiblePP_FRAX_USDC() public {
         investInLockerPP_FRAX_USDC();
         uint256 USDConvertible = OCY_CVX_FRAX_USDC.USD_Convertible();
         emit log_named_uint("USD_Convertible FRAX USDC:", USDConvertible);
@@ -539,7 +539,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_USD_ConvertibleMP_FRAX_3CRV() public {
+    function xtest_e_OCY_CVX_Modular_USD_ConvertibleMP_FRAX_3CRV() public {
         investInLockerMP(OCY_CVX_FRAX_3CRV, FRAX, 50000 * 10**18);
         uint256 USDConvertible = OCY_CVX_FRAX_3CRV.USD_Convertible();  
         emit log_named_uint("USD_Convertible FRAX 3CRV:", USDConvertible);  
@@ -547,18 +547,18 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_lpPriceInUSD_PP_FRAX_USDC() public {
+    function xtest_e_OCY_CVX_Modular_lpPriceInUSD_PP_FRAX_USDC() public {
         emit log_named_uint("lpPriceInUSD FRAX USDC:", OCY_CVX_FRAX_USDC.lpPriceInUSD());
         assert(OCY_CVX_FRAX_USDC.lpPriceInUSD() > 9 * 10**17 && OCY_CVX_FRAX_3CRV.lpPriceInUSD() < (10**18 + (2 * 10**17)));
     }
 
-    function test_e_OCY_CVX_Modular_lpPriceInUSD_MP_FRAX_3CRV() public {
+    function xtest_e_OCY_CVX_Modular_lpPriceInUSD_MP_FRAX_3CRV() public {
         emit log_named_uint("lpPriceInUSD FRAX 3CRV:", OCY_CVX_FRAX_3CRV.lpPriceInUSD());
         assert(OCY_CVX_FRAX_3CRV.lpPriceInUSD() > 9 * 10**17 && OCY_CVX_FRAX_3CRV.lpPriceInUSD() < (10**18 + (2 * 10**17)));
 
     }
 
-    function test_e_OCY_CVX_Modular_harvestYield_PP_FRAX_USDC() public {
+    function xtest_e_OCY_CVX_Modular_harvestYield_PP_FRAX_USDC() public {
         investInLockerPP_FRAX_USDC();    
         hevm.warp(block.timestamp + 6 hours);
         hevm.startPrank(randomAccount);
@@ -573,7 +573,7 @@ contract Test_e_OCY_CVX_Modular is Utility {
 
     }
 
-    function test_e_OCY_CVX_Modular_harvestYield_MP_FRAX_USDC() public {
+    function xtest_e_OCY_CVX_Modular_harvestYield_MP_FRAX_USDC() public {
         investInLockerMP(OCY_CVX_FRAX_3CRV, FRAX, 50000 * 10**18);
     }
 

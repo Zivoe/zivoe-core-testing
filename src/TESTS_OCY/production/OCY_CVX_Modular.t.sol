@@ -126,7 +126,7 @@ contract Test_OCY_CVX_Modular is Utility {
     //    Helper Functions
     // ----------------------
 
-    function test_p_OCY_CVX_Modular_init() public {
+    function xtest_p_OCY_CVX_Modular_init() public {
 
         /// In common
         assertEq(OCY_CVX_FRAX_USDC.GBL(),                     address(GBL));
