@@ -380,7 +380,7 @@ contract Test_ZivoeTranches is Utility {
         }
 
         // Pre-state.
-        assertEq(ZVT.maxTrancheRatioBIPS(), 2000);
+        assertEq(ZVT.maxTrancheRatioBIPS(), 4250);
         assertEq(ZVT.minZVEPerJTTMint(), 0);
         assertEq(ZVT.maxZVEPerJTTMint(), 0);
         assertEq(ZVT.lowerRatioIncentive(), 1000);

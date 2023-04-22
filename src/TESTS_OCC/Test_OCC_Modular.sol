@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "../TESTS_Utility/Utility.sol";
 
 import "lib/zivoe-core-foundry/src/lockers/OCC/OCC_Modular.sol";
+import "lib/zivoe-core-foundry/src/lockers/OCT/OCT_YDL.sol";
 
 contract Test_OCC_Modular is Utility {
 
@@ -12,16 +13,21 @@ contract Test_OCC_Modular is Utility {
     OCC_Modular OCC_Modular_USDC;
     OCC_Modular OCC_Modular_USDT;
 
+    OCT_YDL Treasury;
+
     function setUp() public {
 
         deployCore(false);
 
-        // Initialize and whitelist OCC_Modular lockers.
-        OCC_Modular_DAI = new OCC_Modular(address(DAO), address(DAI), address(GBL), address(roy));
-        OCC_Modular_FRAX = new OCC_Modular(address(DAO), address(FRAX), address(GBL), address(roy));
-        OCC_Modular_USDC = new OCC_Modular(address(DAO), address(USDC), address(GBL), address(roy));
-        OCC_Modular_USDT = new OCC_Modular(address(DAO), address(USDT), address(GBL), address(roy));
+        Treasury = new OCT_YDL(address(DAO), address(GBL));
 
+        // Initialize and whitelist OCC_Modular lockers.
+        OCC_Modular_DAI = new OCC_Modular(address(DAO), address(DAI), address(GBL), address(roy), address(Treasury));
+        OCC_Modular_FRAX = new OCC_Modular(address(DAO), address(FRAX), address(GBL), address(roy), address(Treasury));
+        OCC_Modular_USDC = new OCC_Modular(address(DAO), address(USDC), address(GBL), address(roy), address(Treasury));
+        OCC_Modular_USDT = new OCC_Modular(address(DAO), address(USDT), address(GBL), address(roy), address(Treasury));
+
+        zvl.try_updateIsLocker(address(GBL), address(Treasury), true);
         zvl.try_updateIsLocker(address(GBL), address(OCC_Modular_DAI), true);
         zvl.try_updateIsLocker(address(GBL), address(OCC_Modular_FRAX), true);
         zvl.try_updateIsLocker(address(GBL), address(OCC_Modular_USDC), true);
@@ -840,9 +846,9 @@ contract Test_OCC_Modular is Utility {
         // Warp past expiry time (14 days past loan creation).
         hevm.warp(block.timestamp + 14 days + 1 seconds);
 
-        // Can't fund loan if block.timestamp > loans[id].requestExpiry.
+        // Can't fund loan if block.timestamp > loans[id].offerExpiry.
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::acceptOffer() block.timestamp >= loans[id].requestExpiry");
+        hevm.expectRevert("OCC_Modular::acceptOffer() block.timestamp >= loans[id].offerExpiry");
         OCC_Modular_FRAX.acceptOffer(_loanID_FRAX);
         hevm.stopPrank();
        
@@ -869,12 +875,12 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory _postDetails) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
         uint256 _postStable_borrower = IERC20(DAI).balanceOf(address(tim));
         uint256 _postStable_occ = IERC20(DAI).balanceOf(address(OCC_Modular_DAI));
-        
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+
+        // block.timestamp - block.timestamp % 7 days + 9 days + loans[id].paymentInterval
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
-
 
         // Pre-state FRAX.
         _preStable_borrower = IERC20(FRAX).balanceOf(address(tim));
@@ -887,11 +893,10 @@ contract Test_OCC_Modular is Utility {
         _postStable_borrower = IERC20(FRAX).balanceOf(address(tim));
         _postStable_occ = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
         
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
-
 
         // Pre-state USDC.
         _preStable_borrower = IERC20(USDC).balanceOf(address(tim));
@@ -904,11 +909,10 @@ contract Test_OCC_Modular is Utility {
         _postStable_borrower = IERC20(USDC).balanceOf(address(tim));
         _postStable_occ = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
         
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
-
 
         // Pre-state USDT.
         _preStable_borrower = IERC20(USDT).balanceOf(address(tim));
@@ -921,7 +925,7 @@ contract Test_OCC_Modular is Utility {
         _postStable_borrower = IERC20(USDT).balanceOf(address(tim));
         _postStable_occ = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
         
-        assertEq(_postDetails[3], block.timestamp + _postDetails[6]);
+        assertEq(_postDetails[3], block.timestamp - block.timestamp % 7 days + 9 days + _postDetails[6]);
         assertEq(_postDetails[9], 2);
         assertEq(_postStable_borrower - _preStable_borrower, _postDetails[0]);
         assertEq(_preStable_occ - _postStable_occ, _postDetails[0]);
@@ -1092,8 +1096,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(FRAX).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(FRAX).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)),  // _prcOCC_stable
-            IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)),  // _postOCC_stable
+            IERC20(FRAX).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(FRAX).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(FRAX).balanceOf(address(tim)),               // _preTim_stable
             IERC20(FRAX).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -1111,7 +1115,7 @@ contract Test_OCC_Modular is Utility {
             (principalOwed, interestOwed, lateFeeOwed, totalOwed) = OCC_Modular_FRAX.amountOwed(_loanID_FRAX);
             (,, _preDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
             balanceData[0] = IERC20(FRAX).balanceOf(address(DAO));
-            balanceData[2] = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+            balanceData[2] = IERC20(FRAX).balanceOf(address(Treasury));
             balanceData[4] = IERC20(FRAX).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1158,7 +1162,7 @@ contract Test_OCC_Modular is Utility {
             // Post-state.
             (,, _postDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
             balanceData[1] = IERC20(FRAX).balanceOf(address(DAO));
-            balanceData[3] = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+            balanceData[3] = IERC20(FRAX).balanceOf(address(Treasury));
             balanceData[5] = IERC20(FRAX).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1207,8 +1211,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(USDC).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(USDC).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(USDC).balanceOf(address(OCC_Modular_USDC)),  // _prcOCC_stable
-            IERC20(USDC).balanceOf(address(OCC_Modular_USDC)),  // _postOCC_stable
+            IERC20(USDC).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(USDC).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(USDC).balanceOf(address(tim)),               // _preTim_stable
             IERC20(USDC).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -1226,7 +1230,7 @@ contract Test_OCC_Modular is Utility {
             (principalOwed, interestOwed, lateFeeOwed, totalOwed) = OCC_Modular_USDC.amountOwed(_loanID_USDC);
             (,, _preDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
             balanceData[0] = IERC20(USDC).balanceOf(address(DAO));
-            balanceData[2] = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+            balanceData[2] = IERC20(USDC).balanceOf(address(Treasury));
             balanceData[4] = IERC20(USDC).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1273,7 +1277,7 @@ contract Test_OCC_Modular is Utility {
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
             balanceData[1] = IERC20(USDC).balanceOf(address(DAO));
-            balanceData[3] = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+            balanceData[3] = IERC20(USDC).balanceOf(address(Treasury));
             balanceData[5] = IERC20(USDC).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1322,8 +1326,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(USDT).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(USDT).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(USDT).balanceOf(address(OCC_Modular_USDT)),  // _prcOCC_stable
-            IERC20(USDT).balanceOf(address(OCC_Modular_USDT)),  // _postOCC_stable
+            IERC20(USDT).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(USDT).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(USDT).balanceOf(address(tim)),               // _preTim_stable
             IERC20(USDT).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -1341,7 +1345,7 @@ contract Test_OCC_Modular is Utility {
             (principalOwed, interestOwed, lateFeeOwed, totalOwed) = OCC_Modular_USDT.amountOwed(_loanID_USDT);
             (,, _preDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
             balanceData[0] = IERC20(USDT).balanceOf(address(DAO));
-            balanceData[2] = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+            balanceData[2] = IERC20(USDT).balanceOf(address(Treasury));
             balanceData[4] = IERC20(USDT).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1388,7 +1392,7 @@ contract Test_OCC_Modular is Utility {
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
             balanceData[1] = IERC20(USDT).balanceOf(address(DAO));
-            balanceData[3] = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+            balanceData[3] = IERC20(USDT).balanceOf(address(Treasury));
             balanceData[5] = IERC20(USDT).balanceOf(address(tim));
             
             // details[0] = principalOwed
@@ -1608,8 +1612,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(FRAX).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(FRAX).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)),  // _prcOCC_stable
-            IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)),  // _postOCC_stable
+            IERC20(FRAX).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(FRAX).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(FRAX).balanceOf(address(tim)),               // _preTim_stable
             IERC20(FRAX).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -1629,7 +1633,7 @@ contract Test_OCC_Modular is Utility {
             (principalOwed, interestOwed, lateFeeOwed, totalOwed) = OCC_Modular_FRAX.amountOwed(_loanID_FRAX);
             (,, _preDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
             balanceData[0] = IERC20(FRAX).balanceOf(address(DAO));
-            balanceData[2] = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+            balanceData[2] = IERC20(FRAX).balanceOf(address(Treasury));
             balanceData[4] = IERC20(FRAX).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1676,7 +1680,7 @@ contract Test_OCC_Modular is Utility {
             // Post-state.
             (,, _postDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
             balanceData[1] = IERC20(FRAX).balanceOf(address(DAO));
-            balanceData[3] = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+            balanceData[3] = IERC20(FRAX).balanceOf(address(Treasury));
             balanceData[5] = IERC20(FRAX).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1725,8 +1729,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(USDC).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(USDC).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(USDC).balanceOf(address(OCC_Modular_USDC)),  // _prcOCC_stable
-            IERC20(USDC).balanceOf(address(OCC_Modular_USDC)),  // _postOCC_stable
+            IERC20(USDC).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(USDC).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(USDC).balanceOf(address(tim)),               // _preTim_stable
             IERC20(USDC).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -1746,7 +1750,7 @@ contract Test_OCC_Modular is Utility {
             (principalOwed, interestOwed, lateFeeOwed, totalOwed) = OCC_Modular_USDC.amountOwed(_loanID_USDC);
             (,, _preDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
             balanceData[0] = IERC20(USDC).balanceOf(address(DAO));
-            balanceData[2] = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+            balanceData[2] = IERC20(USDC).balanceOf(address(Treasury));
             balanceData[4] = IERC20(USDC).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1793,7 +1797,7 @@ contract Test_OCC_Modular is Utility {
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
             balanceData[1] = IERC20(USDC).balanceOf(address(DAO));
-            balanceData[3] = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+            balanceData[3] = IERC20(USDC).balanceOf(address(Treasury));
             balanceData[5] = IERC20(USDC).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1842,8 +1846,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(USDT).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(USDT).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(USDT).balanceOf(address(OCC_Modular_USDT)),  // _prcOCC_stable
-            IERC20(USDT).balanceOf(address(OCC_Modular_USDT)),  // _postOCC_stable
+            IERC20(USDT).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(USDT).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(USDT).balanceOf(address(tim)),               // _preTim_stable
             IERC20(USDT).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -1863,7 +1867,7 @@ contract Test_OCC_Modular is Utility {
             (principalOwed, interestOwed, lateFeeOwed, totalOwed) = OCC_Modular_USDT.amountOwed(_loanID_USDT);
             (,, _preDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
             balanceData[0] = IERC20(USDT).balanceOf(address(DAO));
-            balanceData[2] = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+            balanceData[2] = IERC20(USDT).balanceOf(address(Treasury));
             balanceData[4] = IERC20(USDT).balanceOf(address(tim));
 
             // details[0] = principalOwed
@@ -1910,7 +1914,7 @@ contract Test_OCC_Modular is Utility {
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
             balanceData[1] = IERC20(USDT).balanceOf(address(DAO));
-            balanceData[3] = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+            balanceData[3] = IERC20(USDT).balanceOf(address(Treasury));
             balanceData[5] = IERC20(USDT).balanceOf(address(tim));
             
             // details[0] = principalOwed
@@ -2242,8 +2246,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(FRAX).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(FRAX).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)),  // _prcOCC_stable
-            IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX)),  // _postOCC_stable
+            IERC20(FRAX).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(FRAX).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(FRAX).balanceOf(address(tim)),               // _preTim_stable
             IERC20(FRAX).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -2274,7 +2278,7 @@ contract Test_OCC_Modular is Utility {
         // Post-state.
         (,, uint256[10] memory _postDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
         balanceData[1] = IERC20(FRAX).balanceOf(address(DAO));
-        balanceData[3] = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+        balanceData[3] = IERC20(FRAX).balanceOf(address(Treasury));
         balanceData[5] = IERC20(FRAX).balanceOf(address(tim));
 
         assertEq(balanceData[1] - balanceData[0], principalOwed);
@@ -2313,8 +2317,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(USDC).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(USDC).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(USDC).balanceOf(address(OCC_Modular_USDC)),  // _prcOCC_stable
-            IERC20(USDC).balanceOf(address(OCC_Modular_USDC)),  // _postOCC_stable
+            IERC20(USDC).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(USDC).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(USDC).balanceOf(address(tim)),               // _preTim_stable
             IERC20(USDC).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -2345,7 +2349,7 @@ contract Test_OCC_Modular is Utility {
         // Post-state.
         (,, uint256[10] memory _postDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
         balanceData[1] = IERC20(USDC).balanceOf(address(DAO));
-        balanceData[3] = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+        balanceData[3] = IERC20(USDC).balanceOf(address(Treasury));
         balanceData[5] = IERC20(USDC).balanceOf(address(tim));
 
         assertEq(balanceData[1] - balanceData[0], principalOwed);
@@ -2384,8 +2388,8 @@ contract Test_OCC_Modular is Utility {
         uint256[6] memory balanceData = [
             IERC20(USDT).balanceOf(address(DAO)),               // _preDAO_stable
             IERC20(USDT).balanceOf(address(DAO)),               // _postDAO_stable
-            IERC20(USDT).balanceOf(address(OCC_Modular_USDT)),  // _prcOCC_stable
-            IERC20(USDT).balanceOf(address(OCC_Modular_USDT)),  // _postOCC_stable
+            IERC20(USDT).balanceOf(address(Treasury)),          // _prcOCT_stable
+            IERC20(USDT).balanceOf(address(Treasury)),          // _postOCT_stable
             IERC20(USDT).balanceOf(address(tim)),               // _preTim_stable
             IERC20(USDT).balanceOf(address(tim))                // _postTim_stable
         ];
@@ -2416,7 +2420,7 @@ contract Test_OCC_Modular is Utility {
         // Post-state.
         (,, uint256[10] memory _postDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
         balanceData[1] = IERC20(USDT).balanceOf(address(DAO));
-        balanceData[3] = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+        balanceData[3] = IERC20(USDT).balanceOf(address(Treasury));
         balanceData[5] = IERC20(USDT).balanceOf(address(tim));
 
         assertEq(balanceData[1] - balanceData[0], principalOwed);
@@ -2717,46 +2721,46 @@ contract Test_OCC_Modular is Utility {
         
         {
             // Pre-state FRAX.
-            uint256 _preStable_OCC = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+            uint256 _preStable_OCT = IERC20(FRAX).balanceOf(address(Treasury));
             uint256 _preStable_tim = IERC20(FRAX).balanceOf(address(tim));
 
             assert(tim.try_supplyInterest(address(OCC_Modular_FRAX), _loanID_FRAX, amount));
 
             // Post-state FRAX.
-            uint256 _postStable_OCC = IERC20(FRAX).balanceOf(address(OCC_Modular_FRAX));
+            uint256 _postStable_OCT = IERC20(FRAX).balanceOf(address(Treasury));
             uint256 _postStable_tim = IERC20(FRAX).balanceOf(address(tim));
 
-            assertEq(_postStable_OCC - _preStable_OCC, amount);
+            assertEq(_postStable_OCT - _preStable_OCT, amount);
             assertEq(_preStable_tim - _postStable_tim, amount);
         }
 
         {
             // Pre-state USDC.
-            uint256 _preStable_OCC = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+            uint256 _preStable_OCT = IERC20(USDC).balanceOf(address(Treasury));
             uint256 _preStable_tim = IERC20(USDC).balanceOf(address(tim));
 
             assert(tim.try_supplyInterest(address(OCC_Modular_USDC), _loanID_USDC, amount));
 
             // Post-state USDC.
-            uint256 _postStable_OCC = IERC20(USDC).balanceOf(address(OCC_Modular_USDC));
+            uint256 _postStable_OCT = IERC20(USDC).balanceOf(address(Treasury));
             uint256 _postStable_tim = IERC20(USDC).balanceOf(address(tim));
 
-            assertEq(_postStable_OCC - _preStable_OCC, amount);
+            assertEq(_postStable_OCT - _preStable_OCT, amount);
             assertEq(_preStable_tim - _postStable_tim, amount);
         }
         
         {
             // Pre-state USDT.
-            uint256 _preStable_OCC = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+            uint256 _preStable_OCT = IERC20(USDT).balanceOf(address(Treasury));
             uint256 _preStable_tim = IERC20(USDT).balanceOf(address(tim));
 
             assert(tim.try_supplyInterest(address(OCC_Modular_USDT), _loanID_USDT, amount));
 
             // Post-state USDT.
-            uint256 _postStable_OCC = IERC20(USDT).balanceOf(address(OCC_Modular_USDT));
+            uint256 _postStable_OCT = IERC20(USDT).balanceOf(address(Treasury));
             uint256 _postStable_tim = IERC20(USDT).balanceOf(address(tim));
 
-            assertEq(_postStable_OCC - _preStable_OCC, amount);
+            assertEq(_postStable_OCT - _preStable_OCT, amount);
             assertEq(_preStable_tim - _postStable_tim, amount);
         }
 
