@@ -184,14 +184,14 @@ contract Test_ZivoeSwapper is Utility {
 
 
     function test_ZivoeSwapper_uniswapV3Swap_convertAsset() public {
-        address assetIn = DAI;
-        address assetOut = FRAX;
-        // address assetIn = FRAX;
-        // address assetOut = DAI;
-        uint256 amountIn = 20_000 ether;
-        // address assetIn = USDC;
-        // address assetOut = WBTC;
-        // uint256 amountIn = 2000 ether;
+        
+        address assetIn = FRAX;
+        address assetOut = USDT;
+        uint256 amountIn = 200 ether;
+
+        // 200 FRAX -> USDT
+        bytes memory dataUniswapV3Swap =
+        hex"e449022e00000000000000000000000000000000000000000000000ad78ebc5ac6200000000000000000000000000000000000000000000000000000000000000bdf547e00000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c2a856c3aff2110c1171b8f942256d40e980c726cfee7c08";
 
         // fund address(swapper) with the right amount of tokens to swap.
         deal(assetIn, address(swapper), amountIn);
@@ -202,25 +202,25 @@ contract Test_ZivoeSwapper is Utility {
 
         emit log_named_uint("swapper assetIn pre-swap balance:", IERC20(assetIn).balanceOf(address(swapper)));
         emit log_named_uint("swapper assetOut pre-swap balance:", IERC20(assetOut).balanceOf(address(swapper)));
-
         
-        (bytes4 sig, uint256[] memory pools,) = swapper.convertTest(
-                                                    assetIn,
-                                                    assetOut,
-                                                    amountIn,
-                                                    dataUniswapV3Swap
-                                                );
+        (
+            bytes4 sig, uint256[] memory pools,
+        ) = swapper.convertTest(assetIn, assetOut, amountIn, dataUniswapV3Swap);
 
         bool zeroForOne_0 = pools[0] & _ONE_FOR_ZERO_MASK == 0;
         bool zeroForOne_CLENGTH = pools[pools.length - 1] & _ONE_FOR_ZERO_MASK == 0;
 
-        // = true
         if (zeroForOne_0 == true) {
             emit log_string("zeroForOne_0 TRUE");
         }
-        // = false
+        else {
+            emit log_string("zeroForONE_0 FALSE");
+        }
         if (zeroForOne_CLENGTH == true) {
             emit log_string("zeroForOne_CLENGTH TRUE");
+        }
+        else {
+            emit log_string("zeroForOne_CLENGTH FALSE");
         }
 
         // ensure we go through the right validation function.
