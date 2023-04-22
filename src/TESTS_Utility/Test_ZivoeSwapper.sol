@@ -38,7 +38,7 @@ contract Test_ZivoeSwapper is Utility {
     using SafeERC20 for IERC20;
 
     uint256 private constant _ONE_FOR_ZERO_MASK = 1 << 255;
-    uint256 private constant _REVERSE_MASK =   0x8000000000000000000000000000000000000000000000000000000000000000;
+    uint256 private constant _REVERSE_MASK = 0x8000000000000000000000000000000000000000000000000000000000000000;
 
     // Initiate contract variable
     SwapperTest swapper;
@@ -617,7 +617,6 @@ contract Test_ZivoeSwapper is Utility {
 
 
     // ====================== helper testing ==========================
-
 
     function test_ZivoeSwapper_extra_log() public {
         emit log_named_address("swapper testing address", address(swapper));
