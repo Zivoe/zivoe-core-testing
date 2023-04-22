@@ -410,7 +410,7 @@ contract Test_ZivoeSwapper is Utility {
 
     function test_ZivoeSwapper_unoswap_restrictions_amountIn() public {
 
-        address assetIn = CRV; 
+        address assetIn = CRV;
         address assetOut = DAI;
         uint256 amountIn = 300 ether;   // Wrong amountIn provided
 
