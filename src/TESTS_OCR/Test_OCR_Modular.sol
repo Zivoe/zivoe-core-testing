@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/lockers/OCR/OCR_Modular.sol";
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_Defaults.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCR/OCR_Modular.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_Defaults.sol";
 
 contract Test_OCR_Modular is Utility {
 
@@ -34,35 +34,35 @@ contract Test_OCR_Modular is Utility {
     // ----------------------
 
     // helper function to initiate a redemption request
-    function redemptionRequestJunior(uint256 amount) public returns (uint256 userInitBalance) {
+    function redemptionRequestJunior(uint256 amount) public returns (uint256 accountInitBalance) {
 
         // Withdraw staked tranche tokens
         hevm.startPrank(address(jim));
         stJTT.fullWithdraw();
         IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amount);
         // initial values
-        uint256 userInitBalance = IERC20(zJTT).balanceOf(address(jim));
+        uint256 accountInitBalance = IERC20(zJTT).balanceOf(address(jim));
         // call function
         OCR_Modular_DAI.redemptionRequestJunior(amount);
         hevm.stopPrank();
 
-        return userInitBalance;
+        return accountInitBalance;
     }
 
     // helper function to initiate a redemption request
-    function redemptionRequestSenior(uint256 amount) public returns (uint256 userInitBalance) {
+    function redemptionRequestSenior(uint256 amount) public returns (uint256 accountInitBalance) {
 
         // Withdraw staked tranche tokens
         hevm.startPrank(address(sam));
         stSTT.fullWithdraw();
         IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amount);
         // initial values
-        uint256 userInitBalance = IERC20(zSTT).balanceOf(address(sam));
+        uint256 accountInitBalance = IERC20(zSTT).balanceOf(address(sam));
         // call function
         OCR_Modular_DAI.redemptionRequestSenior(amount);
         hevm.stopPrank();
 
-        return userInitBalance;
+        return accountInitBalance;
 
     }
 
@@ -154,13 +154,13 @@ contract Test_OCR_Modular is Utility {
         uint256 amountToRedeem = 2_000_000 ether;
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
 
-        uint256 userInitBalance = redemptionRequestJunior(amountToRedeem);
+        uint256 accountInitBalance = redemptionRequestJunior(amountToRedeem);
 
         // checks
-        assert(IERC20(zJTT).balanceOf(address(jim)) == userInitBalance - amountToRedeem);
+        assert(IERC20(zJTT).balanceOf(address(jim)) == accountInitBalance - amountToRedeem);
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem);
-        assert(OCR_Modular_DAI.userClaimTimestampJunior(address(jim)) == block.timestamp);
+        assert(OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)) == block.timestamp);
     }    
 
     // Validate redemptionRequestJunior() restrictions
@@ -174,8 +174,8 @@ contract Test_OCR_Modular is Utility {
         stJTT.fullWithdraw();
         IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
         // initial values
-        uint256 userInitBalance = IERC20(zJTT).balanceOf(address(jim));
-        assert(userInitBalance < amountToRedeem);
+        uint256 accountInitBalance = IERC20(zJTT).balanceOf(address(jim));
+        assert(accountInitBalance < amountToRedeem);
         // checks
         hevm.expectRevert("ERC20: transfer amount exceeds balance");
         // call function
@@ -190,13 +190,13 @@ contract Test_OCR_Modular is Utility {
         uint256 amountToRedeem = 10_000_000 ether;
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
 
-        uint256 userInitBalance = redemptionRequestSenior(amountToRedeem);
+        uint256 accountInitBalance = redemptionRequestSenior(amountToRedeem);
 
         // checks
-        assert(IERC20(zSTT).balanceOf(address(sam)) == userInitBalance - amountToRedeem);
+        assert(IERC20(zSTT).balanceOf(address(sam)) == accountInitBalance - amountToRedeem);
         assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem);
-        assert(OCR_Modular_DAI.userClaimTimestampSenior(address(sam)) == block.timestamp);
+        assert(OCR_Modular_DAI.accountClaimTimestampSenior(address(sam)) == block.timestamp);
     }  
 
     // Validate redemptionRequestSenior() restrictions
@@ -210,8 +210,8 @@ contract Test_OCR_Modular is Utility {
         stSTT.fullWithdraw();
         IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
         // initial values
-        uint256 userInitBalance = IERC20(zSTT).balanceOf(address(sam));
-        assert(userInitBalance < amountToRedeem);
+        uint256 accountInitBalance = IERC20(zSTT).balanceOf(address(sam));
+        assert(accountInitBalance < amountToRedeem);
         // check
         hevm.expectRevert("ERC20: transfer amount exceeds balance");
         // call function
@@ -291,7 +291,7 @@ contract Test_OCR_Modular is Utility {
 
         // initiate a redemption request
         redemptionRequestJunior(amountToRedeem);
-        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.userClaimTimestampJunior(address(jim)));
+        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)));
 
         // warp time to next redemption epoch
         hevm.warp(block.timestamp + 31 days);
@@ -342,7 +342,7 @@ contract Test_OCR_Modular is Utility {
 
         // redeem
         hevm.startPrank(address(jim));
-        hevm.expectRevert("OCR_Modular::redeemJunior() userClaimTimestampJunior[_msgSender()] >= currentEpochDistribution");
+        hevm.expectRevert("OCR_Modular::redeemJunior() accountClaimTimestampJunior[_msgSender()] >= currentEpochDistribution");
         OCR_Modular_DAI.redeemJunior();
         hevm.stopPrank();
     }
@@ -387,7 +387,7 @@ contract Test_OCR_Modular is Utility {
 
         // initiate a redemption request
         redemptionRequestJunior(amountToRedeem);
-        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.userClaimTimestampJunior(address(jim)));
+        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)));
 
         // warp time to next redemption epoch
         hevm.warp(block.timestamp + 31 days);
@@ -477,7 +477,7 @@ contract Test_OCR_Modular is Utility {
 
         // redeem
         hevm.startPrank(address(sam));
-        hevm.expectRevert("OCR_Modular::redeemSenior() userClaimTimestampSenior[_msgSender()] >= currentEpochDistribution");
+        hevm.expectRevert("OCR_Modular::redeemSenior() accountClaimTimestampSenior[_msgSender()] >= currentEpochDistribution");
         OCR_Modular_DAI.redeemSenior();
         hevm.stopPrank();
     }
