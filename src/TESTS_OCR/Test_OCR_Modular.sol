@@ -968,6 +968,22 @@ contract Test_OCR_Modular is Utility {
         }
     }
 
+    // validate restriction to call cancelRedemptionJunior() when balance < amount
+    function test_OCR_cancelRedemptionJunior_restrictions() public {
+        hevm.startPrank(address(jim));
+        hevm.expectRevert("OCR_Modular::cancelRedemptionJunior() juniorBalances[_msgSender()] < amount");
+        OCR_Modular_DAI.cancelRedemptionJunior(1);
+        hevm.stopPrank();
+    }
+
+    // validate restriction to call cancelRedemptionSenior() when balance < amount
+    function test_OCR_cancelRedemptionSenior_restrictions() public {
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("OCR_Modular::cancelRedemptionSenior() seniorBalances[_msgSender()] < amount");
+        OCR_Modular_DAI.cancelRedemptionSenior(1);
+        hevm.stopPrank();
+    }
+
     // validate cancelRedemptionSenior() state changes - fuzz testing
     function test_OCR_cancelRedemptionSenior_state_fuzzTest(
         uint88 amountToCancel, 
