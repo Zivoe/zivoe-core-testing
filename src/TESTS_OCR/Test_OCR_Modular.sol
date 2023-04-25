@@ -84,9 +84,9 @@ contract Test_OCR_Modular is Utility {
         assertEq(OCR_Modular_DAI.currentEpochDistribution(), block.timestamp);
         assertEq(OCR_Modular_DAI.nextEpochDistribution(), block.timestamp + 30 days);
         assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
-        assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
-        assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), 0);
-        assertEq(OCR_Modular_DAI.amountWithdrawableInEpoch(), 0);
+        assertEq(OCR_Modular_DAI.redemptionsRequested(), 0);
+        assertEq(OCR_Modular_DAI.redemptionsAllowed(), 0);
+        assertEq(OCR_Modular_DAI.amountRedeemable(), 0);
         assertEq(OCR_Modular_DAI.unclaimedWithdrawRequests(), 0);
         assertEq(OCR_Modular_DAI.amountPushedInCurrentEpoch(), 0);
 
@@ -113,7 +113,7 @@ contract Test_OCR_Modular is Utility {
         OCR_Modular_DAI.distributeEpoch();
 
         // pre check
-        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
 
         // pull from locker
         hevm.startPrank(address(DAO));
@@ -121,7 +121,7 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
 
         // check
-        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == 0);
+        assert(OCR_Modular_DAI.amountRedeemable() == 0);
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == 0);
     }
 
@@ -176,11 +176,11 @@ contract Test_OCR_Modular is Utility {
         OCR_Modular_DAI.distributeEpoch();
 
         // intermediate check
-        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
 
         // warp time further in current epoch
-        // as we need to check bot variables "amountPushedInCurrentEpoch" and "amountWithdrawableInEpoch"
+        // as we need to check bot variables "amountPushedInCurrentEpoch" and "amountRedeemable"
         hevm.warp(block.timestamp + 10 days);
 
         // push stablecoins to the locker
@@ -190,7 +190,7 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
 
         // intermediate check
-        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush);
 
         // pull from locker partial amount
@@ -202,12 +202,12 @@ contract Test_OCR_Modular is Utility {
         if (amountToPull > amountToPush) {
             assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
             uint256 diff = amountToPull - amountToPush;
-            assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush - diff);
+            assert(OCR_Modular_DAI.amountRedeemable() == amountToPush - diff);
         }
 
         if (amountToPull <= amountToPush) {
             assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush - amountToPull);
-            assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+            assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         }
     }
 
@@ -252,13 +252,13 @@ contract Test_OCR_Modular is Utility {
     function test_OCR_redemptionRequestJunior_state() public {
         
         uint256 amountToRedeem = 2_000_000 ether;
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+        assert(OCR_Modular_DAI.redemptionsRequested() == 0);
 
         uint256 accountInitBalance = redemptionRequestJunior(amountToRedeem);
 
         // checks
         assert(IERC20(zJTT).balanceOf(address(jim)) == accountInitBalance - amountToRedeem);
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem);
         assert(OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)) == block.timestamp);
     }    
@@ -267,7 +267,7 @@ contract Test_OCR_Modular is Utility {
     function test_OCR_redemptionRequestJunior_restrictions() public {
 
         uint256 amountToRedeem = 20_000_000 ether;
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+        assert(OCR_Modular_DAI.redemptionsRequested() == 0);
 
         // Withdraw staked tranche tokens
         hevm.startPrank(address(jim));
@@ -288,13 +288,13 @@ contract Test_OCR_Modular is Utility {
     function test_OCR_redemptionRequestSenior_state() public {
 
         uint256 amountToRedeem = 10_000_000 ether;
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+        assert(OCR_Modular_DAI.redemptionsRequested() == 0);
 
         uint256 accountInitBalance = redemptionRequestSenior(amountToRedeem);
 
         // checks
         assert(IERC20(zSTT).balanceOf(address(sam)) == accountInitBalance - amountToRedeem);
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem);
         assert(OCR_Modular_DAI.accountClaimTimestampSenior(address(sam)) == block.timestamp);
     }  
@@ -303,7 +303,7 @@ contract Test_OCR_Modular is Utility {
     function test_OCR_redemptionRequestSenior_restrictions() public {
 
         uint256 amountToRedeem = 26_000_000 ether;
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+        assert(OCR_Modular_DAI.redemptionsRequested() == 0);
 
         // Withdraw staked tranche tokens
         hevm.startPrank(address(sam));
@@ -337,18 +337,18 @@ contract Test_OCR_Modular is Utility {
 
         // pre check
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == amountToDistribute);
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToDistribute);
         uint256 currentEpochDistribution = OCR_Modular_DAI.currentEpochDistribution();
         // distribute new epoch
         OCR_Modular_DAI.distributeEpoch();
 
         // checks
-        assertEq(OCR_Modular_DAI.amountWithdrawableInEpoch(), amountToDistribute);
+        assertEq(OCR_Modular_DAI.amountRedeemable(), amountToDistribute);
         assertEq(OCR_Modular_DAI.nextEpochDistribution(), block.timestamp + 30 days);
         assertEq(OCR_Modular_DAI.currentEpochDistribution(), block.timestamp);
-        assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), amountToRedeem);
-        assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
+        assertEq(OCR_Modular_DAI.redemptionsAllowed(), amountToRedeem);
+        assertEq(OCR_Modular_DAI.redemptionsRequested(), 0);
         assertEq(OCR_Modular_DAI.unclaimedWithdrawRequests(), amountToRedeem);
         assertEq(OCR_Modular_DAI.amountPushedInCurrentEpoch(), 0);
     }
@@ -465,7 +465,7 @@ contract Test_OCR_Modular is Utility {
 
         // redeem
         hevm.startPrank(address(jim));
-        hevm.expectRevert("OCR_Modular::redeemJunior() amountWithdrawableInEpoch == 0");
+        hevm.expectRevert("OCR_Modular::redeemJunior() amountRedeemable == 0");
         OCR_Modular_DAI.redeemJunior();
         hevm.stopPrank();
     }
@@ -600,7 +600,7 @@ contract Test_OCR_Modular is Utility {
 
         // redeem
         hevm.startPrank(address(sam));
-        hevm.expectRevert("OCR_Modular::redeemJunior() amountWithdrawableInEpoch == 0");
+        hevm.expectRevert("OCR_Modular::redeemJunior() amountRedeemable == 0");
         OCR_Modular_DAI.redeemSenior();
         hevm.stopPrank();
     }
@@ -946,9 +946,9 @@ contract Test_OCR_Modular is Utility {
         hevm.warp(block.timestamp + 5 days);
 
         // pre-check
-        assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem);
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
-        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.redemptionsAllowed() == amountToRedeem);
+        assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
+        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush);
         assert(OCR_Modular_DAI.unclaimedWithdrawRequests() == amountToRedeem);
 
@@ -960,12 +960,12 @@ contract Test_OCR_Modular is Utility {
         // final check
         if (amountToCancel > amountToRedeem) {
             uint256 diff = amountToCancel - amountToRedeem;
-            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
-            assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem - diff);
+            assert(OCR_Modular_DAI.redemptionsRequested() == 0);
+            assert(OCR_Modular_DAI.redemptionsAllowed() == amountToRedeem - diff);
         }
 
         if (amountToCancel < amountToRedeem) {
-            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem - amountToCancel);
+            assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem - amountToCancel);
         }
     }
 
@@ -1038,9 +1038,9 @@ contract Test_OCR_Modular is Utility {
         hevm.warp(block.timestamp + 5 days);
 
         // pre-check
-        assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem);
-        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
-        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.redemptionsAllowed() == amountToRedeem);
+        assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
+        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush);
         assert(OCR_Modular_DAI.unclaimedWithdrawRequests() == amountToRedeem);
 
@@ -1052,12 +1052,12 @@ contract Test_OCR_Modular is Utility {
         // final check
         if (amountToCancel > amountToRedeem) {
             uint256 diff = amountToCancel - amountToRedeem;
-            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
-            assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem - diff);
+            assert(OCR_Modular_DAI.redemptionsRequested() == 0);
+            assert(OCR_Modular_DAI.redemptionsAllowed() == amountToRedeem - diff);
         }
 
         if (amountToCancel < amountToRedeem) {
-            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem - amountToCancel);
+            assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem - amountToCancel);
         }
     }
 }
