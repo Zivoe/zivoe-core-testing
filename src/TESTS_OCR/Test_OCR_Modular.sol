@@ -93,6 +93,7 @@ contract Test_OCR_Modular is Utility {
         // Permissions
         assert(OCR_Modular_DAI.canPush());
         assert(OCR_Modular_DAI.canPull());
+        assert(OCR_Modular_DAI.canPullPartial());
     }
 
     // validate pullFromLocker() state changes
