@@ -148,6 +148,78 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
     }
 
+    // validate pullFromLockerPartial() state changes
+    function test_OCR_pullFromLockerPartial_state_fuzzTest(uint88 amountToPush, uint88 amountToPull) public {
+        hevm.assume(amountToPush > 0);
+        hevm.assume(amountToPull > 0 && amountToPull <= (uint256(amountToPush) * 2));
+
+        // fund account with DAI
+        deal(DAI, address(sam), uint256(amountToPush) * 2);
+
+        // deposit in senior tranches
+        hevm.startPrank(address(sam));
+        IERC20(DAI).safeApprove(address(ZVT), uint256(amountToPush) * 2);
+        ZVT.depositSenior(uint256(amountToPush) * 2, DAI);
+        hevm.stopPrank();
+
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
+
+        // warp time to next epoch (1) distribution
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // intermediate check
+        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
+
+        // warp time further in current epoch
+        // as we need to check bot variables "amountPushedInCurrentEpoch" and "amountWithdrawableInEpoch"
+        hevm.warp(block.timestamp + 10 days);
+
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
+
+        // intermediate check
+        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush);
+
+        // pull from locker partial amount
+        hevm.startPrank(address(DAO));
+        OCR_Modular_DAI.pullFromLockerPartial(DAI, amountToPull, "");
+        hevm.stopPrank();
+
+        // check
+        if (amountToPull > amountToPush) {
+            assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
+            uint256 diff = amountToPull - amountToPush;
+            assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush - diff);
+        }
+
+        if (amountToPull <= amountToPush) {
+            assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush - amountToPull);
+            assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        }
+    }
+
+    // pushToLocker() should not be able to push an asset other than "stablecoin"
+    function test_OCR_pushToLocker_restrictions() public {
+
+        // push other stablecoin to locker
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pushToLocker() asset != stablecoin");
+        OCR_Modular_DAI.pushToLocker(FRAX, 1_000 ether, "");
+        hevm.stopPrank();
+    }
+
     // Validate redemptionRequestJunior() state changes
     function test_OCR_redemptionRequestJunior_state() public {
         
@@ -253,7 +325,7 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
     }
 
-    // Validate distributeEpoch restrictions
+    // Validate distributeEpoch() restrictions
     function test_OCR_distributeEpoch_restrictions() public {
         uint256 amountToDistribute= 2_000_000 ether;
         uint256 amountToRedeem = 4_000_000 ether;
@@ -763,5 +835,49 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == 0);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == 0);
     }
+
+    // validate setRedemptionFee() state changes
+    function test_OCR_setRedemptionFee_state() public {
+        // pre check
+        assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
+
+        // set new redemption fee
+        hevm.startPrank(address(god));
+        OCR_Modular_DAI.setRedemptionFee(1500);
+        hevm.stopPrank();
+
+        // check
+        assert(OCR_Modular_DAI.redemptionFee() == 1500);
+    }
+
+    // validate setRedemptionFee() restrictions on caller when != TLC
+    function test_OCR_setRedemptionFee_caller_restrictions() public {
+        // pre check
+        assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
+
+        // set new redemption fee with account != TLC
+        hevm.expectRevert("OCR_Modular::setRedemptionFee() _msgSender() != TLC()");
+        OCR_Modular_DAI.setRedemptionFee(1500);
+    }
+
+    // validate setRedemptionFee() restrictions when amount is out of range
+    function test_OCR_setRedemptionFee_amount_restrictions() public {
+        // pre check
+        assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
+
+        // set new redemption fee
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCR_Modular::setRedemptionFee() _redemptionFee > 2000 && _redemptionFee < 250");
+        OCR_Modular_DAI.setRedemptionFee(5000);
+        hevm.stopPrank();
+    }
+
+
+
+
+
+
+
+
 
 }

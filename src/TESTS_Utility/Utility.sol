@@ -11,24 +11,24 @@ import "./users/Investor.sol";
 import "./users/Vester.sol";
 
 // Core imports.
-import "lib/zivoe-core-foundry/src/ZivoeDAO.sol";
-import "lib/zivoe-core-foundry/src/ZivoeGlobals.sol";
-import "lib/zivoe-core-foundry/src/ZivoeGovernorV2.sol";
-import "lib/zivoe-core-foundry/src/ZivoeITO.sol";
-import "lib/zivoe-core-foundry/src/ZivoeMath.sol";
-import "lib/zivoe-core-foundry/src/ZivoeToken.sol";
-import "lib/zivoe-core-foundry/src/ZivoeTranches.sol";
-import "lib/zivoe-core-foundry/src/ZivoeTrancheToken.sol";
-import "lib/zivoe-core-foundry/src/ZivoeYDL.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeDAO.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeGlobals.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeGovernorV2.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeITO.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeMath.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeToken.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeTranches.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeTrancheToken.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeYDL.sol";
 
 
 // External-protocol imports.
-import "lib/zivoe-core-foundry/src/libraries/ZivoeTLC.sol";
-import { ZivoeRewards } from "lib/zivoe-core-foundry/src/ZivoeRewards.sol";
-import { ZivoeRewardsVesting } from "lib/zivoe-core-foundry/src/ZivoeRewardsVesting.sol";
+import "../../lib/zivoe-core-foundry/src/libraries/ZivoeTLC.sol";
+import { ZivoeRewards } from "../../lib/zivoe-core-foundry/src/ZivoeRewards.sol";
+import { ZivoeRewardsVesting } from "../../lib/zivoe-core-foundry/src/ZivoeRewardsVesting.sol";
 
 // Interfaces full imports.
-import "lib/zivoe-core-foundry/src/misc/InterfacesAggregated.sol";
+import "../../lib/zivoe-core-foundry/src/misc/InterfacesAggregated.sol";
 
 // Test (foundry-rs) imports.
 import "../../lib/forge-std/src/Test.sol";
