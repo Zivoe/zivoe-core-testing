@@ -260,7 +260,7 @@ contract Test_OCR_Modular is Utility {
         assert(IERC20(zJTT).balanceOf(address(jim)) == accountInitBalance - amountToRedeem);
         assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem);
-        assert(OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)) == block.timestamp);
+        assert(OCR_Modular_DAI.juniorRedemptionRequestedOn(address(jim)) == block.timestamp);
     }    
 
     // Validate redemptionRequestJunior() restrictions
@@ -296,7 +296,7 @@ contract Test_OCR_Modular is Utility {
         assert(IERC20(zSTT).balanceOf(address(sam)) == accountInitBalance - amountToRedeem);
         assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem);
-        assert(OCR_Modular_DAI.accountClaimTimestampSenior(address(sam)) == block.timestamp);
+        assert(OCR_Modular_DAI.seniorRedemptionRequestedOn(address(sam)) == block.timestamp);
     }  
 
     // Validate redemptionRequestSenior() restrictions
@@ -391,7 +391,7 @@ contract Test_OCR_Modular is Utility {
 
         // initiate a redemption request
         redemptionRequestJunior(amountToRedeem);
-        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)));
+        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.juniorRedemptionRequestedOn(address(jim)));
 
         // warp time to next redemption epoch
         hevm.warp(block.timestamp + 31 days);
@@ -442,7 +442,7 @@ contract Test_OCR_Modular is Utility {
 
         // redeem
         hevm.startPrank(address(jim));
-        hevm.expectRevert("OCR_Modular::redeemJunior() accountClaimTimestampJunior[_msgSender()] >= currentEpoch");
+        hevm.expectRevert("OCR_Modular::redeemJunior() juniorRedemptionRequestedOn[_msgSender()] >= currentEpoch");
         OCR_Modular_DAI.redeemJunior();
         hevm.stopPrank();
     }
@@ -487,7 +487,7 @@ contract Test_OCR_Modular is Utility {
 
         // initiate a redemption request
         redemptionRequestJunior(amountToRedeem);
-        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.accountClaimTimestampJunior(address(jim)));
+        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.juniorRedemptionRequestedOn(address(jim)));
 
         // warp time to next redemption epoch
         hevm.warp(block.timestamp + 31 days);
@@ -577,7 +577,7 @@ contract Test_OCR_Modular is Utility {
 
         // redeem
         hevm.startPrank(address(sam));
-        hevm.expectRevert("OCR_Modular::redeemSenior() accountClaimTimestampSenior[_msgSender()] >= currentEpoch");
+        hevm.expectRevert("OCR_Modular::redeemSenior() seniorRedemptionRequestedOn[_msgSender()] >= currentEpoch");
         OCR_Modular_DAI.redeemSenior();
         hevm.stopPrank();
     }
