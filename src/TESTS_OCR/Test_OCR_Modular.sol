@@ -210,6 +210,33 @@ contract Test_OCR_Modular is Utility {
         }
     }
 
+    // validate pullFromLockerPartial() restrictions, pull zJTT 
+    function test_OCR_pullFromLockerPartial_zJTT_restrictions() public {
+        // try to pull zJTT from locker
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLockerPartial(address(zJTT), 1, "");
+        hevm.stopPrank();
+    }
+
+    // validate pullFromLockerPartial() restrictions, pull zSTT
+    function test_OCR_pullFromLockerPartial_zSTT_restrictions() public {
+        // try to pull zJTT from locker
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLockerPartial(address(zSTT), 1, "");
+        hevm.stopPrank();
+    }
+
+    // validate pullFromLockerPartial() restrictions, pull amount higher than locker balance
+    function test_OCR_pullFromLockerPartial_balance_restrictions() public {
+        // try to pull higher amount than locker's balance
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial()amount > IERC20(asset).balanceOf(address(this)");
+        OCR_Modular_DAI.pullFromLockerPartial(DAI, 100_000_000 ether, "");
+        hevm.stopPrank();
+    }
+
     // pushToLocker() should not be able to push an asset other than "stablecoin"
     function test_OCR_pushToLocker_restrictions() public {
 
