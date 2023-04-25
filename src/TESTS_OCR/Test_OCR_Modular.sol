@@ -911,7 +911,7 @@ contract Test_OCR_Modular is Utility {
         hevm.assume(amountToPush > 0 && amountToRedeem > 0 && amountToCancel > 0);
         hevm.assume(amountToPush < 10_000_000 ether);
         hevm.assume(amountToRedeem <= 2_000_000 ether);
-        hevm.assume(amountToCancel <= 2 * amountToRedeem);
+        hevm.assume(amountToCancel <= 2 * uint256(amountToRedeem));
 
         // push stablecoins to the locker
         hevm.startPrank(address(DAO));
@@ -968,13 +968,79 @@ contract Test_OCR_Modular is Utility {
         }
     }
 
+    // validate cancelRedemptionSenior() state changes - fuzz testing
+    function test_OCR_cancelRedemptionSenior_state_fuzzTest(
+        uint88 amountToCancel, 
+        uint88 amountToPush,
+        uint88 amountToRedeem
+    ) 
+        public
+    {
+        hevm.assume(amountToPush > 0 && amountToRedeem > 0 && amountToCancel > 0);
+        hevm.assume(amountToRedeem <= (3 * uint256(amountToPush)) / 2);
+        hevm.assume(amountToCancel <= 2 * uint256(amountToRedeem));
 
+        // deposit in senior tranche to have zSTT tokens
+        deal(DAI, address(sam), 3 * uint256(amountToPush));
+        hevm.startPrank(address(sam));
+        IERC20(DAI).safeApprove(address(ZVT), 3 * uint256(amountToPush));
+        ZVT.depositSenior(3 * uint256(amountToPush), DAI);
+        hevm.stopPrank();
 
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
 
+        // do a first redemption request
+        redemptionRequestSenior(amountToRedeem);
 
+        // warp time to next epoch (1) distribution
+        hevm.warp(block.timestamp + 31 days);
 
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
 
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
 
+        emit log_named_uint("zSTT Balance sam", zSTT.balanceOf(address(sam)));
+        // do a second redemption request
+        // we are not using the helper fct as we want to avoid a fullWithdraw() again
+        hevm.startPrank(address(sam));
+        IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        emit log_named_uint("zSTT Balance sam", zSTT.balanceOf(address(sam)));
+        OCR_Modular_DAI.redemptionRequestSenior(amountToRedeem);
+        hevm.stopPrank();
 
+        // warp time + 5 days
+        hevm.warp(block.timestamp + 5 days);
 
+        // pre-check
+        assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.unclaimedWithdrawRequests() == amountToRedeem);
+
+        // cancel redemption request for a specific amount
+        hevm.startPrank(address(sam));
+        OCR_Modular_DAI.cancelRedemptionSenior(amountToCancel);
+        hevm.stopPrank();
+
+        // final check
+        if (amountToCancel > amountToRedeem) {
+            uint256 diff = amountToCancel - amountToRedeem;
+            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+            assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem - diff);
+        }
+
+        if (amountToCancel < amountToRedeem) {
+            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem - amountToCancel);
+        }
+    }
 }
