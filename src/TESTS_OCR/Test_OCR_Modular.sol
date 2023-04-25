@@ -349,7 +349,7 @@ contract Test_OCR_Modular is Utility {
         assertEq(OCR_Modular_DAI.withdrawRequestsEpoch(), amountToRedeem);
         assertEq(OCR_Modular_DAI.withdrawRequestsNextEpoch(), 0);
         assertEq(OCR_Modular_DAI.unclaimedWithdrawRequests(), amountToRedeem);
-        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == 0);
+        assertEq(OCR_Modular_DAI.amountPushedInCurrentEpoch(), 0);
     }
 
     // Validate distributeEpoch() restrictions
@@ -898,6 +898,76 @@ contract Test_OCR_Modular is Utility {
         OCR_Modular_DAI.setRedemptionFee(5000);
         hevm.stopPrank();
     }
+
+    // validate cancelRedemptionJunior() state changes - fuzz testing
+    // we won't test for high amounts here - will be done through the same test for senior tranches
+    function test_OCR_cancelRedemptionJunior_state_fuzzTest(
+        uint88 amountToCancel, 
+        uint88 amountToPush,
+        uint88 amountToRedeem
+    ) 
+        public
+    {
+        hevm.assume(amountToPush > 0 && amountToRedeem > 0 && amountToCancel > 0);
+        hevm.assume(amountToPush < 10_000_000 ether);
+        hevm.assume(amountToRedeem <= 2_000_000 ether);
+        hevm.assume(amountToCancel <= 2 * amountToRedeem);
+
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
+
+        // do a first redemption request
+        redemptionRequestJunior(amountToRedeem);
+
+        // warp time to next epoch (1) distribution
+        hevm.warp(block.timestamp + 31 days);
+
+        // distribute new epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
+
+        // do a second redemption request
+        // we are not using the helper fct as we want to avoid a fullWithdraw() again
+        hevm.startPrank(address(jim));
+        IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.redemptionRequestJunior(amountToRedeem);
+        hevm.stopPrank();
+
+        // warp time + 5 days
+        hevm.warp(block.timestamp + 5 days);
+
+        // pre-check
+        assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem);
+        assert(OCR_Modular_DAI.amountWithdrawableInEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.amountPushedInCurrentEpoch() == amountToPush);
+        assert(OCR_Modular_DAI.unclaimedWithdrawRequests() == amountToRedeem);
+
+        // cancel redemption request for a specific amount
+        hevm.startPrank(address(jim));
+        OCR_Modular_DAI.cancelRedemptionJunior(amountToCancel);
+        hevm.stopPrank();
+
+        // final check
+        if (amountToCancel > amountToRedeem) {
+            uint256 diff = amountToCancel - amountToRedeem;
+            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == 0);
+            assert(OCR_Modular_DAI.withdrawRequestsEpoch() == amountToRedeem - diff);
+        }
+
+        if (amountToCancel < amountToRedeem) {
+            assert(OCR_Modular_DAI.withdrawRequestsNextEpoch() == amountToRedeem - amountToCancel);
+        }
+    }
+
 
 
 
