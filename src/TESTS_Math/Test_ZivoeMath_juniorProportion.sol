@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
+import "../../lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
 
 // First the idea is to test for multiple values of input parameters and it's effect on returned value.
 

@@ -3,8 +3,8 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/lockers/Utility/ZivoeSwapper.sol";
-import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/Utility/ZivoeSwapper.sol";
+import "../../lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /// NOTE Expect one test to fail for fillOrderRFQ() as data should be updated.
 /// @dev We setup a separate contract in order to be able to call "convertAsset"

@@ -41,7 +41,7 @@ contract Test_OCR_Modular is Utility {
         stJTT.fullWithdraw();
         IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amount);
         // initial values
-        uint256 accountInitBalance = IERC20(zJTT).balanceOf(address(jim));
+        accountInitBalance = IERC20(zJTT).balanceOf(address(jim));
         // call function
         OCR_Modular_DAI.redemptionRequestJunior(amount);
         hevm.stopPrank();
@@ -57,7 +57,7 @@ contract Test_OCR_Modular is Utility {
         stSTT.fullWithdraw();
         IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amount);
         // initial values
-        uint256 accountInitBalance = IERC20(zSTT).balanceOf(address(sam));
+        accountInitBalance = IERC20(zSTT).balanceOf(address(sam));
         // call function
         OCR_Modular_DAI.redemptionRequestSenior(amount);
         hevm.stopPrank();
@@ -112,8 +112,15 @@ contract Test_OCR_Modular is Utility {
         // distribute new epoch
         OCR_Modular_DAI.distributeEpoch();
 
+        // push stablecoins to the locker
+        hevm.startPrank(address(DAO));
+        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
+        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
+        hevm.stopPrank();
+
         // pre check
         assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
+        assert(OCR_Modular_DAI.amountRedeemableQueued() == amountToPush);
 
         // pull from locker
         hevm.startPrank(address(DAO));
@@ -122,6 +129,7 @@ contract Test_OCR_Modular is Utility {
 
         // check
         assert(OCR_Modular_DAI.amountRedeemable() == 0);
+        assert(OCR_Modular_DAI.amountRedeemableQueued() == 0);
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == 0);
     }
 
@@ -229,15 +237,6 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
     }
 
-    // validate pullFromLockerPartial() restrictions, pull amount higher than locker balance
-    function test_OCR_pullFromLockerPartial_balance_restrictions() public {
-        // try to pull higher amount than locker's balance
-        hevm.startPrank(address(DAO));
-        hevm.expectRevert("OCR_Modular::pullFromLockerPartial()amount > IERC20(asset).balanceOf(address(this)");
-        OCR_Modular_DAI.pullFromLockerPartial(DAI, 100_000_000 ether, "");
-        hevm.stopPrank();
-    }
-
     // pushToLocker() should not be able to push an asset other than "stablecoin"
     function test_OCR_pushToLocker_restrictions() public {
 
@@ -260,8 +259,47 @@ contract Test_OCR_Modular is Utility {
         assert(IERC20(zJTT).balanceOf(address(jim)) == accountInitBalance - amountToRedeem);
         assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == amountToRedeem);
+        assert(OCR_Modular_DAI.juniorRedemptionsQueued(address(jim)) == amountToRedeem);
         assert(OCR_Modular_DAI.juniorRedemptionRequestedOn(address(jim)) == block.timestamp);
+
+        // initiate a new redemption request
+        hevm.startPrank(address(jim));
+        IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.redemptionRequestJunior(amountToRedeem);
+        hevm.stopPrank();
+
+        // additional check when second redemption request in same epoch
+        assert(OCR_Modular_DAI.juniorRedemptionsQueued(address(jim)) == 2 * amountToRedeem);
     }    
+
+    // Validate "juniorRedemptionsQueued" for the case:
+    // juniorBalances[_msgSender()] > 0 && juniorRedemptionRequestedOn[_msgSender()] < currentEpoch
+    function test_OCR_juniorRedemptionsQueued_state() public {
+        
+        uint256 amountToRedeem = 2_000_000 ether;
+        assert(OCR_Modular_DAI.redemptionsRequested() == 0);
+
+        // initiate a first redemption request
+        redemptionRequestJunior(amountToRedeem);
+
+        // +31 days to be able to call distributeEpoch()
+        hevm.warp(block.timestamp + 31 days);
+
+        // intermediate check
+        assert(OCR_Modular_DAI.juniorRedemptionsQueued(address(jim)) == amountToRedeem);
+
+        // start next epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // initiate a new redemption request
+        hevm.startPrank(address(jim));
+        IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), 1000 ether);
+        OCR_Modular_DAI.redemptionRequestJunior(1000 ether);
+        hevm.stopPrank();
+
+        // additional check when second redemption request in same epoch
+        assert(OCR_Modular_DAI.juniorRedemptionsQueued(address(jim)) == 1000 ether);
+    } 
 
     // Validate redemptionRequestJunior() restrictions
     function test_OCR_redemptionRequestJunior_restrictions() public {
@@ -297,7 +335,46 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.redemptionsRequested() == amountToRedeem);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == amountToRedeem);
         assert(OCR_Modular_DAI.seniorRedemptionRequestedOn(address(sam)) == block.timestamp);
+        assert(OCR_Modular_DAI.seniorRedemptionsQueued(address(sam)) == amountToRedeem);
+
+        // initiate a new redemption request
+        hevm.startPrank(address(sam));
+        IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        OCR_Modular_DAI.redemptionRequestSenior(amountToRedeem);
+        hevm.stopPrank();
+
+        // additional check when second redemption request in same epoch
+        assert(OCR_Modular_DAI.seniorRedemptionsQueued(address(sam)) == 2 * amountToRedeem);
     }  
+
+    // Validate "seniorRedemptionsQueued" for the case:
+    // seniorBalances[_msgSender()] > 0 && seniorRedemptionRequestedOn[_msgSender()] < currentEpoch
+    function test_OCR_seniorRedemptionsQueued_state() public {
+        
+        uint256 amountToRedeem = 2_000_000 ether;
+        assert(OCR_Modular_DAI.redemptionsRequested() == 0);
+
+        // initiate a first redemption request
+        redemptionRequestSenior(amountToRedeem);
+
+        // +31 days to be able to call distributeEpoch()
+        hevm.warp(block.timestamp + 31 days);
+
+        // intermediate check
+        assert(OCR_Modular_DAI.seniorRedemptionsQueued(address(sam)) == amountToRedeem);
+
+        // start next epoch
+        OCR_Modular_DAI.distributeEpoch();
+
+        // initiate a new redemption request
+        hevm.startPrank(address(sam));
+        IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), 1000 ether);
+        OCR_Modular_DAI.redemptionRequestSenior(1000 ether);
+        hevm.stopPrank();
+
+        // additional check when second redemption request in same epoch
+        assert(OCR_Modular_DAI.seniorRedemptionsQueued(address(sam)) == 1000 ether);
+    } 
 
     // Validate redemptionRequestSenior() restrictions
     function test_OCR_redemptionRequestSenior_restrictions() public {

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC721.sol";
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC1155.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC721.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC1155.sol";
 
 import "../TESTS_Utility/generic_tokens/ERC721_Generic.sol";
 import "../TESTS_Utility/generic_tokens/ERC1155_Generic.sol";

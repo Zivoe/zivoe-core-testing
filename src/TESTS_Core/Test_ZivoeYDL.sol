@@ -3,9 +3,9 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/ZivoeMath.sol";
+import "../../lib/zivoe-core-foundry/src/ZivoeMath.sol";
 
-import "lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
+import "../../lib/zivoe-core-foundry/src/libraries/FloorMath.sol";
 
 contract Test_ZivoeYDL is Utility {
     
