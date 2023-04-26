@@ -156,8 +156,9 @@ contract Test_ZivoeITO is Utility {
     // For both functions, this includes:
     //   - Restricting deposits until the ITO starts.
     //   - Restricting deposits after the ITO ends.
+    //   - Restricting deposits if ITO ended prematuraly (at ZVL discretion)
     //   - Restricting deposits of non-whitelisted assets.
-    //   - TODO: Restricting deposits if account has a vesting schedule.
+    //   - Restricting deposits if account has a vesting schedule.
 
     function test_ZivoeITO_depositJunior_restrictions_notStarted() public {
 
@@ -190,6 +191,38 @@ contract Test_ZivoeITO is Utility {
         hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
+    }
+
+    function test_ZivoeITO_depositJunior_restrictions_migrated(uint96 amountIn_A, uint96 amountIn_B) public {
+
+        uint256 amount_A = uint256(amountIn_A) + 1;
+        uint256 amount_B = uint256(amountIn_B) + 1;
+
+        hevm.warp(ITO.start() + 1 seconds);
+
+        depositSenior(FRAX, amount_A);
+        depositSenior(DAI, amount_A);
+        depositJunior(FRAX, amount_B);
+        depositJunior(DAI, amount_B);
+        depositBoth(USDC, amount_A, amount_B);
+        depositBoth(USDT, amount_A, amount_B);
+        
+        // Give Bob some tokens
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
+
+        // zvl decides to end ITO earlier
+        hevm.warp(ITO.end() - 1 hours);
+        hevm.startPrank(address(zvl));
+        ITO.migrateDeposits();
+        hevm.stopPrank();
+
+        // Should throw with: "ZivoeITO::depositJunior() migrated"
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeITO::depositJunior() migrated");
+        ITO.depositJunior(100 ether, DAI);
+        hevm.stopPrank();
+        
     }
 
     function test_ZivoeITO_depositJunior_restrictions_notWhitelisted() public {
@@ -260,6 +293,38 @@ contract Test_ZivoeITO is Utility {
         hevm.stopPrank();
     }
 
+    function test_ZivoeITO_depositSenior_restrictions_migrated(uint96 amountIn_A, uint96 amountIn_B) public {
+
+        uint256 amount_A = uint256(amountIn_A) + 1;
+        uint256 amount_B = uint256(amountIn_B) + 1;
+
+        hevm.warp(ITO.start() + 1 seconds);
+
+        depositSenior(FRAX, amount_A);
+        depositSenior(DAI, amount_A);
+        depositJunior(FRAX, amount_B);
+        depositJunior(DAI, amount_B);
+        depositBoth(USDC, amount_A, amount_B);
+        depositBoth(USDT, amount_A, amount_B);
+        
+        // Give Bob some tokens
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
+
+        // zvl decides to end ITO earlier
+        hevm.warp(ITO.end() - 1 hours);
+        hevm.startPrank(address(zvl));
+        ITO.migrateDeposits();
+        hevm.stopPrank();
+
+        // Should throw with: "ZivoeITO::depositSenior() migrated"
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeITO::depositSenior() migrated");
+        ITO.depositSenior(100 ether, DAI);
+        hevm.stopPrank();
+        
+    }
+
     function test_ZivoeITO_depositSenior_restrictions_notWhitelisted() public {
 
         // Mint 100 DAI and 100 WETH for "bob", approve ITO contract.
@@ -310,7 +375,7 @@ contract Test_ZivoeITO is Utility {
 
         // depositJunior()
         hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(DAI), amount, amount, amount);
+        emit JuniorDeposit(address(jim), address(DAI), amount, GBL.standardize(amount, DAI), GBL.standardize(amount, DAI));
         depositJunior(DAI, amount);
 
         // Post-state DAI deposit.
@@ -333,6 +398,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_FRAX = IERC20(FRAX).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit JuniorDeposit(address(jim), address(FRAX), amount, GBL.standardize(amount, FRAX), GBL.standardize(amount, FRAX));
         depositJunior(FRAX, amountIn);
 
         // Post-state FRAX deposit.
@@ -354,6 +421,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_USDC = IERC20(USDC).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit JuniorDeposit(address(jim), address(USDC), amount, GBL.standardize(amount, USDC), GBL.standardize(amount, USDC));
         depositJunior(USDC, amountIn);
 
         // Post-state USDC deposit.
@@ -375,6 +444,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_USDT = IERC20(USDT).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit JuniorDeposit(address(jim), address(USDT), amount, GBL.standardize(amount, USDT), GBL.standardize(amount, USDT));
         depositJunior(USDT, amount);
 
         // Post-state USDT deposit.
@@ -396,6 +467,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit SeniorDeposit(address(sam), address(DAI), amount, GBL.standardize(amount, DAI) * 3, GBL.standardize(amount, DAI));
         depositSenior(DAI, amount);
 
         // Post-state DAI deposit.
@@ -418,6 +491,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_FRAX = IERC20(FRAX).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit SeniorDeposit(address(sam), address(FRAX), amount, GBL.standardize(amount, FRAX) * 3, GBL.standardize(amount, FRAX));
         depositSenior(FRAX, amount);
 
         // Post-state FRAX deposit.
@@ -440,6 +515,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_USDC = IERC20(USDC).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit SeniorDeposit(address(sam), address(USDC), amount, GBL.standardize(amount, USDC) * 3, GBL.standardize(amount, USDC));
         depositSenior(USDC, amount);
 
         // Post-state USDC deposit.
@@ -462,6 +539,8 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_USDT = IERC20(USDT).balanceOf(address(ITO));
 
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit SeniorDeposit(address(sam), address(USDT), amount, GBL.standardize(amount, USDT) * 3, GBL.standardize(amount, USDT));
         depositSenior(USDT, amount);
 
         // Post-state USDT deposit.
