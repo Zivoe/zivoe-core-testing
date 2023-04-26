@@ -157,7 +157,7 @@ contract Test_ZivoeITO is Utility {
     //   - Restricting deposits until the ITO starts.
     //   - Restricting deposits after the ITO ends.
     //   - Restricting deposits of non-whitelisted assets.
-    //   - TODO: Restricting deposits if user has a vesting schedule.
+    //   - TODO: Restricting deposits if account has a vesting schedule.
 
     function test_ZivoeITO_depositJunior_restrictions_notStarted() public {
 

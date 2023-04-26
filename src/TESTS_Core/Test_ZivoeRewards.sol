@@ -19,7 +19,7 @@ contract Test_ZivoeRewards is Utility {
 
         claimITO_and_approveTokens_and_stakeTokens(false);
 
-        // Create an OCG locker which moves ZVE from DAO -> OCG ... allows another user to claim.
+        // Create an OCG locker which moves ZVE from DAO -> OCG ... allows another account to claim.
         // We need ZVE accessible by someone to test the ZivoeRewards functionality contract (generic $ZVE staking contract).
         ZVEClaimer = new OCG_ERC20_FreeClaim(address(DAO));
         assert(zvl.try_updateIsLocker(address(GBL), address(ZVEClaimer), true));
