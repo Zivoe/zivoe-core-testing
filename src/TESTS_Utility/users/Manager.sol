@@ -57,5 +57,10 @@ contract Manager {
         string memory sig = "createOffer(address,uint256,uint256,uint256,uint256,uint256,uint256,int8)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, schedule));
     }
+
+    function try_markDefault(address occ, uint256 id) external returns (bool ok) {
+        string memory sig = "markDefault(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
     
 }
