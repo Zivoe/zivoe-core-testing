@@ -68,6 +68,26 @@ contract Test_OCR_Modular is Utility {
 
 
 
+    // ------------
+    //    Events
+    // ------------
+
+    event UpdatedRedemptionFee(uint256 oldValue, uint256 newValue);
+
+    event RequestedJunior(address indexed account, uint256 amount);
+
+    event RequestedSenior(address indexed account, uint256 amount);
+
+    event RedeemedJunior(address indexed account, uint256 redeemablePreFee, uint256 fee, uint256 defaults);
+
+    event RedeemedSenior(address indexed account, uint256 redeemablePreFee, uint256 fee, uint256 defaults);
+
+    event CancelledJunior(address indexed account, uint256 amount);
+
+    event CancelledSenior(address indexed account, uint256 amount);
+
+
+
     // ----------------
     //    Unit Tests
     // ----------------
@@ -265,6 +285,8 @@ contract Test_OCR_Modular is Utility {
         // initiate a new redemption request
         hevm.startPrank(address(jim));
         IERC20(zJTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        hevm.expectEmit(true, false, false, true, address(OCR_Modular_DAI));
+        emit RequestedJunior(address(jim), amountToRedeem);
         OCR_Modular_DAI.redemptionRequestJunior(amountToRedeem);
         hevm.stopPrank();
 
@@ -340,6 +362,8 @@ contract Test_OCR_Modular is Utility {
         // initiate a new redemption request
         hevm.startPrank(address(sam));
         IERC20(zSTT).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
+        hevm.expectEmit(true, false, false, true, address(OCR_Modular_DAI));
+        emit RequestedSenior(address(sam), amountToRedeem);
         OCR_Modular_DAI.redemptionRequestSenior(amountToRedeem);
         hevm.stopPrank();
 
@@ -455,6 +479,7 @@ contract Test_OCR_Modular is Utility {
     // validate a scenario where amount of stablecoins >= total redemption amount
     function test_OCR_redeemJunior_full_state() public {
         uint256 amountToRedeem = 2_000_000 ether;
+
         // push stablecoins to the locker
         hevm.startPrank(address(DAO));
         IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToRedeem);
@@ -468,7 +493,6 @@ contract Test_OCR_Modular is Utility {
 
         // initiate a redemption request
         redemptionRequestJunior(amountToRedeem);
-        emit log_named_uint("jim claimed timestamp", OCR_Modular_DAI.juniorRedemptionRequestedOn(address(jim)));
 
         // warp time to next redemption epoch
         hevm.warp(block.timestamp + 31 days);
@@ -479,16 +503,18 @@ contract Test_OCR_Modular is Utility {
         // warp time + 1 day
         hevm.warp(block.timestamp + 1 days);
 
-        // check init stablecoin balance of DAO
+        // keep track of following values
         uint256 initBalanceDAO = IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(DAO));
+        uint256 fee = (amountToRedeem * OCR_Modular_DAI.redemptionFee()) / BIPS;
 
         // redeem
         hevm.startPrank(address(jim));
+        hevm.expectEmit(true, false, false, true, address(OCR_Modular_DAI));
+        emit RedeemedJunior(address(jim), amountToRedeem, fee, 0);
         OCR_Modular_DAI.redeemJunior();
         hevm.stopPrank();
 
         // checks
-        uint256 fee = (amountToRedeem * OCR_Modular_DAI.redemptionFee()) / BIPS;
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
         assert(OCR_Modular_DAI.juniorBalances(address(jim)) == 0);
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(jim)) == amountToRedeem - fee);
@@ -590,6 +616,7 @@ contract Test_OCR_Modular is Utility {
 
     // validate a scenario where amount of stablecoins <= total redemption amount
     function test_OCR_redeemSenior_full_state() public {
+        emit log_named_uint("seniorBalance 1", OCR_Modular_DAI.seniorBalances(address(sam)));
         uint256 amountToRedeem = 6_000_000 ether;
         // push stablecoins to the locker
         hevm.startPrank(address(DAO));
@@ -614,16 +641,18 @@ contract Test_OCR_Modular is Utility {
         // warp time + 1 day
         hevm.warp(block.timestamp + 1 days);
 
-        // check init stablecoin balance of DAO
+        // variables to track
         uint256 initBalanceDAO = IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(DAO));
+        uint256 fee = (amountToRedeem * OCR_Modular_DAI.redemptionFee()) / BIPS;
 
         // redeem
         hevm.startPrank(address(sam));
+        hevm.expectEmit(true, false, false, true, address(OCR_Modular_DAI));
+        emit RedeemedSenior(address(sam), amountToRedeem, fee, 0);
         OCR_Modular_DAI.redeemSenior();
         hevm.stopPrank();
 
         // checks
-        uint256 fee = (amountToRedeem * OCR_Modular_DAI.redemptionFee()) / BIPS;
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(OCR_Modular_DAI)) == 0);
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == 0);
         assert(IERC20(OCR_Modular_DAI.stablecoin()).balanceOf(address(sam)) == amountToRedeem - fee);
@@ -948,6 +977,8 @@ contract Test_OCR_Modular is Utility {
 
         // set new redemption fee
         hevm.startPrank(address(god));
+        hevm.expectEmit(false, false, false, true, address(OCR_Modular_DAI));
+        emit UpdatedRedemptionFee(1000, 1500);
         OCR_Modular_DAI.setRedemptionFee(1500);
         hevm.stopPrank();
 
@@ -1028,14 +1059,17 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         assert(OCR_Modular_DAI.amountRedeemableQueued() == amountToPush);
         assert(OCR_Modular_DAI.redemptionsUnclaimed() == amountToRedeem);
+        uint256 initBalance = OCR_Modular_DAI.juniorBalances(address(jim));
 
         // cancel redemption request for a specific amount
         hevm.startPrank(address(jim));
+        hevm.expectEmit(true, false, false, true, address(OCR_Modular_DAI));
+        emit CancelledJunior(address(jim), amountToCancel);
         OCR_Modular_DAI.cancelRedemptionJunior(amountToCancel);
         hevm.stopPrank();
 
         // final check
-        if (amountToCancel > amountToRedeem) {
+        if (amountToCancel >= amountToRedeem) {
             uint256 diff = amountToCancel - amountToRedeem;
             assert(OCR_Modular_DAI.redemptionsRequested() == 0);
             assert(OCR_Modular_DAI.redemptionsAllowed() == amountToRedeem - diff);
@@ -1120,9 +1154,12 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
         assert(OCR_Modular_DAI.amountRedeemableQueued() == amountToPush);
         assert(OCR_Modular_DAI.redemptionsUnclaimed() == amountToRedeem);
+        uint256 initBalance = OCR_Modular_DAI.seniorBalances(address(sam));
 
         // cancel redemption request for a specific amount
         hevm.startPrank(address(sam));
+        hevm.expectEmit(true, false, false, true, address(OCR_Modular_DAI));
+        emit CancelledSenior(address(sam), amountToCancel);
         OCR_Modular_DAI.cancelRedemptionSenior(amountToCancel);
         hevm.stopPrank();
 
