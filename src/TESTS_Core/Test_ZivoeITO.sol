@@ -624,29 +624,38 @@ contract Test_ZivoeITO is Utility {
         // Pre-state claim (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
-        // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
+        assert(!ITO.airdropClaimed(address(sam)));
         
         (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
-        {
-            uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
-            // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
-            assertEq(_pre_SeniorCredits - _post_SeniorCredits, amount_senior * 3);  
-        }
+        uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
 
-        {
-            uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, amount_senior);
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
-        }
+        // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
+        assertEq(_pre_SeniorCredits - _post_SeniorCredits, amount_senior * 3);
+        assertEq(ITO.seniorCredits(address(sam)), 0);
+        assertEq(ITO.juniorCredits(address(sam)), 0);
+        assert(ITO.airdropClaimed(address(sam)));
+        
+        uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, amount_senior);
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
 
-        // {
-        //     uint256 _post_ZVE_ITO = ZVE.balanceOf(address(ITO));
-        //     // Note: Reads something like ... (SeniorCredits * 10% of ZVE) / (SeniorCredits + JuniorCredits)
-        //     assertEq(_pre_ZVE_ITO - _post_ZVE_ITO, (amount_senior * 3 * ZVE.totalSupply() / 10) / (amount_senior * 3)); 
-        //     assertEq(_pre_ZVE_ITO - _post_ZVE_ITO, _ZVE_Claimed_SAM);
-        // }
+        (
+            uint256 startingUnix, 
+            uint256 cliffUnix, 
+            uint256 endingUnix, 
+            uint256 totalVesting, 
+            , 
+            ,
+            bool revokable
+        ) = vestZVE.viewSchedule(address(sam));
+
+        assertEq(startingUnix, block.timestamp);
+        assertEq(cliffUnix, block.timestamp + 90 days);
+        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(totalVesting, _ZVE_Claimed_SAM);
+        assert(!revokable);
     }
 
     function test_ZivoeITO_claim_state_single_senior_FRAX(uint96 amountIn_senior) public {
@@ -661,29 +670,38 @@ contract Test_ZivoeITO is Utility {
         // Pre-state claim (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
-        // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
+        assert(!ITO.airdropClaimed(address(sam)));
         
         (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
-        {
-            uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
-            // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
-            assertEq(_pre_SeniorCredits - _post_SeniorCredits, amount_senior * 3);  
-        }
+        uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
 
-        {
-            uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, amount_senior);
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
-        }
+        // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
+        assertEq(_pre_SeniorCredits - _post_SeniorCredits, amount_senior * 3);
+        assertEq(ITO.seniorCredits(address(sam)), 0);
+        assertEq(ITO.juniorCredits(address(sam)), 0);
+        assert(ITO.airdropClaimed(address(sam)));
+        
+        uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, amount_senior);
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
 
-        // {
-        //     uint256 _post_ZVE_ITO = ZVE.balanceOf(address(ITO));
-        //     // Note: Reads something like ... (SeniorCredits * 10% of ZVE) / (SeniorCredits + JuniorCredits)
-        //     assertEq(_pre_ZVE_ITO - _post_ZVE_ITO, (amount_senior * 3 * ZVE.totalSupply() / 10) / (amount_senior * 3)); 
-        //     assertEq(_pre_ZVE_ITO - _post_ZVE_ITO, _ZVE_Claimed_SAM);
-        // }
+        (
+            uint256 startingUnix, 
+            uint256 cliffUnix, 
+            uint256 endingUnix, 
+            uint256 totalVesting, 
+            , 
+            ,
+            bool revokable
+        ) = vestZVE.viewSchedule(address(sam));
+
+        assertEq(startingUnix, block.timestamp);
+        assertEq(cliffUnix, block.timestamp + 90 days);
+        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(totalVesting, _ZVE_Claimed_SAM);
+        assert(!revokable);
     }
 
     function test_ZivoeITO_claim_state_single_senior_USDC(uint96 amountIn_senior) public {
@@ -698,32 +716,38 @@ contract Test_ZivoeITO is Utility {
         // Pre-state claim (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
-        // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
+        assert(!ITO.airdropClaimed(address(sam)));
         
         (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
-        {
-            uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
-            // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
-            assertEq(_pre_SeniorCredits - _post_SeniorCredits, GBL.standardize(amount_senior, USDC) * 3);  
-        }
+        uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
 
-        {
-            uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, GBL.standardize(amount_senior, USDC));
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
-        }
+        // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
+        assertEq(_pre_SeniorCredits - _post_SeniorCredits, GBL.standardize(amount_senior, USDC) * 3);
+        assertEq(ITO.seniorCredits(address(sam)), 0);
+        assertEq(ITO.juniorCredits(address(sam)), 0);
+        assert(ITO.airdropClaimed(address(sam)));
+        
+        uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, GBL.standardize(amount_senior, USDC));
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
 
-        // {
-        //     uint256 _post_ZVE_ITO = ZVE.balanceOf(address(ITO));
-        //     // Note: Reads something like ... (SeniorCredits * 10% of ZVE) / (SeniorCredits + JuniorCredits)
-        //     assertEq(
-        //         _pre_ZVE_ITO - _post_ZVE_ITO, 
-        //         (GBL.standardize(amount_senior, USDC) * 3 * ZVE.totalSupply() / 10) / (GBL.standardize(amount_senior, USDC) * 3))
-        //     ; 
-        //     assertEq(_pre_ZVE_ITO - _post_ZVE_ITO, _ZVE_Claimed_SAM);
-        // }
+        (
+            uint256 startingUnix, 
+            uint256 cliffUnix, 
+            uint256 endingUnix, 
+            uint256 totalVesting, 
+            , 
+            ,
+            bool revokable
+        ) = vestZVE.viewSchedule(address(sam));
+
+        assertEq(startingUnix, block.timestamp);
+        assertEq(cliffUnix, block.timestamp + 90 days);
+        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(totalVesting, _ZVE_Claimed_SAM);
+        assert(!revokable);
     }
 
     function test_ZivoeITO_claim_state_single_senior_USDT(uint96 amountIn_senior) public {
@@ -738,32 +762,38 @@ contract Test_ZivoeITO is Utility {
         // Pre-state claim (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
         uint256 _pre_zSTT_ITO = zSTT.balanceOf(address(ITO));
-        // uint256 _pre_ZVE_ITO = ZVE.balanceOf(address(ITO));
+        assert(!ITO.airdropClaimed(address(sam)));
         
         (uint256 _zSTT_Claimed_SAM,, uint256 _ZVE_Claimed_SAM) = sam.claimAirdrop(address(ITO), address(sam));
 
         // Post-state claim (senior).
-        {
-            uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
-            // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
-            assertEq(_pre_SeniorCredits - _post_SeniorCredits, GBL.standardize(amount_senior, USDT) * 3);  
-        }
+        uint256 _post_SeniorCredits = ITO.seniorCredits(address(sam));
 
-        {
-            uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, GBL.standardize(amount_senior, USDT));
-            assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
-        }
+        // Note: * 3 for the 3x Multiplier on credits for depositing into SeniorTranche
+        assertEq(_pre_SeniorCredits - _post_SeniorCredits, GBL.standardize(amount_senior, USDT) * 3);
+        assertEq(ITO.seniorCredits(address(sam)), 0);
+        assertEq(ITO.juniorCredits(address(sam)), 0);
+        assert(ITO.airdropClaimed(address(sam)));
+        
+        uint256 _post_zSTT_ITO = zSTT.balanceOf(address(ITO));
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, GBL.standardize(amount_senior, USDT));
+        assertEq(_pre_zSTT_ITO - _post_zSTT_ITO, _zSTT_Claimed_SAM);
 
-        // {
-        //     uint256 _post_ZVE_ITO = ZVE.balanceOf(address(ITO));
-        //     // Note: Reads something like ... (SeniorCredits * 10% of ZVE) / (SeniorCredits + JuniorCredits)
-        //     assertEq(
-        //         _pre_ZVE_ITO - _post_ZVE_ITO, 
-        //         (GBL.standardize(amount_senior, USDT) * 3 * ZVE.totalSupply() / 10) / (GBL.standardize(amount_senior, USDT) * 3)
-        //     ); 
-        //     assertEq(_pre_ZVE_ITO - _post_ZVE_ITO, _ZVE_Claimed_SAM);
-        // }
+        (
+            uint256 startingUnix, 
+            uint256 cliffUnix, 
+            uint256 endingUnix, 
+            uint256 totalVesting, 
+            , 
+            ,
+            bool revokable
+        ) = vestZVE.viewSchedule(address(sam));
+
+        assertEq(startingUnix, block.timestamp);
+        assertEq(cliffUnix, block.timestamp + 90 days);
+        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(totalVesting, _ZVE_Claimed_SAM);
+        assert(!revokable);
     }
 
     function test_ZivoeITO_claim_state_single_junior_DAI(uint96 amountIn_junior) public {
