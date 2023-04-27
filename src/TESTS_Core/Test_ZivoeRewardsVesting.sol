@@ -265,7 +265,7 @@ contract Test_ZivoeRewardsVesting is Utility {
     //  - Account must not be assigned vesting schedule (!vestingScheduleSet[account]).
     //  - Must be enough $ZVE present to vest out.
     //  - Cliff timeline must be appropriate (daysToCliff <= daysToVest).
-    //   - TODO: Restricting vest if user has deposited to ITO.
+    //   - TODO: Restricting vest if account has deposited to ITO.
 
     function test_ZivoeRewardsVesting_vest_restrictions_maxVest() public {
 

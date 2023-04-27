@@ -10,7 +10,7 @@ contract Test_ZivoeRewardsVesting is Utility {
     }
 
     // Validate vest() restrictions.
-    //  - Restricting vest if user has deposited to ITO.
+    //  - Restricting vest if account has deposited to ITO.
 
     function test_ZivoeRewardsVesting_vest_restrictions_itoDepositSenior() public {
         

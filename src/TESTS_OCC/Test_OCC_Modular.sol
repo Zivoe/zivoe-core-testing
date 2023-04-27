@@ -283,17 +283,16 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory loanInfo_USDT) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
 
         hevm.warp(loanInfo_DAI[3] + loanInfo_DAI[8] + 1 seconds);
-        OCC_Modular_DAI.markDefault(_loanID_DAI);
+        assert(roy.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
 
         hevm.warp(loanInfo_FRAX[3] + loanInfo_FRAX[8] + 1 seconds);
-        OCC_Modular_FRAX.markDefault(_loanID_FRAX);
+        assert(roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
         
         hevm.warp(loanInfo_USDC[3] + loanInfo_USDC[8] + 1 seconds);
-        OCC_Modular_USDC.markDefault(_loanID_USDC);
+        assert(roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
         
         hevm.warp(loanInfo_USDT[3] + loanInfo_USDT[8] + 1 seconds);
-        OCC_Modular_USDT.markDefault(_loanID_USDT);
-
+        assert(roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
     function simulateITO_and_createOffers_and_acceptOffers_and_defaultLoans_and_resolveLoans(
@@ -342,16 +341,16 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory loanInfo_USDT) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
 
         hevm.warp(loanInfo_DAI[3] + loanInfo_DAI[8] + 1 seconds);
-        OCC_Modular_DAI.markDefault(_loanID_DAI);
+        assert(roy.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
 
         hevm.warp(loanInfo_FRAX[3] + loanInfo_FRAX[8] + 1 seconds);
-        OCC_Modular_FRAX.markDefault(_loanID_FRAX);
+        assert(roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
         
         hevm.warp(loanInfo_USDC[3] + loanInfo_USDC[8] + 1 seconds);
-        OCC_Modular_USDC.markDefault(_loanID_USDC);
+        assert(roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
         
         hevm.warp(loanInfo_USDT[3] + loanInfo_USDT[8] + 1 seconds);
-        OCC_Modular_USDT.markDefault(_loanID_USDT);
+        assert(roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
         
         assert(tim.try_resolveDefault(address(OCC_Modular_DAI), _loanID_DAI, loanInfo_DAI[0]));
         assert(tim.try_resolveDefault(address(OCC_Modular_FRAX), _loanID_FRAX, loanInfo_DAI[0]));
@@ -1967,13 +1966,13 @@ contract Test_OCC_Modular is Utility {
         ) = simulateITO_and_createOffers(random, choice);
 
         // Can't call markDefault() if state != LoanState.Active.
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::markDefault() loans[id].state != LoanState.Active");
         OCC_Modular_DAI.markDefault(_loanID_DAI);
         hevm.stopPrank();
-        assert(!bob.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
 
     }
 
@@ -1994,24 +1993,24 @@ contract Test_OCC_Modular is Utility {
         ) = createOffers_and_acceptOffers(random, choice);
 
         // Can't call markDefault() if not pass paymentDueBy + gracePeriod.
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::markDefault() loans[id].paymentDueBy + loans[id].gracePeriod >= block.timestamp");
         OCC_Modular_DAI.markDefault(_loanID_DAI);
         hevm.stopPrank();
 
-        assert(!bob.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
 
         (,, uint256[10] memory loanInfo) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
 
         // Warp to actual time callable (same data for all loans).
         hevm.warp(loanInfo[3] + loanInfo[8] + 1 seconds);
 
-        assert(bob.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
-        assert(bob.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(bob.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(bob.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(roy.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
+        assert(roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
 
     }
 
@@ -2034,7 +2033,7 @@ contract Test_OCC_Modular is Utility {
         assertEq(GBL.defaults(), 0);
         assertEq(loanInfo[9], 2);
 
-        assert(bob.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
+        assert(roy.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
 
         // Post-state, DAI.
         (,, loanInfo) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
@@ -2045,7 +2044,7 @@ contract Test_OCC_Modular is Utility {
         (,, loanInfo) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
         assertEq(loanInfo[9], 2);
 
-        assert(bob.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
 
         // Post-state, FRAX.
         (,, loanInfo) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
@@ -2056,7 +2055,7 @@ contract Test_OCC_Modular is Utility {
         (,, loanInfo) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
         assertEq(loanInfo[9], 2);
 
-        assert(bob.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
 
         // Post-state, USDC.
         (,, loanInfo) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
@@ -2071,7 +2070,7 @@ contract Test_OCC_Modular is Utility {
         (,, loanInfo) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
         assertEq(loanInfo[9], 2);
         
-        assert(bob.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Post-state, USDT.
         (,, loanInfo) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
