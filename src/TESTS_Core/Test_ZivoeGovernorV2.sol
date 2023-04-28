@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
 
-import "../TESTS_Utility/Utility.sol";
+import "../Utility/Utility.sol";
 
 contract Test_ZivoeGovernorV2 is Utility {
 

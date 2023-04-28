@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../TESTS_Utility/Utility.sol";
+import "../Utility/Utility.sol";
 
 import "../../lib/zivoe-core-foundry/src/ZivoeMath.sol";
 
@@ -60,7 +60,9 @@ contract Test_ZivoeYDL is Utility {
     //    Events
     // ------------
 
-    event AssetConverted(address indexed fromAsset, uint256 amountConverted, uint256 amountReceived);
+    // TODO: Test this
+    // TODO: Test returnAsset()
+    event AssetReturned(address indexed asset, uint256 amount);
 
     event UpdatedDistributedAsset(address indexed oldAsset, address indexed newAsset);
 
@@ -121,50 +123,33 @@ contract Test_ZivoeYDL is Utility {
 
         assert(YDL.unlocked());
 
-        // NOTE: We are unable to access arrays in a struct through public getter functions
-        // NOTE: We are unable to implement custom getter in ZivoeYDL due to size constraints
-        // NOTE: Add the function below to ZivoeYDL to execute the remainder of this test
-        // NOTE: We may ultimately change the values in unlock later on
+        // Pre-state.
+        (
+            address[] memory protocolEarningsRecipients,
+            uint256[] memory protocolEarningsProportion,
+            address[] memory residualEarningsRecipients,
+            uint256[] memory residualEarningsProportion
+        ) = YDL.viewDistributions();
 
-        // /// @notice View distribution information for protocol and residual earnings recipients.
-        // /// @return protocolEarningsRecipients The destinations for protocol earnings distributions.
-        // /// @return protocolEarningsProportion The proportions for protocol earnings distributions.
-        // /// @return residualEarningsRecipients The destinations for residual earnings distributions.
-        // /// @return residualEarningsProportion The proportions for residual earnings distributions.
-        // function viewDistributions() external view returns (
-        //     address[] memory protocolEarningsRecipients, uint256[] memory protocolEarningsProportion, 
-        //     address[] memory residualEarningsRecipients, uint256[] memory residualEarningsProportion
-        // ) {
-        //     return (protocolRecipients.recipients, protocolRecipients.proportion, residualRecipients.recipients, residualRecipients.proportion);
-        // }
+        assertEq(protocolEarningsRecipients[0], address(stZVE));
+        assertEq(protocolEarningsRecipients[1], address(DAO));
+        assertEq(protocolEarningsRecipients.length, 2);
 
-        // // Pre-state.
-        // (
-        //     address[] memory protocolEarningsRecipients,
-        //     uint256[] memory protocolEarningsProportion,
-        //     address[] memory residualEarningsRecipients,
-        //     uint256[] memory residualEarningsProportion
-        // ) = YDL.viewDistributions();
+        assertEq(protocolEarningsProportion[0], 7500);
+        assertEq(protocolEarningsProportion[1], 2500);
+        assertEq(protocolEarningsProportion.length, 2);
 
-        // assertEq(protocolEarningsRecipients[0], address(stZVE));
-        // assertEq(protocolEarningsRecipients[1], address(DAO));
-        // assertEq(protocolEarningsRecipients.length, 2);
+        assertEq(residualEarningsRecipients[0], address(stJTT));
+        assertEq(residualEarningsRecipients[1], address(stSTT));
+        assertEq(residualEarningsRecipients[2], address(stZVE));
+        assertEq(residualEarningsRecipients[3], address(DAO));
+        assertEq(residualEarningsRecipients.length, 4);
 
-        // assertEq(protocolEarningsProportion[0], 7500);
-        // assertEq(protocolEarningsProportion[1], 2500);
-        // assertEq(protocolEarningsProportion.length, 2);
-
-        // assertEq(residualEarningsRecipients[0], address(stJTT));
-        // assertEq(residualEarningsRecipients[1], address(stSTT));
-        // assertEq(residualEarningsRecipients[2], address(stZVE));
-        // assertEq(residualEarningsRecipients[3], address(DAO));
-        // assertEq(residualEarningsRecipients.length, 4);
-
-        // assertEq(residualEarningsProportion[0], 2500);
-        // assertEq(residualEarningsProportion[1], 500);
-        // assertEq(residualEarningsProportion[2], 4500);
-        // assertEq(residualEarningsProportion[3], 2500);
-        // assertEq(residualEarningsProportion.length, 4);
+        assertEq(residualEarningsProportion[0], 2500);
+        assertEq(residualEarningsProportion[1], 500);
+        assertEq(residualEarningsProportion[2], 4500);
+        assertEq(residualEarningsProportion[3], 2500);
+        assertEq(residualEarningsProportion.length, 4);
 
     }
 
@@ -277,7 +262,6 @@ contract Test_ZivoeYDL is Utility {
 
         // Post-state.
         assertEq(YDL.protocolEarningsRateBIPS(), amount);
-
     }
 
     // Validate setDistributedAsset() state changes.
@@ -423,22 +407,6 @@ contract Test_ZivoeYDL is Utility {
 
     function test_ZivoeYDL_updateRecipientsTrue_state(uint96 random) public {
 
-        // NOTE: We are unable to access arrays in a struct through public getter functions
-        // NOTE: We are unable to implement custom getter in ZivoeYDL due to size constraints
-        // NOTE: Add the function below to ZivoeYDL to execute the remainder of this test
-
-        // /// @notice View distribution information for protocol and residual earnings recipients.
-        // /// @return protocolEarningsRecipients The destinations for protocol earnings distributions.
-        // /// @return protocolEarningsProportion The proportions for protocol earnings distributions.
-        // /// @return residualEarningsRecipients The destinations for residual earnings distributions.
-        // /// @return residualEarningsProportion The proportions for residual earnings distributions.
-        // function viewDistributions() external view returns (
-        //     address[] memory protocolEarningsRecipients, uint256[] memory protocolEarningsProportion, 
-        //     address[] memory residualEarningsRecipients, uint256[] memory residualEarningsProportion
-        // ) {
-        //     return (protocolRecipients.recipients, protocolRecipients.proportion, residualRecipients.recipients, residualRecipients.proportion);
-        // }
-
         uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
         address[] memory recipients = new address[](4);
@@ -466,44 +434,44 @@ contract Test_ZivoeYDL is Utility {
         // Simulating the ITO will "unlock" the YDL, and allow calls to updateRecipients().
         simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
-        // // Pre-state.
-        // (
-        //     address[] memory protocolEarningsRecipients,
-        //     uint256[] memory protocolEarningsProportion,
-        //     ,
-        // ) = YDL.viewDistributions();
+        // Pre-state.
+        (
+            address[] memory protocolEarningsRecipients,
+            uint256[] memory protocolEarningsProportion,
+            ,
+        ) = YDL.viewDistributions();
 
-        // assertEq(protocolEarningsRecipients[0], address(stZVE));
-        // assertEq(protocolEarningsRecipients[1], address(DAO));
-        // assertEq(protocolEarningsRecipients.length, 2);
+        assertEq(protocolEarningsRecipients[0], address(stZVE));
+        assertEq(protocolEarningsRecipients[1], address(DAO));
+        assertEq(protocolEarningsRecipients.length, 2);
 
-        // assertEq(protocolEarningsProportion[0], 7500);
-        // assertEq(protocolEarningsProportion[1], 2500);
-        // assertEq(protocolEarningsProportion.length, 2);
+        assertEq(protocolEarningsProportion[0], 7500);
+        assertEq(protocolEarningsProportion[1], 2500);
+        assertEq(protocolEarningsProportion.length, 2);
 
         // updateRecipients().
         hevm.expectEmit(false, false, false, true, address(YDL));
         emit UpdatedProtocolRecipients(recipients, proportions);
         assert(god.try_updateRecipients(address(YDL), recipients, proportions, true));
 
-        // // Post-state.
-        // (
-        //     protocolEarningsRecipients,
-        //     protocolEarningsProportion,
-        //     ,
-        // ) = YDL.viewDistributions();
+        // Post-state.
+        (
+            protocolEarningsRecipients,
+            protocolEarningsProportion,
+            ,
+        ) = YDL.viewDistributions();
 
-        // assertEq(protocolEarningsRecipients[0], address(1));
-        // assertEq(protocolEarningsRecipients[1], address(2));
-        // assertEq(protocolEarningsRecipients[2], address(3));
-        // assertEq(protocolEarningsRecipients[3], address(4));
-        // assertEq(protocolEarningsRecipients.length, 4);
+        assertEq(protocolEarningsRecipients[0], address(1));
+        assertEq(protocolEarningsRecipients[1], address(2));
+        assertEq(protocolEarningsRecipients[2], address(3));
+        assertEq(protocolEarningsRecipients[3], address(4));
+        assertEq(protocolEarningsRecipients.length, 4);
 
-        // assertEq(protocolEarningsProportion[0], proportions[0]);
-        // assertEq(protocolEarningsProportion[1], proportions[1]);
-        // assertEq(protocolEarningsProportion[2], proportions[2]);
-        // assertEq(protocolEarningsProportion[3], proportions[3]);
-        // assertEq(protocolEarningsProportion.length, 4);
+        assertEq(protocolEarningsProportion[0], proportions[0]);
+        assertEq(protocolEarningsProportion[1], proportions[1]);
+        assertEq(protocolEarningsProportion[2], proportions[2]);
+        assertEq(protocolEarningsProportion[3], proportions[3]);
+        assertEq(protocolEarningsProportion.length, 4);
 
     }
 
@@ -598,22 +566,6 @@ contract Test_ZivoeYDL is Utility {
 
     function test_ZivoeYDL_updateRecipientsFalse_state(uint96 random) public {
 
-        // NOTE: We are unable to access arrays in a struct through public getter functions
-        // NOTE: We are unable to implement custom getter in ZivoeYDL due to size constraints
-        // NOTE: Add the function below to ZivoeYDL to execute the remainder of this test
-
-        // /// @notice View distribution information for protocol and residual earnings recipients.
-        // /// @return protocolEarningsRecipients The destinations for protocol earnings distributions.
-        // /// @return protocolEarningsProportion The proportions for protocol earnings distributions.
-        // /// @return residualEarningsRecipients The destinations for residual earnings distributions.
-        // /// @return residualEarningsProportion The proportions for residual earnings distributions.
-        // function viewDistributions() external view returns (
-        //     address[] memory protocolEarningsRecipients, uint256[] memory protocolEarningsProportion, 
-        //     address[] memory residualEarningsRecipients, uint256[] memory residualEarningsProportion
-        // ) {
-        //     return (protocolRecipients.recipients, protocolRecipients.proportion, residualRecipients.recipients, residualRecipients.proportion);
-        // }
-
         uint256 amount = uint256(random) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
         address[] memory recipients = new address[](4);
@@ -641,50 +593,98 @@ contract Test_ZivoeYDL is Utility {
         // Simulating the ITO will "unlock" the YDL, and offer initial settings.
         simulateITO(amount, amount, amount / 10**12, amount / 10**12);
 
-        // // Pre-state.
-        // (
-        //     ,
-        //     ,
-        //     address[] memory residualEarningsRecipients,
-        //     uint256[] memory residualEarningsProportion
-        // ) = YDL.viewDistributions();
+        // Pre-state.
+        (
+            ,
+            ,
+            address[] memory residualEarningsRecipients,
+            uint256[] memory residualEarningsProportion
+        ) = YDL.viewDistributions();
 
-        // assertEq(residualEarningsRecipients[0], address(stJTT));
-        // assertEq(residualEarningsRecipients[1], address(stSTT));
-        // assertEq(residualEarningsRecipients[2], address(stZVE));
-        // assertEq(residualEarningsRecipients[3], address(DAO));
-        // assertEq(residualEarningsRecipients.length, 4);
+        assertEq(residualEarningsRecipients[0], address(stJTT));
+        assertEq(residualEarningsRecipients[1], address(stSTT));
+        assertEq(residualEarningsRecipients[2], address(stZVE));
+        assertEq(residualEarningsRecipients[3], address(DAO));
+        assertEq(residualEarningsRecipients.length, 4);
 
-        // assertEq(residualEarningsProportion[0], 2500);
-        // assertEq(residualEarningsProportion[1], 500);
-        // assertEq(residualEarningsProportion[2], 4500);
-        // assertEq(residualEarningsProportion[3], 2500);
-        // assertEq(residualEarningsProportion.length, 4);
+        assertEq(residualEarningsProportion[0], 2500);
+        assertEq(residualEarningsProportion[1], 500);
+        assertEq(residualEarningsProportion[2], 4500);
+        assertEq(residualEarningsProportion[3], 2500);
+        assertEq(residualEarningsProportion.length, 4);
 
         // updateRecipients().
         hevm.expectEmit(false, false, false, true, address(YDL));
         emit UpdatedResidualRecipients(recipients, proportions);
         assert(god.try_updateRecipients(address(YDL), recipients, proportions, false));
 
-        // // Post-state.
-        // (
-        //     ,
-        //     ,
-        //     residualEarningsRecipients,
-        //     residualEarningsProportion
-        // ) = YDL.viewDistributions();
+        // Post-state.
+        (
+            ,
+            ,
+            residualEarningsRecipients,
+            residualEarningsProportion
+        ) = YDL.viewDistributions();
 
-        // assertEq(residualEarningsRecipients[0], address(1));
-        // assertEq(residualEarningsRecipients[1], address(2));
-        // assertEq(residualEarningsRecipients[2], address(3));
-        // assertEq(residualEarningsRecipients[3], address(4));
-        // assertEq(residualEarningsRecipients.length, 4);
+        assertEq(residualEarningsRecipients[0], address(1));
+        assertEq(residualEarningsRecipients[1], address(2));
+        assertEq(residualEarningsRecipients[2], address(3));
+        assertEq(residualEarningsRecipients[3], address(4));
+        assertEq(residualEarningsRecipients.length, 4);
 
-        // assertEq(residualEarningsProportion[0], proportions[0]);
-        // assertEq(residualEarningsProportion[1], proportions[1]);
-        // assertEq(residualEarningsProportion[2], proportions[2]);
-        // assertEq(residualEarningsProportion[3], proportions[3]);
-        // assertEq(residualEarningsProportion.length, 4);
+        assertEq(residualEarningsProportion[0], proportions[0]);
+        assertEq(residualEarningsProportion[1], proportions[1]);
+        assertEq(residualEarningsProportion[2], proportions[2]);
+        assertEq(residualEarningsProportion[3], proportions[3]);
+        assertEq(residualEarningsProportion.length, 4);
+
+    }
+
+    // Validate returnAsset() state changes.
+    // Validate returnAsset() restrictions.
+    // This includes:
+    //  - asset != distributedAsset
+    
+    function test_ZivoeYDL_returnAsset_restrictions_distributedAsset() public {
+
+        // Can't call returnAsset() if asset == distributedAsset
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeYDL::returnAsset() asset == distributedAsset");
+        YDL.returnAsset(DAI);
+        hevm.stopPrank();
+    }
+    
+    function test_ZivoeYDL_returnAsset_state(uint96 amountA, uint96 amountB) public {
+
+        mint("USDC", address(YDL), uint256(amountA));
+        mint("USDT", address(YDL), uint256(amountB));
+
+        // Pre-state.
+        uint preYDL_USDC = IERC20(USDC).balanceOf(address(YDL));
+        uint preYDL_USDT = IERC20(USDT).balanceOf(address(YDL));
+        uint preDAO_USDC = IERC20(USDC).balanceOf(address(DAO));
+        uint preDAO_USDT = IERC20(USDT).balanceOf(address(DAO));
+
+
+        hevm.expectEmit(true, false, false, true, address(YDL));
+        emit AssetReturned(USDC, preYDL_USDC);
+        YDL.returnAsset(USDC);
+
+        hevm.expectEmit(true, false, false, true, address(YDL));
+        emit AssetReturned(USDT, preYDL_USDT);
+        YDL.returnAsset(USDT);
+
+        // Post-state.
+        uint postYDL_USDC = IERC20(USDC).balanceOf(address(YDL));
+        uint postYDL_USDT = IERC20(USDT).balanceOf(address(YDL));
+        uint postDAO_USDC = IERC20(USDC).balanceOf(address(DAO));
+        uint postDAO_USDT = IERC20(USDT).balanceOf(address(DAO));
+
+        assertEq(postYDL_USDC, 0);
+        assertEq(postYDL_USDT, 0);
+        assertEq(postDAO_USDC, preYDL_USDC + preDAO_USDC);
+        assertEq(postDAO_USDT, preYDL_USDT + preDAO_USDT);
+
 
     }
 
@@ -945,8 +945,5 @@ contract Test_ZivoeYDL is Utility {
         }
 
     }
-
-
-    // TODO: convert() state / restrictions
 
 }

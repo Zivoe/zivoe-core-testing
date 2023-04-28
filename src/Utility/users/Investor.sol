@@ -83,6 +83,11 @@ contract Investor {
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount));
     }
 
+    function try_stakeFor(address stk, uint256 amount, address account) external returns (bool ok) {
+        string memory sig = "stakeFor(uint256,address)";
+        (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount, account));
+    }
+
     function try_withdraw(address stk, uint256 amount) external returns (bool ok) {
         string memory sig = "withdraw(uint256)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount));

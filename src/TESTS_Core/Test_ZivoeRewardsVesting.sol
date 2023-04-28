@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../TESTS_Utility/Utility.sol";
+import "../Utility/Utility.sol";
 
 contract Test_ZivoeRewardsVesting is Utility {
 
@@ -24,14 +24,10 @@ contract Test_ZivoeRewardsVesting is Utility {
         assert(bob.try_approveToken(DAI, loc, amount));
         assert(bob.try_depositReward(loc, DAI, amount));
     }
-    
-    function createVesting(address loc, uint256 amount) public {
-        
-    }
 
-    // ----------------
+    // ------------
     //    Events
-    // ----------------
+    // ------------
 
     event RewardAdded(address indexed reward);
 
@@ -265,7 +261,7 @@ contract Test_ZivoeRewardsVesting is Utility {
     //  - Account must not be assigned vesting schedule (!vestingScheduleSet[account]).
     //  - Must be enough $ZVE present to vest out.
     //  - Cliff timeline must be appropriate (daysToCliff <= daysToVest).
-    //   - TODO: Restricting vest if account has deposited to ITO.
+    //  - Restricting vest if account has deposited to ITO.
 
     function test_ZivoeRewardsVesting_vest_restrictions_maxVest() public {
 
@@ -303,6 +299,32 @@ contract Test_ZivoeRewardsVesting is Utility {
         hevm.expectRevert("ZivoeRewardsVesting::vest() vestingScheduleSet[account]");
         vestZVE.vest(address(poe), 30, 90, 100 ether, false);
         hevm.stopPrank();  
+    }
+
+    function test_ZivoeRewardsVesting_vest_restrictions_depositedITO_senior() public {
+
+        // Mint 100 DAI for "bob", approve ITO contract.
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
+
+        // Deposit to ITO
+        hevm.startPrank(address(zvl));
+        hevm.expectRevert("ZivoeRewardsVesting::vest() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
+        vestZVE.vest(address(sam), 30, 90, 100 ether, false);
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeRewardsVesting_vest_restrictions_depositedITO_junior() public {
+
+        // Mint 100 DAI for "bob", approve ITO contract.
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
+
+        // Deposit to ITO
+        hevm.startPrank(address(zvl));
+        hevm.expectRevert("ZivoeRewardsVesting::vest() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
+        vestZVE.vest(address(jim), 30, 90, 100 ether, false);
+        hevm.stopPrank();
     }
 
     function test_ZivoeRewardsVesting_vest_state(uint96 random, bool choice) public {

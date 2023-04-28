@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../TESTS_Utility/Utility.sol";
+import "../Utility/Utility.sol";
 
 import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
 
@@ -48,6 +48,8 @@ contract Test_ZivoeRewards is Utility {
 
     event Staked(address indexed account, uint256 amount);
 
+    event StakedFor(address indexed account, uint256 amount, address indexed by);
+
     event Withdrawn(address indexed account, uint256 amount);
 
     event RewardDistributed(address indexed account, address indexed rewardsToken, uint256 reward);
@@ -70,24 +72,8 @@ contract Test_ZivoeRewards is Utility {
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewards_addReward_restrictions_owner_stSTT() public {
-        // Can't call if not owner(), which should be "zvl".
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("Ownable: caller is not the owner");
-        stSTT.addReward(FRAX, 30 days);
-        hevm.stopPrank();
-    }
-
-    function test_ZivoeRewards_addReward_restrictions_owner_stJTT() public {
-        // Can't call if not owner(), which should be "zvl".
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("Ownable: caller is not the owner");
-        stJTT.addReward(FRAX, 30 days);
-        hevm.stopPrank();
-    }
-
     function test_ZivoeRewards_addReward_restrictions_rewardsDuration0() public {
-        // Can't call if rewardData[_rewardsToken].rewardsDuration == 0 (meaning subsequent addReward() calls).
+        // Can't call if rewardData[_rewardsToken].rewardsDuration != 0 (meaning subsequent addReward() calls).
         assert(zvl.try_addReward(address(stZVE), WETH, 30 days));
         hevm.startPrank(address(zvl));
         hevm.expectRevert("ZivoeRewards::addReward() rewardData[_rewardsToken].rewardsDuration != 0");
@@ -448,6 +434,122 @@ contract Test_ZivoeRewards is Utility {
 
         assertEq(stZVE.viewRewards(address(sam), DAI), stZVE.earned(address(sam), DAI));
         assertEq(stZVE.viewAccountRewardPerTokenPaid(address(sam), DAI), rewardPerTokenStored);
+
+    }
+    
+    // Validate stakeFor() state changes.
+    // Validate stakeFor() restrictions.
+    // This includes:
+    //  - Stake amount must be greater than 0.
+    //  - Account must not be address(0)
+
+    function test_ZivoeRewards_stakeFor_restrictions_stake0() public {
+        // Can't stake a 0 amount.
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("ZivoeRewards::stakeFor() amount == 0");
+        stZVE.stakeFor(0, address(jim));
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeRewards_stakeFor_restrictions_account0() public {
+        // Can't stake for address(0).
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
+
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("ZivoeRewards::stakeFor() account == address(0)");
+        stZVE.stakeFor(1, address(0));
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeRewards_stakeFor_initial_state(uint96 random) public {
+
+        uint256 deposit = uint256(random) % (ZVE.balanceOf(address(sam)) - 1) + 1;
+
+        // Pre-state.
+        uint256 _preSupply = stZVE.totalSupply();
+        uint256 _preBal_stZVE_jim = stZVE.balanceOf(address(jim));
+        uint256 _preBal_ZVE_sam = ZVE.balanceOf(address(sam));
+        uint256 _preBal_ZVE_stZVE = ZVE.balanceOf(address(stZVE));
+
+        assertEq(_preSupply, 0);
+        assertEq(_preBal_stZVE_jim, 0);
+        assertGt(_preBal_ZVE_sam, 0);
+        assertEq(_preBal_ZVE_stZVE, 0);
+
+        assertEq(stZVE.viewRewards(address(jim), DAI), 0);
+        assertEq(stZVE.viewAccountRewardPerTokenPaid(address(jim), DAI), 0);
+
+        // stakeFor().
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), deposit));
+
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit StakedFor(address(jim), deposit, address(sam));
+        assert(sam.try_stakeFor(address(stZVE), deposit, address(jim)));
+
+        // Post-state.
+        assertEq(stZVE.totalSupply(), _preSupply + deposit);
+        assertEq(stZVE.balanceOf(address(jim)), _preBal_stZVE_jim + deposit);
+        assertEq(ZVE.balanceOf(address(sam)), _preBal_ZVE_sam - deposit);
+        assertEq(ZVE.balanceOf(address(stZVE)), _preBal_ZVE_stZVE + deposit);
+
+        assertEq(stZVE.viewRewards(address(jim), DAI), 0);
+        assertEq(stZVE.viewAccountRewardPerTokenPaid(address(jim), DAI), 0);
+
+    }
+
+    function test_ZivoeRewards_stakeFor_subsequent_state(uint96 random, bool preStake, bool preDeposit) public {
+
+        // stake(), 50% chance for sam to pre-stake 50% of his ZVE.
+        if (preStake) {
+            assert(sam.try_approveToken(address(ZVE), address(stZVE), ZVE.balanceOf(address(sam)) / 2));
+
+            hevm.expectEmit(true, false, false, true, address(stZVE));
+            emit StakedFor(address(jim), ZVE.balanceOf(address(sam)) / 2, address(sam));
+            assert(sam.try_stakeFor(address(stZVE), ZVE.balanceOf(address(sam)) / 2, address(jim)));
+        }
+
+        // depositReward(), 50% chance to deposit a reward.
+        if (preDeposit) {
+            depositReward_DAI(address(stZVE), uint256(random));
+        }
+
+        hevm.warp(block.timestamp + random % 60 days); // 50% chance to warp past rewardsDuration (30 days).
+
+        uint256 deposit = uint256(random) % (ZVE.balanceOf(address(sam)) - 1) + 1;
+
+        // Pre-state.
+        uint256 _preSupply = stZVE.totalSupply();
+        uint256 _preBal_stZVE_jim = stZVE.balanceOf(address(jim));
+        uint256 _preBal_ZVE_sam = ZVE.balanceOf(address(sam));
+        uint256 _preBal_ZVE_stZVE = ZVE.balanceOf(address(stZVE));
+
+        preStake ? assertGt(_preSupply, 0) : assertEq(_preSupply, 0);
+        preStake ? assertGt(_preBal_stZVE_jim, 0) : assertEq(_preBal_stZVE_jim, 0);
+        preStake ? assertGt(_preBal_ZVE_stZVE, 0) : assertEq(_preBal_ZVE_stZVE, 0);
+        assertGt(_preBal_ZVE_sam, 0);
+
+        assertEq(stZVE.viewRewards(address(jim), DAI), 0);
+        assertEq(stZVE.viewAccountRewardPerTokenPaid(address(jim), DAI), 0);
+
+        // stake().
+        assert(sam.try_approveToken(address(ZVE), address(stZVE), deposit));
+
+        hevm.expectEmit(true, true, false, true, address(stZVE));
+        emit StakedFor(address(jim), deposit, address(sam));
+        assert(sam.try_stakeFor(address(stZVE), deposit, address(jim)));
+
+        // Post-state.
+        (,,,, uint256 rewardPerTokenStored) = stZVE.rewardData(DAI);
+
+        assertEq(stZVE.totalSupply(), _preSupply + deposit);
+        assertEq(stZVE.balanceOf(address(jim)), _preBal_stZVE_jim + deposit);
+        assertEq(ZVE.balanceOf(address(sam)), _preBal_ZVE_sam - deposit);
+        assertEq(ZVE.balanceOf(address(stZVE)), _preBal_ZVE_stZVE + deposit);
+
+        assertEq(stZVE.viewRewards(address(jim), DAI), stZVE.earned(address(jim), DAI));
+        assertEq(stZVE.viewAccountRewardPerTokenPaid(address(jim), DAI), rewardPerTokenStored);
 
     }
 
