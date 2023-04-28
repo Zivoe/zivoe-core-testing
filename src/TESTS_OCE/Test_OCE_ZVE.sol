@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/lockers/OCE/OCE_ZVE.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCE/OCE_ZVE.sol";
 
 contract Test_OCE_ZVE is Utility {
 

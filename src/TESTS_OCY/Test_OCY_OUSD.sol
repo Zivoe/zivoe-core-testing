@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/lockers/OCT/OCT_DAO.sol";
-import "lib/zivoe-core-foundry/src/lockers/OCT/OCT_YDL.sol";
-import "lib/zivoe-core-foundry/src/lockers/OCY/OCY_OUSD.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_DAO.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_YDL.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCY/OCY_OUSD.sol";
 
-import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../../lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface IVault {
     function rebase() external;

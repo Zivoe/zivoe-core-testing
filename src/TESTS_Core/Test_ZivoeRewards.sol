@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
 
 
 contract Test_ZivoeRewards is Utility {

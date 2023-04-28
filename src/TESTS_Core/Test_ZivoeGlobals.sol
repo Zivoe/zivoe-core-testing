@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "../TESTS_Utility/Utility.sol";
 
-import "lib/zivoe-core-foundry/src/lockers/OCG/OCG_Defaults.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_Defaults.sol";
 
 contract Test_ZivoeGlobals is Utility {
 
