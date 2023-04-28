@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../TESTS_Utility/Utility.sol";
+import "../Utility/Utility.sol";
 
 // First the idea is to test for multiple values of input parameters and it's effect on returned value.
 

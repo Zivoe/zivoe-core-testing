@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.17;
 
-import "../TESTS_Utility/Utility.sol";
+import "../Utility/Utility.sol";
 
 import "../../lib/zivoe-core-foundry/src/lockers/Utility/ZivoeSwapper.sol";
 import "../../lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
