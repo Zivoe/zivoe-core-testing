@@ -18,9 +18,23 @@ contract Test_ZivoeTranches is Utility {
 
     }
 
-    // ----------------------
-    //    Helper Functions
-    // ----------------------
+    // ------------
+    //    Events
+    // ------------
+
+    event JuniorDeposit(address indexed account, address indexed asset, uint256 amount, uint256 incentives);
+    
+    event SeniorDeposit(address indexed account, address indexed asset, uint256 amount, uint256 incentives);
+    
+    event UpdatedMaxTrancheRatioBIPS(uint256 oldValue, uint256 newValue);
+    
+    event UpdatedMinZVEPerJTTMint(uint256 oldValue, uint256 newValue);
+    
+    event UpdatedMaxZVEPerJTTMint(uint256 oldValue, uint256 newValue);
+
+    event UpdatedLowerRatioIncentive(uint256 oldValue, uint256 newValue);
+
+    event UpdatedUpperRatioIncentive(uint256 oldValue, uint256 newValue);
 
     // ----------------
     //    Unit Tests
@@ -55,9 +69,26 @@ contract Test_ZivoeTranches is Utility {
     // Validate depositJunior() state.
     // Validate depositJunior() restrictions.
     // This includes:
+    //  - contract must not be paused
     //  - asset must be whitelisted
     //  - unlocked must be true
     //  - isJuniorOpen(amount, asset) must return true
+
+    function test_ZivoeTranches_depositJunior_restrictions_paused() public {
+        
+        hevm.startPrank(address(zvl));
+        ZVT.switchPause();
+        hevm.stopPrank();
+
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
+
+        // Can't call depositJunior() if contract is paused
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::whenPaused() notPaused");
+        ZVT.depositJunior(100 ether, address(DAI));
+        hevm.stopPrank();
+    }
 
     function test_ZivoeTranches_depositJunior_restrictions_notWhitelisted() public {
         
@@ -141,6 +172,9 @@ contract Test_ZivoeTranches is Utility {
             uint256 _rewardZVE = ZVT.rewardZVEJuniorDeposit(maximumAmount_18);
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(jim));
             uint256 _preJTT = IERC20(address(zJTT)).balanceOf(address(jim));
+            
+            hevm.expectEmit(true, true, false, false, address(ZVT));
+            emit JuniorDeposit(address(jim), address(DAI), maximumAmount_18, ZVT.rewardZVEJuniorDeposit(GBL.standardize(maximumAmount_18, DAI)));
             assert(jim.try_depositJunior(address(ZVT), maximumAmount_18, address(DAI)));
             assertEq(IERC20(address(ZVE)).balanceOf(address(jim)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zJTT)).balanceOf(address(jim)), _preJTT + maximumAmount_18);
@@ -150,6 +184,8 @@ contract Test_ZivoeTranches is Utility {
             uint256 _rewardZVE = ZVT.rewardZVEJuniorDeposit(GBL.standardize(maximumAmount_6, USDC));
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(jim));
             uint256 _preJTT = IERC20(address(zJTT)).balanceOf(address(jim));
+            hevm.expectEmit(true, true, false, false, address(ZVT));
+            emit JuniorDeposit(address(jim), address(USDC), maximumAmount_6, ZVT.rewardZVEJuniorDeposit(GBL.standardize(maximumAmount_6, USDC)));
             assert(jim.try_depositJunior(address(ZVT), maximumAmount_6, address(USDC)));
             assertEq(IERC20(address(ZVE)).balanceOf(address(jim)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zJTT)).balanceOf(address(jim)), _preJTT + GBL.standardize(maximumAmount_6, USDC));
@@ -159,6 +195,8 @@ contract Test_ZivoeTranches is Utility {
             uint256 _rewardZVE = ZVT.rewardZVEJuniorDeposit(GBL.standardize(maximumAmount_6, USDT));
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(jim));
             uint256 _preJTT = IERC20(address(zJTT)).balanceOf(address(jim));
+            hevm.expectEmit(true, true, false, false, address(ZVT));
+            emit JuniorDeposit(address(jim), address(USDT), maximumAmount_6, ZVT.rewardZVEJuniorDeposit(GBL.standardize(maximumAmount_6, USDT)));
             assert(jim.try_depositJunior(address(ZVT), maximumAmount_6, address(USDT)));
             assertEq(IERC20(address(ZVE)).balanceOf(address(jim)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zJTT)).balanceOf(address(jim)), _preJTT + GBL.standardize(maximumAmount_6, USDT));
@@ -169,8 +207,25 @@ contract Test_ZivoeTranches is Utility {
     // Validate depositSenior() state.
     // Validate depositSenior() restrictions.
     // This includes:
+    //  - contract must not be paused
     //  - asset must be whitelisted
     //  - ZVT contact must be unlocked
+
+    function test_ZivoeTranches_depositSenior_restrictions_paused() public {
+        
+        hevm.startPrank(address(zvl));
+        ZVT.switchPause();
+        hevm.stopPrank();
+
+        mint("DAI", address(bob), 100 ether);
+        assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
+
+        // Can't call depositSenior() if contract is paused
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::whenPaused() notPaused");
+        ZVT.depositSenior(100 ether, address(DAI));
+        hevm.stopPrank();
+    }
 
     function test_ZivoeTranches_depositSenior_restrictions_notWhitelisted() public {
         
@@ -222,6 +277,8 @@ contract Test_ZivoeTranches is Utility {
             uint256 _rewardZVE = ZVT.rewardZVESeniorDeposit(amount_18);
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(sam));
             uint256 _preSTT = IERC20(address(zSTT)).balanceOf(address(sam));
+            hevm.expectEmit(true, true, false, false, address(ZVT));
+            emit SeniorDeposit(address(sam), address(DAI), amount_18, ZVT.rewardZVESeniorDeposit(GBL.standardize(amount_18, DAI)));
             assert(sam.try_depositSenior(address(ZVT), amount_18, address(DAI)));
             assertEq(IERC20(address(ZVE)).balanceOf(address(sam)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zSTT)).balanceOf(address(sam)), _preSTT + amount_18);
@@ -231,6 +288,8 @@ contract Test_ZivoeTranches is Utility {
             uint256 _rewardZVE = ZVT.rewardZVESeniorDeposit(GBL.standardize(amount_6, USDC));
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(sam));
             uint256 _preSTT = IERC20(address(zSTT)).balanceOf(address(sam));
+            hevm.expectEmit(true, true, false, false, address(ZVT));
+            emit SeniorDeposit(address(sam), address(USDC), amount_6, ZVT.rewardZVESeniorDeposit(GBL.standardize(amount_6, USDC)));
             assert(sam.try_depositSenior(address(ZVT), amount_6, address(USDC)));
             assertEq(IERC20(address(ZVE)).balanceOf(address(sam)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zSTT)).balanceOf(address(sam)), _preSTT + GBL.standardize(amount_6, USDC));
@@ -240,11 +299,42 @@ contract Test_ZivoeTranches is Utility {
             uint256 _rewardZVE = ZVT.rewardZVESeniorDeposit(GBL.standardize(amount_6, USDT));
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(sam));
             uint256 _preSTT = IERC20(address(zSTT)).balanceOf(address(sam));
+            hevm.expectEmit(true, true, false, false, address(ZVT));
+            emit SeniorDeposit(address(sam), address(USDT), amount_6, ZVT.rewardZVESeniorDeposit(GBL.standardize(amount_6, USDT)));
             assert(sam.try_depositSenior(address(ZVT), amount_6, address(USDT)));
             assertEq(IERC20(address(ZVE)).balanceOf(address(sam)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zSTT)).balanceOf(address(sam)), _preSTT + GBL.standardize(amount_6, USDT));
         }
     } 
+
+    // Validate state changes on switchPause()
+    // Validate restrictions on switchPause()
+    // This includes following functions:
+    //  - _msgSender() must be ZVL
+
+    function test_ZivoeTranches_switchPause_restrictions() public {
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("ZivoeTranches::switchPause() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).ZVL()");
+        ZVT.switchPause();
+        hevm.stopPrank();
+    }
+
+    function test_ZivoeTranches_switchPause_state() public {
+        
+        assert(!ZVT.paused());
+
+        hevm.startPrank(address(zvl));
+        ZVT.switchPause();
+        hevm.stopPrank();
+
+        assert(ZVT.paused());
+
+        hevm.startPrank(address(zvl));
+        ZVT.switchPause();
+        hevm.stopPrank();
+
+        assert(!ZVT.paused());
+    }
 
     // Validate restrictions on update functions (governance controlled).
     // Validate state changes on update functions (governance controlled).
@@ -386,10 +476,24 @@ contract Test_ZivoeTranches is Utility {
         assertEq(ZVT.lowerRatioIncentive(), 1000);
         assertEq(ZVT.upperRatioIncentive(), 2000);
 
+        hevm.expectEmit(false, false, false, false, address(ZVT));
+        emit UpdatedMaxTrancheRatioBIPS(4250, maxTrancheRatio);
         assert(god.try_updateMaxTrancheRatio(address(ZVT), maxTrancheRatio));
+
+        hevm.expectEmit(false, false, false, false, address(ZVT));
+        emit UpdatedMaxZVEPerJTTMint(0, maxZVEPerJTTMint);
         assert(god.try_updateMaxZVEPerJTTMint(address(ZVT), maxZVEPerJTTMint));
+
+        hevm.expectEmit(false, false, false, false, address(ZVT));
+        emit UpdatedMinZVEPerJTTMint(0, minZVEPerJTTMint);
         assert(god.try_updateMinZVEPerJTTMint(address(ZVT), minZVEPerJTTMint));
+
+        hevm.expectEmit(false, false, false, false, address(ZVT));
+        emit UpdatedUpperRatioIncentive(2000, upperRatioIncentive);
         assert(god.try_updateUpperRatioIncentives(address(ZVT), upperRatioIncentive));
+
+        hevm.expectEmit(false, false, false, false, address(ZVT));
+        emit UpdatedLowerRatioIncentive(1000, lowerRatioIncentive);
         assert(god.try_updateLowerRatioIncentive(address(ZVT), lowerRatioIncentive));
 
         // Post-state.

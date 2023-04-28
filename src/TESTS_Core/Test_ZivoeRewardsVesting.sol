@@ -25,9 +25,9 @@ contract Test_ZivoeRewardsVesting is Utility {
         assert(bob.try_depositReward(loc, DAI, amount));
     }
 
-    // ----------------
+    // ------------
     //    Events
-    // ----------------
+    // ------------
 
     event RewardAdded(address indexed reward);
 
