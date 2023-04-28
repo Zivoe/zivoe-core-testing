@@ -934,13 +934,13 @@ contract Test_ZivoeYDL is Utility {
             // distributeYield().
             YDL.distributeYield();
 
-            // emaJTT = MATH.ema(emaJTT, asJTT, retrospectiveDistributions.min(numDistributions));
-            // emaSTT = MATH.ema(emaSTT, asSTT, retrospectiveDistributions.min(numDistributions));
+            // emaJTT = MATH.ema(emaJTT, aJTT, retrospectiveDistributions.min(numDistributions));
+            // emaSTT = MATH.ema(emaSTT, aSTT, retrospectiveDistributions.min(numDistributions));
 
             // Post-state.
-            (uint256 asSTT, uint256 asJTT) = GBL.adjustedSupplies();
-            assertEq(YDL.emaSTT(), MATH.ema(pre_emaSTT, asSTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
-            assertEq(YDL.emaJTT(), MATH.ema(pre_emaJTT, asJTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
+            (uint256 aSTT, uint256 aJTT) = GBL.adjustedSupplies();
+            assertEq(YDL.emaSTT(), MATH.ema(pre_emaSTT, aSTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
+            assertEq(YDL.emaJTT(), MATH.ema(pre_emaJTT, aJTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
 
         }
 

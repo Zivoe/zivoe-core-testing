@@ -970,8 +970,8 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.seniorBalances(address(sam)) == 0);
     }
 
-    // validate setRedemptionFee() state changes
-    function test_OCR_setRedemptionFee_state() public {
+    // validate updateRedemptionFee() state changes
+    function test_OCR_updateRedemptionFee_state() public {
         // pre check
         assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
 
@@ -979,32 +979,32 @@ contract Test_OCR_Modular is Utility {
         hevm.startPrank(address(god));
         hevm.expectEmit(false, false, false, true, address(OCR_Modular_DAI));
         emit UpdatedRedemptionFee(1000, 1500);
-        OCR_Modular_DAI.setRedemptionFee(1500);
+        OCR_Modular_DAI.updateRedemptionFee(1500);
         hevm.stopPrank();
 
         // check
         assert(OCR_Modular_DAI.redemptionFee() == 1500);
     }
 
-    // validate setRedemptionFee() restrictions on caller when != TLC
+    // validate updateRedemptionFee() restrictions on caller when != TLC
     function test_OCR_setRedemptionFee_caller_restrictions() public {
         // pre check
         assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
 
         // set new redemption fee with account != TLC
-        hevm.expectRevert("OCR_Modular::setRedemptionFee() _msgSender() != TLC()");
-        OCR_Modular_DAI.setRedemptionFee(1500);
+        hevm.expectRevert("OCR_Modular::updateRedemptionFee() _msgSender() != TLC()");
+        OCR_Modular_DAI.updateRedemptionFee(1500);
     }
 
-    // validate setRedemptionFee() restrictions when amount is out of range
-    function test_OCR_setRedemptionFee_amount_restrictions() public {
+    // validate updateRedemptionFee() restrictions when amount is out of range
+    function test_OCR_updateRedemptionFee_amount_restrictions() public {
         // pre check
         assertEq(OCR_Modular_DAI.redemptionFee(), 1000);
 
         // set new redemption fee
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCR_Modular::setRedemptionFee() _redemptionFee > 2000 && _redemptionFee < 250");
-        OCR_Modular_DAI.setRedemptionFee(5000);
+        hevm.expectRevert("OCR_Modular::updateRedemptionFee() _redemptionFee > 2000 && _redemptionFee < 250");
+        OCR_Modular_DAI.updateRedemptionFee(5000);
         hevm.stopPrank();
     }
 
