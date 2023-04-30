@@ -35,6 +35,84 @@ contract Test_OCC_Modular is Utility {
 
     }
 
+    // ------------
+    //    Events
+    // ------------
+    
+    event CombineApproved(address indexed borrower, uint paymentInterval, uint term);
+    
+    event CombineUnapproved(address indexed borrower, uint paymentInterval, uint term);
+    
+    event CombineApplied(address indexed borrower, uint paymentInterval, uint term, uint[] ids);
+
+    event CombineLoanCreated(
+        address indexed borrower,
+        uint256 indexed id,
+        uint256 borrowAmount,
+        uint256 APR,
+        uint256 APRLateFee,
+        uint256 paymentDueBy,
+        uint256 term,
+        uint256 paymentInterval,
+        uint256 gracePeriod,
+        int8 indexed paymentSchedule
+    );
+
+    event ConversionAmortizationApplied(uint indexed id);
+    
+    event ConversionAmortizationApproved(uint indexed id);
+    
+    event ConversionAmortizationUnapproved(uint indexed id);
+    
+    event ConversionBulletApplied(uint indexed id);
+    
+    event ConversionBulletApproved(uint indexed id);
+    
+    event ConversionBulletUnapproved(uint indexed id);
+    
+    event DefaultMarked(uint256 indexed id, uint256 principalDefaulted, uint256 priorNetDefaults, uint256 currentNetDefaults);
+
+    event DefaultResolved(uint256 indexed id, uint256 amount, address indexed payee, bool resolved);
+    
+    event ExtensionApplied(uint indexed id, uint intervals);
+    
+    event ExtensionApproved(uint indexed id, uint intervals);
+    
+    event ExtensionUnapproved(uint indexed id);
+    
+    event LoanCalled(uint256 indexed id, uint256 amount, uint256 principal, uint256 interest, uint256 lateFee);
+    
+    event InterestSupplied(uint256 indexed id, uint256 amount, address indexed payee);
+    
+    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+    
+    event OfferAccepted(uint256 indexed id, uint256 principal, address indexed borrower, uint256 paymentDueBy);
+
+    event OfferCancelled(uint256 indexed id);
+
+    event OfferCreated(
+        address indexed borrower,
+        uint256 indexed id,
+        uint256 borrowAmount,
+        uint256 APR,
+        uint256 APRLateFee,
+        uint256 term,
+        uint256 paymentInterval,
+        uint256 offerExpiry,
+        uint256 gracePeriod,
+        int8 indexed paymentSchedule
+    );
+
+    event PaymentMade(uint256 indexed id, address indexed payee, uint256 amount, uint256 principal, uint256 interest, uint256 lateFee, uint256 nextPaymentDue);
+
+    event RefinanceApproved(uint indexed id, uint apr);
+    
+    event RefinanceUnapproved(uint indexed id);
+    
+    event RefinanceApplied(uint indexed id, uint aprNew, uint aprPrior);
+    
+    event RepaidMarked(uint256 indexed id);
+
     // ----------------------
     //    Helper Functions
     // ----------------------
@@ -749,7 +827,7 @@ contract Test_OCC_Modular is Utility {
         uint256 _loanID_USDC = createRandomOffer(random, choice, USDC);
         uint256 _loanID_USDT = createRandomOffer(random, choice, USDT);
 
-        // Fund two of these loans.
+        // Accept two of these loans.
         man_acceptOffer(_loanID_DAI, DAI);
         man_acceptOffer(_loanID_FRAX, FRAX);
 
@@ -1027,7 +1105,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1143,7 +1221,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1258,7 +1336,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1373,7 +1451,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1543,7 +1621,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1661,7 +1739,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1778,7 +1856,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -1895,7 +1973,7 @@ contract Test_OCC_Modular is Utility {
                 assertEq(
                     interestOwed + lateFeeOwed, 
                     _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                    _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
                 );
             }
@@ -2189,7 +2267,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(
                 interestOwed + lateFee, 
                 _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
             );
         }
@@ -2260,7 +2338,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(
                 interestOwed + lateFee, 
                 _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
             );
         }
@@ -2331,7 +2409,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(
                 interestOwed + lateFee, 
                 _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
             );
         }
@@ -2402,7 +2480,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(
                 interestOwed + lateFee, 
                 _preDetails[0] * _preDetails[6] * _preDetails[1] / (86400 * 365 * BIPS) + 
-                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[1] + _preDetails[2]) / (86400 * 365 * BIPS)
+                _preDetails[0] * (block.timestamp - _preDetails[3]) * (_preDetails[2]) / (86400 * 365 * BIPS)
 
             );
         }
