@@ -820,7 +820,7 @@ contract Test_OCC_Modular is Utility {
         assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
         assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
 
-        // Can't fund loan if state != LoanState.Initialized.
+        // Can't accept loan offer if state != LoanState.Initialized.
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::acceptOffer() loans[id].state != LoanState.Initialized");
         OCC_Modular_DAI.acceptOffer(_loanID_DAI);
@@ -845,7 +845,7 @@ contract Test_OCC_Modular is Utility {
         // Warp past expiry time (14 days past loan creation).
         hevm.warp(block.timestamp + 14 days + 1 seconds);
 
-        // Can't fund loan if block.timestamp > loans[id].offerExpiry.
+        // Can't accept loan offer loan if block.timestamp > loans[id].offerExpiry.
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::acceptOffer() block.timestamp >= loans[id].offerExpiry");
         OCC_Modular_FRAX.acceptOffer(_loanID_FRAX);
@@ -957,7 +957,7 @@ contract Test_OCC_Modular is Utility {
         assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), amount * 2));
         assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), amount * 2));
 
-        // Can't make payment on loan if state != LoanState.Active (these loans aren't funded).
+        // Can't make payment on loan if state != LoanState.Active (these loans aren't accepted).
         hevm.startPrank(address(tim));
         hevm.expectRevert("OCC_Modular::makePayment() loans[id].state != LoanState.Active");
         OCC_Modular_FRAX.makePayment(_loanID_DAI);
