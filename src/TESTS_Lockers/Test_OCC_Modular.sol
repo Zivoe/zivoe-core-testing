@@ -3108,12 +3108,31 @@ contract Test_OCC_Modular is Utility {
     // Validate applyCombine() state changes.
     // Validate applyCombine() restrictions.
     // This includes:
-    //  - combinations (paymentInterval) approved must be valid
+    //  - paymentInterval must be approved
     //  - length > 1 (more than 2 loans supplied)
     //  - each loan supplied, _msgSender() is borrower
     //  - each loan supplied, state == LoanState.Active
 
-    // TODO: ~
+    function test_OCC_Modular_applyCombine_restrictions_approved() public {
+
+    }
+
+    function test_OCC_Modular_applyCombine_restrictions_length() public {
+        
+    }
+
+    function test_OCC_Modular_applyCombine_restrictions_borrower() public {
+        
+    }
+
+    function test_OCC_Modular_applyCombine_restrictions_loanState() public {
+        
+    }
+
+
+    function test_OCC_Modular_applyCombine_state() public {
+        
+    }
 
     // Validate applyConversionAmortization() state changes.
     // Validate applyConversionAmortization() restrictions.
@@ -3121,7 +3140,18 @@ contract Test_OCC_Modular is Utility {
     //  - _msgSender() is borrower of loan
     //  - loan has been approved for conversion
 
-    // TODO: ~
+
+    function test_OCC_Modular_applyConversionAmortization_restrictions_borrower() public {
+        
+    }
+
+    function test_OCC_Modular_applyConversionAmortization_restrictions_approved() public {
+        
+    }
+
+    function test_OCC_Modular_applyConversionAmortization_state() public {
+        
+    }
 
     // Validate applyConversionBullet() state changes.
     // Validate applyConversionBullet() restrictions.
@@ -3129,7 +3159,17 @@ contract Test_OCC_Modular is Utility {
     //  - _msgSender() is borrower of loan
     //  - loan has been approved for conversion
 
-    // TODO: ~
+    function test_OCC_Modular_applyConversionBullet_restrictions_borrower() public {
+        
+    }
+
+    function test_OCC_Modular_applyConversionBullet_restrictions_approved() public {
+        
+    }
+
+    function test_OCC_Modular_applyConversionBullet_state() public {
+        
+    }
 
     // Validate applyExtension() state changes.
     // Validate applyExtension() restrictions.
@@ -3137,7 +3177,17 @@ contract Test_OCC_Modular is Utility {
     //  - _msgSender() is borrower of loan
     //  - supplied extensions ("intervals") amount is >= approved extensions
 
-    // TODO: ~
+    function test_OCC_Modular_applyExtension_restrictions_borrower() public {
+        
+    }
+
+    function test_OCC_Modular_applyExtension_restrictions_approved() public {
+        
+    }
+
+    function test_OCC_Modular_applyExtension_state() public {
+        
+    }
 
     // Validate applyRefinance() state changes.
     // Validate applyRefinance() restrictions.
@@ -3146,7 +3196,17 @@ contract Test_OCC_Modular is Utility {
     //  - loan is approved for refinancing
     //  - state of loan is LoanState.Active
 
-    // TODO: ~
+    function test_OCC_Modular_applyRefinance_restrictions_borrower() public {
+        
+    }
+
+    function test_OCC_Modular_applyRefinance_restrictions_approved() public {
+        
+    }
+
+    function test_OCC_Modular_applyRefinance_restrictions_loanState() public {
+        
+    }
 
     // Validate approveCombine() state changes.
     // Validate approveCombine() restrictions.
@@ -3154,35 +3214,69 @@ contract Test_OCC_Modular is Utility {
     //  - _msgSender() is underwriter
     //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
 
-    // TODO: ~
+    function test_OCC_Modular_approveCombine_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_approveCombine_restrictions_paymentInterval() public {
+        
+    }
+
+    function test_OCC_Modular_approveCombine_state() public {
+        
+    }
 
     // Validate approveConversionAmortization() state changes.
     // Validate approveConversionAmortization() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_approveConversionAmortization_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_approveConversionAmortization_state() public {
+        
+    }
 
     // Validate approveConversionBullet() state changes.
     // Validate approveConversionBullet() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_approveConversionBullet_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_approveConversionBullet_state() public {
+        
+    }
 
     // Validate approveExtension() state changes.
     // Validate approveExtension() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_approveExtension_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_approveExtension_state() public {
+        
+    }
 
     // Validate approveRefinance() state changes.
     // Validate approveRefinance() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_approveRefinance_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_approveRefinance_state() public {
+        
+    }
 
     // Validate unapproveCombine() state changes.
     // Validate unapproveCombine() restrictions.
@@ -3190,34 +3284,68 @@ contract Test_OCC_Modular is Utility {
     //  - _msgSender() is underwriter
     //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
 
-    // TODO: ~
+    function test_OCC_Modular_unapproveCombine_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_unapproveCombine_restrictions_paymentInterval() public {
+        
+    }
+
+    function test_OCC_Modular_unapproveCombine_state() public {
+        
+    }
 
     // Validate unapproveConversionAmortization() state changes.
     // Validate unapproveConversionAmortization() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_unapproveConversionAmortization_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_unapproveConversionAmortization_state() public {
+        
+    }
 
     // Validate unapproveConversionBullet() state changes.
     // Validate unapproveConversionBullet() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_unapproveConversionBullet_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_unapproveConversionBullet_state() public {
+        
+    }
 
     // Validate unapproveExtension() state changes.
     // Validate unapproveExtension() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_unapproveExtension_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_unapproveExtension_state() public {
+        
+    }
 
     // Validate unapproveRefinance() state changes.
     // Validate unapproveRefinance() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    // TODO: ~
+    function test_OCC_Modular_unapproveRefinance_restrictions_underwriter() public {
+        
+    }
+
+    function test_OCC_Modular_unapproveRefinance_state() public {
+        
+    }
 
 }
