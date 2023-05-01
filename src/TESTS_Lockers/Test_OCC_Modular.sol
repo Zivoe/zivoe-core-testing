@@ -2023,6 +2023,8 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_markDefault_state(uint96 random, bool choice) public {
 
+        uint256 currentDefaults = GBL.defaults();
+
         (
             uint256 _loanID_DAI,
             uint256 _loanID_FRAX,
@@ -2037,63 +2039,61 @@ contract Test_OCC_Modular is Utility {
 
         // Pre-state, DAI.
         (,, loanInfo) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
-        assertEq(GBL.defaults(), 0);
+        assertEq(currentDefaults, 0);
         assertEq(loanInfo[9], 2);
         
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit DefaultMarked(_loanID_DAI, loanInfo[0], GBL.defaults(), GBL.defaults() + loanInfo[0]);
+        emit DefaultMarked(_loanID_DAI, loanInfo[0], currentDefaults, currentDefaults + loanInfo[0]);
         assert(roy.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
 
         // Post-state, DAI.
         (,, loanInfo) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
-        assertEq(GBL.defaults(), GBL.standardize(random, DAI));
+        assertEq(GBL.defaults(), currentDefaults + loanInfo[0]);
         assertEq(loanInfo[9], 4);
+
+        currentDefaults = GBL.defaults();
 
         // Pre-state, FRAX.
         (,, loanInfo) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
         assertEq(loanInfo[9], 2);
 
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_FRAX));
-        emit DefaultMarked(_loanID_FRAX, loanInfo[0], GBL.defaults(), GBL.defaults() + loanInfo[0]);
+        emit DefaultMarked(_loanID_FRAX, loanInfo[0], currentDefaults, currentDefaults + loanInfo[0]);
         assert(roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
 
         // Post-state, FRAX.
         (,, loanInfo) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
-        assertEq(GBL.defaults(), GBL.standardize(random, DAI) + GBL.standardize(random, FRAX));
+        assertEq(GBL.defaults(), currentDefaults + loanInfo[0]);
         assertEq(loanInfo[9], 4);
+
+        currentDefaults = GBL.defaults();
 
         // Pre-state, USDC.
         (,, loanInfo) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
         assertEq(loanInfo[9], 2);
 
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_USDC));
-        emit DefaultMarked(_loanID_USDC, loanInfo[0], GBL.defaults(), GBL.defaults() + GBL.standardize(loanInfo[0], USDC));
+        emit DefaultMarked(_loanID_USDC, loanInfo[0], currentDefaults, currentDefaults + GBL.standardize(loanInfo[0], USDC));
         assert(roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
 
         // Post-state, USDC.
         (,, loanInfo) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
-        assertEq(
-            GBL.defaults(), 
-            GBL.standardize(random, DAI) + GBL.standardize(random, FRAX) + 
-            GBL.standardize(random, USDC)
-        );
+        assertEq(GBL.defaults(), currentDefaults + GBL.standardize(loanInfo[0], USDC));
         assertEq(loanInfo[9], 4);
+
+        currentDefaults = GBL.defaults();
 
         // Pre-state, USDT.
         (,, loanInfo) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
         assertEq(loanInfo[9], 2);
 
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_USDT));
-        emit DefaultMarked(_loanID_USDT, loanInfo[0], GBL.defaults(), GBL.defaults() + GBL.standardize(loanInfo[0], USDT));
+        emit DefaultMarked(_loanID_USDT, loanInfo[0], currentDefaults, currentDefaults + GBL.standardize(loanInfo[0], USDT));
         assert(roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Post-state, USDT.
         (,, loanInfo) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
-        assertEq(
-            GBL.defaults(), 
-            GBL.standardize(random, DAI) + GBL.standardize(random, FRAX) + 
-            GBL.standardize(random, USDC) + GBL.standardize(random, USDT)
-        );
+        assertEq(GBL.defaults(), currentDefaults + GBL.standardize(loanInfo[0], USDT));
         assertEq(loanInfo[9], 4);
 
     }
