@@ -35,6 +35,11 @@ contract Test_OCC_Modular is Utility {
         zvl.try_updateIsLocker(address(GBL), address(OCC_Modular_USDC), true);
         zvl.try_updateIsLocker(address(GBL), address(OCC_Modular_USDT), true);
 
+        deal(DAI, address(OCC_Modular_DAI), 100_000_000_000_000_000_000 ether);
+        deal(FRAX, address(OCC_Modular_FRAX), 100_000_000_000_000_000_000 ether);
+        deal(USDC, address(OCC_Modular_USDC), 100_000_000_000_000_000_000 ether);
+        deal(USDT, address(OCC_Modular_USDT), 100_000_000_000_000_000_000 ether);
+
     }
 
     // ------------
@@ -121,7 +126,7 @@ contract Test_OCC_Modular is Utility {
 
     function createRandomOffer(uint96 random, bool choice, address asset) internal returns (uint256 loanID) {
         
-        uint256 borrowAmount = uint256(random);
+        uint256 borrowAmount = uint256(random) + 1;
         uint256 APR = uint256(random) % 5000;
         uint256 APRLateFee = uint256(random) % 5000;
         uint256 term = uint256(random) % 25 + 1;
@@ -3113,25 +3118,326 @@ contract Test_OCC_Modular is Utility {
     //  - each loan supplied, _msgSender() is borrower
     //  - each loan supplied, state == LoanState.Active
 
-    function test_OCC_Modular_applyCombine_restrictions_approved() public {
+    function test_OCC_Modular_applyCombine_restrictions_approved(uint96 random, bool choice) public {
+
+        (uint256 _loanID_DAI_0,,,) = simulateITO_and_createOffers(random, choice);
+        uint256 _loanID_DAI_1 = createRandomOffer(random, choice, DAI);
+
+        uint[] memory ids = new uint[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("OCC_Modular::applyCombine() !combinations[_msgSender()][paymentInterval] == 0");
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+    }
+
+    function test_OCC_Modular_applyCombine_restrictions_length(uint96 random, bool choice) public {
+        
+        (uint256 _loanID_DAI_0,,,) = simulateITO_and_createOffers(random, choice);
+        uint256 _loanID_DAI_1 = createRandomOffer(random, choice, DAI);
+
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(tim), 86400 * 14, 24));
+
+        uint[] memory ids = new uint[](1);
+        ids[0] = 0;
+
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("OCC_Modular::applyCombine() ids.length <= 1");
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+    }
+
+    function test_OCC_Modular_applyCombine_restrictions_borrower(uint96 random, bool choice) public {
+        
+        (uint256 _loanID_DAI_0,,,) = simulateITO_and_createOffers(random, choice);
+        uint256 _loanID_DAI_1 = createRandomOffer(random, choice, DAI);
+
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(tim), 86400 * 14, 24));
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(sam), 86400 * 14, 24));
+
+        // NOTE: These two loan IDs, borrower == address(tim)
+        uint[] memory ids = new uint[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        hevm.startPrank(address(sam));
+        hevm.expectRevert("OCC_Modular::applyCombine() _msgSender() != loans[ids[i]].borrower");
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+    }
+
+    function test_OCC_Modular_applyCombine_restrictions_loanState(uint96 random, bool choice) public {
+        
+        (uint256 _loanID_DAI_0,,,) = simulateITO_and_createOffers(random, choice);
+        uint256 _loanID_DAI_1 = createRandomOffer(random, choice, DAI);
+
+        assert(roy.try_cancelOffer(address(OCC_Modular_DAI), 0));
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(tim), 86400 * 14, 24));
+
+        uint[] memory ids = new uint[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("OCC_Modular::applyCombine() loans[ids]i]].state != LoanState.Active");
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+    }
+
+
+    function test_OCC_Modular_applyCombine_twoLoans_state(uint96 random, bool choice) public {
+
+        simulateITO_and_createOffers(random, choice);
+        createRandomOffer(random, choice, DAI);
+
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(tim), 86400 * 14, 24));
+
+        uint[] memory ids = new uint[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        man_acceptOffer(0, DAI);
+        man_acceptOffer(1, DAI);
+
+        (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
+        (,, uint256[10] memory preDetails_1) = OCC_Modular_DAI.loanInfo(1);
+        (,, uint256[10] memory preDetails_2) = OCC_Modular_DAI.loanInfo(2);
+
+        assertEq(OCC_Modular_DAI.counterID(), 2);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 24);
+
+        hevm.startPrank(address(tim));
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+
+        (,, uint256[10] memory postDetails_0) = OCC_Modular_DAI.loanInfo(0);
+        (,, uint256[10] memory postDetails_1) = OCC_Modular_DAI.loanInfo(1);
+        (address borrower, int8 paymentSchedule, uint256[10] memory postDetails_2) = OCC_Modular_DAI.loanInfo(2);
+
+        assertEq(OCC_Modular_DAI.counterID(), 3);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 0);
+
+        // Loan ID #0 (combined into Loan ID #2)
+        {
+            assertEq(postDetails_0[0], 0); // principalOwed
+            assertEq(postDetails_0[3], 0); // paymentDueBy
+            assertEq(postDetails_0[4], 0); // paymentsRemaining
+            assertEq(postDetails_0[9], 7); // loanState (7 => combined)
+        }
+
+        // Loan ID #1 (Combined into Loan ID #2)
+        {
+            assertEq(postDetails_1[0], 0); // principalOwed
+            assertEq(postDetails_1[3], 0); // paymentDueBy
+            assertEq(postDetails_1[4], 0); // paymentsRemaining
+            assertEq(postDetails_1[9], 7); // loanState (7 => combined)
+        }
+        
+        // Loan ID #2
+        {
+            assertEq(postDetails_2[0], preDetails_0[0] + preDetails_1[0]); // principalOwed
+            assertEq(
+                postDetails_2[1], 
+                (preDetails_0[0] * preDetails_0[1] + preDetails_1[0] *  preDetails_1[1]) / (preDetails_0[0] + preDetails_1[0]) % 10000
+            ); // APR
+            assertEq(postDetails_2[2], postDetails_2[1]); // APRLateFee == APR
+            assertEq(postDetails_2[3], block.timestamp - block.timestamp % 7 days + 9 days + postDetails_2[6]); // paymentDueBy
+            assertEq(postDetails_2[4], 24); // paymentsRemaining
+            assertEq(postDetails_2[5], 24); // term
+            assertEq(postDetails_2[6], 86400 * 14); // paymentInterval
+            assertEq(postDetails_2[7], block.timestamp - 1 days); // paymentInterval
+            assertEq(postDetails_2[8], 86400 * 14); // gracePeriod
+            assertEq(postDetails_2[9], 2); // loanState (2 => active)
+
+            assertEq(borrower, address(tim));
+            assertEq(paymentSchedule, int8(0));
+        }
+    }
+
+    function test_OCC_Modular_applyCombine_threeLoans_state(uint96 random, bool choice) public {
+
+        simulateITO_and_createOffers(random, choice);
+        createRandomOffer(random, choice, DAI);
+        createRandomOffer(random, choice, DAI);
+
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(tim), 86400 * 14, 24));
+
+        uint[] memory ids = new uint[](3);
+        ids[0] = 0;
+        ids[1] = 1;
+        ids[2] = 2;
+
+        man_acceptOffer(0, DAI);
+        man_acceptOffer(1, DAI);
+        man_acceptOffer(2, DAI);
+
+        (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
+        (,, uint256[10] memory preDetails_1) = OCC_Modular_DAI.loanInfo(1);
+        (,, uint256[10] memory preDetails_2) = OCC_Modular_DAI.loanInfo(2);
+        (,, uint256[10] memory preDetails_3) = OCC_Modular_DAI.loanInfo(3);
+
+        assertEq(OCC_Modular_DAI.counterID(), 3);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 24);
+
+        hevm.startPrank(address(tim));
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+
+        (,, uint256[10] memory postDetails_0) = OCC_Modular_DAI.loanInfo(0);
+        (,, uint256[10] memory postDetails_1) = OCC_Modular_DAI.loanInfo(1);
+        (,, uint256[10] memory postDetails_2) = OCC_Modular_DAI.loanInfo(2);
+        (address borrower, int8 paymentSchedule, uint256[10] memory postDetails_3) = OCC_Modular_DAI.loanInfo(3);
+
+        assertEq(OCC_Modular_DAI.counterID(), 4);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 0);
+
+        // Loan ID #0 (combined into Loan ID #3)
+        {
+            assertEq(postDetails_0[0], 0); // principalOwed
+            assertEq(postDetails_0[3], 0); // paymentDueBy
+            assertEq(postDetails_0[4], 0); // paymentsRemaining
+            assertEq(postDetails_0[9], 7); // loanState (7 => combined)
+        }
+
+        // Loan ID #1 (Combined into Loan ID #3)
+        {
+            assertEq(postDetails_1[0], 0); // principalOwed
+            assertEq(postDetails_1[3], 0); // paymentDueBy
+            assertEq(postDetails_1[4], 0); // paymentsRemaining
+            assertEq(postDetails_1[9], 7); // loanState (7 => combined)
+        }
+
+        // Loan ID #2 (Combined into Loan ID #3)
+        {
+            assertEq(postDetails_2[0], 0); // principalOwed
+            assertEq(postDetails_2[3], 0); // paymentDueBy
+            assertEq(postDetails_2[4], 0); // paymentsRemaining
+            assertEq(postDetails_2[9], 7); // loanState (7 => combined)
+        }
+
+        uint upper = preDetails_0[0] * preDetails_0[1] + preDetails_1[0] *  preDetails_1[1] + preDetails_2[0] * preDetails_2[1];
+        uint lower = preDetails_0[0] + preDetails_1[0] + preDetails_2[0];
+        
+        // Loan ID #3
+        {
+            assertEq(postDetails_3[0], preDetails_0[0] + preDetails_1[0] + preDetails_2[0]); // principalOwed
+            assertEq(
+                postDetails_3[1], 
+                upper / lower % 10000
+            ); // APR
+            assertEq(postDetails_3[2], postDetails_3[1]); // APRLateFee == APR
+            assertEq(postDetails_3[3], block.timestamp - block.timestamp % 7 days + 9 days + postDetails_3[6]); // paymentDueBy
+            assertEq(postDetails_3[4], 24); // paymentsRemaining
+            assertEq(postDetails_3[5], 24); // term
+            assertEq(postDetails_3[6], 86400 * 14); // paymentInterval
+            assertEq(postDetails_3[7], block.timestamp - 1 days); // paymentInterval
+            assertEq(postDetails_3[8], 86400 * 14); // gracePeriod
+            assertEq(postDetails_3[9], 2); // loanState (2 => active)
+
+            assertEq(borrower, address(tim));
+            assertEq(paymentSchedule, int8(0));
+        }
 
     }
 
-    function test_OCC_Modular_applyCombine_restrictions_length() public {
+    function test_OCC_Modular_applyCombine_fourLoans_state(uint96 random, bool choice) public {
         
-    }
+        simulateITO_and_createOffers(random, choice);
+        createRandomOffer(random, choice, DAI);
+        createRandomOffer(random, choice, DAI);
+        createRandomOffer(random, choice, DAI);
 
-    function test_OCC_Modular_applyCombine_restrictions_borrower() public {
+        assert(roy.try_approveCombine(address(OCC_Modular_DAI), address(tim), 86400 * 14, 24));
+
+        uint[] memory ids = new uint[](4);
+        ids[0] = 0;
+        ids[1] = 1;
+        ids[2] = 2;
+        ids[3] = 3;
+
+        man_acceptOffer(0, DAI);
+        man_acceptOffer(1, DAI);
+        man_acceptOffer(2, DAI);
+        man_acceptOffer(3, DAI);
+
+        (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
+        (,, uint256[10] memory preDetails_1) = OCC_Modular_DAI.loanInfo(1);
+        (,, uint256[10] memory preDetails_2) = OCC_Modular_DAI.loanInfo(2);
+        (,, uint256[10] memory preDetails_3) = OCC_Modular_DAI.loanInfo(3);
+
+        assertEq(OCC_Modular_DAI.counterID(), 4);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 24);
+
+        hevm.startPrank(address(tim));
+        OCC_Modular_DAI.applyCombine(ids, 86400 * 14);
+        hevm.stopPrank();
+
+        (,, uint256[10] memory postDetails_0) = OCC_Modular_DAI.loanInfo(0);
+        (,, uint256[10] memory postDetails_1) = OCC_Modular_DAI.loanInfo(1);
+        (,, uint256[10] memory postDetails_2) = OCC_Modular_DAI.loanInfo(2);
+        (,, uint256[10] memory postDetails_3) = OCC_Modular_DAI.loanInfo(3);
+        (address borrower, int8 paymentSchedule, uint256[10] memory postDetails_4) = OCC_Modular_DAI.loanInfo(4);
+
+        assertEq(OCC_Modular_DAI.counterID(), 5);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 0);
+
+        // Loan ID #0 (combined into Loan ID #4)
+        {
+            assertEq(postDetails_0[0], 0); // principalOwed
+            assertEq(postDetails_0[3], 0); // paymentDueBy
+            assertEq(postDetails_0[4], 0); // paymentsRemaining
+            assertEq(postDetails_0[9], 7); // loanState (7 => combined)
+        }
+
+        // Loan ID #1 (Combined into Loan ID #4)
+        {
+            assertEq(postDetails_1[0], 0); // principalOwed
+            assertEq(postDetails_1[3], 0); // paymentDueBy
+            assertEq(postDetails_1[4], 0); // paymentsRemaining
+            assertEq(postDetails_1[9], 7); // loanState (7 => combined)
+        }
+
+        // Loan ID #2 (Combined into Loan ID #4)
+        {
+            assertEq(postDetails_2[0], 0); // principalOwed
+            assertEq(postDetails_2[3], 0); // paymentDueBy
+            assertEq(postDetails_2[4], 0); // paymentsRemaining
+            assertEq(postDetails_2[9], 7); // loanState (7 => combined)
+        }
+
+        // Loan ID #3 (Combined into Loan ID #4)
+        {
+            assertEq(postDetails_3[0], 0); // principalOwed
+            assertEq(postDetails_3[3], 0); // paymentDueBy
+            assertEq(postDetails_3[4], 0); // paymentsRemaining
+            assertEq(postDetails_3[9], 7); // loanState (7 => combined)
+        }
+
+        uint upper = preDetails_0[0] * preDetails_0[1] + preDetails_1[0] * preDetails_1[1] + preDetails_2[0] * preDetails_2[1] + preDetails_3[0] *  preDetails_3[1];
+        uint lower = preDetails_0[0] + preDetails_1[0] + preDetails_2[0] + preDetails_3[0];
         
-    }
+        // Loan ID #2
+        {
+            assertEq(postDetails_4[0], lower); // principalOwed
+            assertEq(
+                postDetails_4[1], 
+                upper / lower % 10000
+            ); // APR
+            assertEq(postDetails_4[2], postDetails_4[1]); // APRLateFee == APR
+            assertEq(postDetails_4[3], block.timestamp - block.timestamp % 7 days + 9 days + postDetails_4[6]); // paymentDueBy
+            assertEq(postDetails_4[4], 24); // paymentsRemaining
+            assertEq(postDetails_4[5], 24); // term
+            assertEq(postDetails_4[6], 86400 * 14); // paymentInterval
+            assertEq(postDetails_4[7], block.timestamp - 1 days); // paymentInterval
+            assertEq(postDetails_4[8], 86400 * 14); // gracePeriod
+            assertEq(postDetails_4[9], 2); // loanState (2 => active)
 
-    function test_OCC_Modular_applyCombine_restrictions_loanState() public {
-        
-    }
+            assertEq(borrower, address(tim));
+            assertEq(paymentSchedule, int8(0));
+        }
 
-
-    function test_OCC_Modular_applyCombine_state() public {
-        
     }
 
     // Validate applyConversionAmortization() state changes.

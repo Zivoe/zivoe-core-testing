@@ -62,5 +62,80 @@ contract Manager {
         string memory sig = "markDefault(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
+
+    function try_applyCombine(address occ, uint[] memory ids, uint paymentInterval) external returns (bool ok) {
+        string memory sig = "applyCombine(uint256[],uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, ids, paymentInterval));
+    }
+
+    function try_applyConversionAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionAmortization(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_applyConversionBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionBullet(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_applyExtension(address occ, uint id, uint intervals) external returns (bool ok) {
+        string memory sig = "applyExtension(uint256,uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
+    }
+
+    function try_applyRefinance(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyRefinance(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_approveCombine(address occ, address borrower, uint paymentInterval, uint term) external returns (bool ok) {
+        string memory sig = "approveCombine(address,uint256,uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, paymentInterval, term));
+    }
+
+    function try_approveConversionAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionAmortization(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_approveConversionBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionBullet(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_approveExtension(address occ, uint id, uint intervals) external returns (bool ok) {
+        string memory sig = "approveExtension(uint256,uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
+    }
+
+    function try_approveRefinance(address occ, uint id, uint apr) external returns (bool ok) {
+        string memory sig = "approveRefinance(uint256,uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, apr));
+    }
+
+    function try_unapproveCombine(address occ, address borrower, uint paymentInterval, uint term) external returns (bool ok) {
+        string memory sig = "unapproveCombine(address,uint256,uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, paymentInterval, term));
+    }
+
+    function try_unapproveConversionAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionAmortization(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_unapproveConversionBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionBullet(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_unapproveExtension(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveExtension(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
+
+    function try_unapproveRefinance(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveRefinance(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
+    }
     
 }
