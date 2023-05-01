@@ -3522,14 +3522,59 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_approveCombine_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.approveCombine(address(bob), 86400 * 7, 24);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_approveCombine_restrictions_paymentInterval() public {
         
+        // Can't call if paymentInterval isn't proper
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::approveCombine() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 91 || 364)");
+        OCC_Modular_DAI.approveCombine(address(bob), 86400 * 30, 24);
+        hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveCombine_state() public {
+    function test_OCC_Modular_approveCombine_state(address account, uint8 option, uint term) public {
         
+        uint256 option = uint256(option) % 5;
+
+        // Pre-state.
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 7 * 86400), 0);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 0);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 28 * 86400), 0);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 91 * 86400), 0);
+        assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 364 * 86400), 0);
+
+        // approveCombine().
+        hevm.startPrank(address(roy));
+        hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
+        emit CombineApproved(account, paymentInterval[option], term);
+        OCC_Modular_DAI.approveCombine(account, paymentInterval[option], term);
+        hevm.stopPrank();
+
+        // Post-state.
+        if (option == 0) {
+            assertEq(OCC_Modular_DAI.viewCombinations(account, 7 * 86400), term);
+        }
+        else if (option == 1) {
+            assertEq(OCC_Modular_DAI.viewCombinations(account, 14 * 86400), term);
+        }
+        else if (option == 2) {
+            assertEq(OCC_Modular_DAI.viewCombinations(account, 28 * 86400), term);
+        }
+        else if (option == 3) {
+            assertEq(OCC_Modular_DAI.viewCombinations(account, 91 * 86400), term);
+        }
+        else if (option == 4) {
+            assertEq(OCC_Modular_DAI.viewCombinations(account, 364 * 86400), term);
+        }
+        else {
+            revert();
+        }
     }
 
     // Validate approveConversionAmortization() state changes.
@@ -3539,10 +3584,20 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_approveConversionAmortization_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.approveConversionAmortization(0);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_approveConversionAmortization_state() public {
-        
+
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.approveConversionAmortization(0);
+        hevm.stopPrank();
     }
 
     // Validate approveConversionBullet() state changes.
@@ -3552,6 +3607,11 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_approveConversionBullet_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.approveConversionBullet(0);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_approveConversionBullet_state() public {
@@ -3565,6 +3625,12 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_approveExtension_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.approveExtension(0, 12);
+        hevm.stopPrank();
+        
     }
 
     function test_OCC_Modular_approveExtension_state() public {
@@ -3577,7 +3643,12 @@ contract Test_OCC_Modular is Utility {
     //  - _msgSender() is underwriter
 
     function test_OCC_Modular_approveRefinance_restrictions_underwriter() public {
-        
+    
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.approveRefinance(0, 1200);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_approveRefinance_state() public {
@@ -3592,6 +3663,11 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_unapproveCombine_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.unapproveCombine(address(tim), 86400 * 14, 12);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_unapproveCombine_restrictions_paymentInterval() public {
@@ -3609,6 +3685,11 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_unapproveConversionAmortization_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.unapproveConversionAmortization(0);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_unapproveConversionAmortization_state() public {
@@ -3622,6 +3703,11 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_unapproveConversionBullet_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.unapproveConversionBullet(0);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_unapproveConversionBullet_state() public {
@@ -3635,6 +3721,11 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_unapproveExtension_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.unapproveExtension(0);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_unapproveExtension_state() public {
@@ -3648,6 +3739,11 @@ contract Test_OCC_Modular is Utility {
 
     function test_OCC_Modular_unapproveRefinance_restrictions_underwriter() public {
         
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.unapproveRefinance(0);
+        hevm.stopPrank();
     }
 
     function test_OCC_Modular_unapproveRefinance_state() public {
