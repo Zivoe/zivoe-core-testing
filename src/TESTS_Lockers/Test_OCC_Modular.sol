@@ -3051,7 +3051,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_postStable_YDL - _preStable_YDL, amount);
             assertEq(_preStable_tim - _postStable_tim, amount);
         }
-        
+
         {
             // Pre-state FRAX.
             uint256 _preStable_OCT = IERC20(FRAX).balanceOf(address(Treasury));
@@ -3104,5 +3104,120 @@ contract Test_OCC_Modular is Utility {
         }
 
     }
+
+    // Validate applyCombine() state changes.
+    // Validate applyCombine() restrictions.
+    // This includes:
+    //  - combinations (paymentInterval) approved must be valid
+    //  - length > 1 (more than 2 loans supplied)
+    //  - each loan supplied, _msgSender() is borrower
+    //  - each loan supplied, state == LoanState.Active
+
+    // TODO: ~
+
+    // Validate applyConversionAmortization() state changes.
+    // Validate applyConversionAmortization() restrictions.
+    // This includes:
+    //  - _msgSender() is borrower of loan
+    //  - loan has been approved for conversion
+
+    // TODO: ~
+
+    // Validate applyConversionBullet() state changes.
+    // Validate applyConversionBullet() restrictions.
+    // This includes:
+    //  - _msgSender() is borrower of loan
+    //  - loan has been approved for conversion
+
+    // TODO: ~
+
+    // Validate applyExtension() state changes.
+    // Validate applyExtension() restrictions.
+    // This includes:
+    //  - _msgSender() is borrower of loan
+    //  - supplied extensions ("intervals") amount is >= approved extensions
+
+    // TODO: ~
+
+    // Validate applyRefinance() state changes.
+    // Validate applyRefinance() restrictions.
+    // This includes:
+    //  - _msgSender() is borrower of loan
+    //  - loan is approved for refinancing
+    //  - state of loan is LoanState.Active
+
+    // TODO: ~
+
+    // Validate approveCombine() state changes.
+    // Validate approveCombine() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+    //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
+
+    // TODO: ~
+
+    // Validate approveConversionAmortization() state changes.
+    // Validate approveConversionAmortization() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate approveConversionBullet() state changes.
+    // Validate approveConversionBullet() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate approveExtension() state changes.
+    // Validate approveExtension() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate approveRefinance() state changes.
+    // Validate approveRefinance() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate unapproveCombine() state changes.
+    // Validate unapproveCombine() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+    //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
+
+    // TODO: ~
+
+    // Validate unapproveConversionAmortization() state changes.
+    // Validate unapproveConversionAmortization() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate unapproveConversionBullet() state changes.
+    // Validate unapproveConversionBullet() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate unapproveExtension() state changes.
+    // Validate unapproveExtension() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
+
+    // Validate unapproveRefinance() state changes.
+    // Validate unapproveRefinance() restrictions.
+    // This includes:
+    //  - _msgSender() is underwriter
+
+    // TODO: ~
 
 }
