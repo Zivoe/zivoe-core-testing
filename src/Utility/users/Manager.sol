@@ -113,9 +113,9 @@ contract Manager {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, apr));
     }
 
-    function try_unapproveCombine(address occ, address borrower, uint paymentInterval, uint term) external returns (bool ok) {
-        string memory sig = "unapproveCombine(address,uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, paymentInterval, term));
+    function try_unapproveCombine(address occ, address borrower) external returns (bool ok) {
+        string memory sig = "unapproveCombine(address,uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower));
     }
 
     function try_unapproveConversionAmortization(address occ, uint id) external returns (bool ok) {

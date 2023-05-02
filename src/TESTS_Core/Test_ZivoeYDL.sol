@@ -60,8 +60,6 @@ contract Test_ZivoeYDL is Utility {
     //    Events
     // ------------
 
-    // TODO: Test this
-    // TODO: Test returnAsset()
     event AssetReturned(address indexed asset, uint256 amount);
 
     event UpdatedDistributedAsset(address indexed oldAsset, address indexed newAsset);
