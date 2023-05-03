@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "../Utility/Utility.sol";
 
 import "../../lib/zivoe-core-foundry/src/lockers/OCL/OCL_ZVE.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_YDL.sol";
 
 contract Test_OCL_ZVE is Utility {
 
@@ -19,18 +20,22 @@ contract Test_OCL_ZVE is Utility {
     OCL_ZVE OCL_ZVE_UNIV2_USDC;
     OCL_ZVE OCL_ZVE_UNIV2_USDT;
 
+    OCT_YDL Treasury;
+
     function setUp() public {
 
         deployCore(false);
+
+        Treasury = new OCT_YDL(address(DAO), address(GBL));
 
         // Simulate ITO (10mm * 8 * 4), DAI/FRAX/USDC/USDT.
         simulateITO(10_000_000 ether, 10_000_000 ether, 10_000_000 * USD, 10_000_000 * USD);
 
         // Initialize and whitelist OCL_ZVE Uniswap v2 locker's.
-        OCL_ZVE_UNIV2_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, true);
-        OCL_ZVE_UNIV2_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, true);
-        OCL_ZVE_UNIV2_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, true);
-        OCL_ZVE_UNIV2_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, true);
+        OCL_ZVE_UNIV2_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, true, address(Treasury));
+        OCL_ZVE_UNIV2_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, true, address(Treasury));
+        OCL_ZVE_UNIV2_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, true, address(Treasury));
+        OCL_ZVE_UNIV2_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, true, address(Treasury));
 
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_UNIV2_DAI), true);
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_UNIV2_FRAX), true);
@@ -38,10 +43,10 @@ contract Test_OCL_ZVE is Utility {
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_UNIV2_USDT), true);
 
         // Initialize and whitelist OCL_ZVE Sushi locker's.
-        OCL_ZVE_SUSHI_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, false);
-        OCL_ZVE_SUSHI_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, false);
-        OCL_ZVE_SUSHI_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, false);
-        OCL_ZVE_SUSHI_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, false);
+        OCL_ZVE_SUSHI_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, false, address(Treasury));
+        OCL_ZVE_SUSHI_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, false, address(Treasury));
+        OCL_ZVE_SUSHI_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, false, address(Treasury));
+        OCL_ZVE_SUSHI_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, false, address(Treasury));
 
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_DAI), true);
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_FRAX), true);
