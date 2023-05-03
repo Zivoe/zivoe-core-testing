@@ -32,10 +32,10 @@ contract Test_OCL_ZVE is Utility {
         simulateITO(10_000_000 ether, 10_000_000 ether, 10_000_000 * USD, 10_000_000 * USD);
 
         // Initialize and whitelist OCL_ZVE Uniswap v2 locker's.
-        OCL_ZVE_UNIV2_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, true, address(Treasury));
-        OCL_ZVE_UNIV2_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, true, address(Treasury));
-        OCL_ZVE_UNIV2_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, true, address(Treasury));
-        OCL_ZVE_UNIV2_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, true, address(Treasury));
+        OCL_ZVE_UNIV2_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, UNISWAP_V2_ROUTER_02, UNISWAP_V2_FACTORY, address(Treasury));
+        OCL_ZVE_UNIV2_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, UNISWAP_V2_ROUTER_02, UNISWAP_V2_FACTORY, address(Treasury));
+        OCL_ZVE_UNIV2_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, UNISWAP_V2_ROUTER_02, UNISWAP_V2_FACTORY, address(Treasury));
+        OCL_ZVE_UNIV2_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, UNISWAP_V2_ROUTER_02, UNISWAP_V2_FACTORY, address(Treasury));
 
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_UNIV2_DAI), true);
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_UNIV2_FRAX), true);
@@ -43,10 +43,10 @@ contract Test_OCL_ZVE is Utility {
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_UNIV2_USDT), true);
 
         // Initialize and whitelist OCL_ZVE Sushi locker's.
-        OCL_ZVE_SUSHI_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, false, address(Treasury));
-        OCL_ZVE_SUSHI_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, false, address(Treasury));
-        OCL_ZVE_SUSHI_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, false, address(Treasury));
-        OCL_ZVE_SUSHI_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, false, address(Treasury));
+        OCL_ZVE_SUSHI_DAI = new OCL_ZVE(address(DAO), address(GBL), DAI, SUSHI_V2_ROUTER, SUSHI_V2_FACTORY, address(Treasury));
+        OCL_ZVE_SUSHI_FRAX = new OCL_ZVE(address(DAO), address(GBL), FRAX, SUSHI_V2_ROUTER, SUSHI_V2_FACTORY, address(Treasury));
+        OCL_ZVE_SUSHI_USDC = new OCL_ZVE(address(DAO), address(GBL), USDC, SUSHI_V2_ROUTER, SUSHI_V2_FACTORY, address(Treasury));
+        OCL_ZVE_SUSHI_USDT = new OCL_ZVE(address(DAO), address(GBL), USDT, SUSHI_V2_ROUTER, SUSHI_V2_FACTORY, address(Treasury));
 
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_DAI), true);
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_FRAX), true);
