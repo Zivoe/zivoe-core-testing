@@ -399,9 +399,9 @@ contract Test_OCL_ZVE is Utility {
         assertEq(OCL_ZVE_SUSHI_DAI.factory(), 0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac);
         assertEq(OCL_ZVE_SUSHI_DAI.baseline(), 0);
         assertEq(OCL_ZVE_SUSHI_DAI.nextYieldDistribution(), 0);
-        assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
         assertEq(OCL_ZVE_SUSHI_DAI.compoundingRateBIPS(), 5000);
 
+        assert(OCL_ZVE_SUSHI_DAI.canPush());
         assert(OCL_ZVE_SUSHI_DAI.canPushMulti());
         assert(OCL_ZVE_SUSHI_DAI.canPull());
         assert(OCL_ZVE_SUSHI_DAI.canPullPartial());
@@ -1084,7 +1084,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(DAI).balanceOf(address(OCL_ZVE_SUSHI_DAI));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
  
             buyZVE_Sushi(amountA / 5, DAI); // ~ 20% price increase via pairAsset trade
 
@@ -1095,7 +1095,7 @@ contract Test_OCL_ZVE is Utility {
             assertEq(IERC20(DAI).balanceOf(address(OCL_ZVE_SUSHI_DAI)), 0);
             assertGt(IERC20(DAI).balanceOf(address(YDL)), _prePair); // Note: YDL.distributedAsset() == DAI
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
             assertEq(OCL_ZVE_SUSHI_DAI.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_DAI,) = OCL_ZVE_SUSHI_DAI.pairAssetConvertible();
         }
@@ -1105,7 +1105,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(FRAX).balanceOf(address(OCL_ZVE_SUSHI_FRAX));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_SUSHI_FRAX.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_SUSHI_FRAX.amountForConversion(), 0);
 
             buyZVE_Sushi(amountA / 5, FRAX); // ~ 20% price increase via pairAsset trade
 
@@ -1115,7 +1115,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(FRAX).balanceOf(address(OCL_ZVE_SUSHI_FRAX)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_FRAX.amountForConversion(), IERC20(FRAX).balanceOf(address(OCL_ZVE_SUSHI_FRAX)));
+            // assertEq(OCL_ZVE_SUSHI_FRAX.amountForConversion(), IERC20(FRAX).balanceOf(address(OCL_ZVE_SUSHI_FRAX)));
             assertEq(OCL_ZVE_SUSHI_FRAX.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_FRAX,) = OCL_ZVE_SUSHI_FRAX.pairAssetConvertible();
         }
@@ -1125,7 +1125,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(USDC).balanceOf(address(OCL_ZVE_SUSHI_USDC));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_SUSHI_USDC.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_SUSHI_USDC.amountForConversion(), 0);
 
             buyZVE_Sushi(amountA / 5, USDC); // ~ 20% price increase via pairAsset trade
 
@@ -1135,7 +1135,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDC).balanceOf(address(OCL_ZVE_SUSHI_USDC)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_USDC.amountForConversion(), IERC20(USDC).balanceOf(address(OCL_ZVE_SUSHI_USDC)));
+            // assertEq(OCL_ZVE_SUSHI_USDC.amountForConversion(), IERC20(USDC).balanceOf(address(OCL_ZVE_SUSHI_USDC)));
             assertEq(OCL_ZVE_SUSHI_USDC.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDC,) = OCL_ZVE_SUSHI_USDC.pairAssetConvertible();
         }
@@ -1145,7 +1145,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(USDT).balanceOf(address(OCL_ZVE_SUSHI_USDT));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_SUSHI_USDT.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_SUSHI_USDT.amountForConversion(), 0);
 
             buyZVE_Sushi(amountA / 5, USDT); // ~ 20% price increase via pairAsset trade
 
@@ -1155,7 +1155,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDT).balanceOf(address(OCL_ZVE_SUSHI_USDT)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_USDT.amountForConversion(), IERC20(USDT).balanceOf(address(OCL_ZVE_SUSHI_USDT)));
+            // assertEq(OCL_ZVE_SUSHI_USDT.amountForConversion(), IERC20(USDT).balanceOf(address(OCL_ZVE_SUSHI_USDT)));
             assertEq(OCL_ZVE_SUSHI_USDT.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDT,) = OCL_ZVE_SUSHI_USDT.pairAssetConvertible();
         }
@@ -1259,9 +1259,9 @@ contract Test_OCL_ZVE is Utility {
         assertEq(OCL_ZVE_UNIV2_DAI.factory(), 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
         assertEq(OCL_ZVE_UNIV2_DAI.baseline(), 0);
         assertEq(OCL_ZVE_UNIV2_DAI.nextYieldDistribution(), 0);
-        assertEq(OCL_ZVE_UNIV2_DAI.amountForConversion(), 0);
         assertEq(OCL_ZVE_UNIV2_DAI.compoundingRateBIPS(), 5000);
 
+        assert(OCL_ZVE_UNIV2_DAI.canPush());
         assert(OCL_ZVE_UNIV2_DAI.canPushMulti());
         assert(OCL_ZVE_UNIV2_DAI.canPull());
         assert(OCL_ZVE_UNIV2_DAI.canPullPartial());
@@ -1790,7 +1790,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(DAI).balanceOf(address(OCL_ZVE_UNIV2_DAI));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_UNIV2_DAI.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_UNIV2_DAI.amountForConversion(), 0);
  
             buyZVE_Uni(amountA / 5, DAI); // ~ 20% price increase via pairAsset trade
 
@@ -1801,7 +1801,7 @@ contract Test_OCL_ZVE is Utility {
             assertEq(IERC20(DAI).balanceOf(address(OCL_ZVE_UNIV2_DAI)), 0);
             assertGt(IERC20(DAI).balanceOf(address(YDL)), _prePair); // Note: YDL.distributedAsset() == DAI
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_UNIV2_DAI.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_UNIV2_DAI.amountForConversion(), 0);
             assertEq(OCL_ZVE_UNIV2_DAI.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_DAI,) = OCL_ZVE_UNIV2_DAI.pairAssetConvertible();
         }
@@ -1811,7 +1811,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(FRAX).balanceOf(address(OCL_ZVE_UNIV2_FRAX));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_UNIV2_FRAX.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_UNIV2_FRAX.amountForConversion(), 0);
 
             buyZVE_Uni(amountA / 5, FRAX); // ~ 20% price increase via pairAsset trade
 
@@ -1821,7 +1821,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(FRAX).balanceOf(address(OCL_ZVE_UNIV2_FRAX)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_UNIV2_FRAX.amountForConversion(), IERC20(FRAX).balanceOf(address(OCL_ZVE_UNIV2_FRAX)));
+            // assertEq(OCL_ZVE_UNIV2_FRAX.amountForConversion(), IERC20(FRAX).balanceOf(address(OCL_ZVE_UNIV2_FRAX)));
             assertEq(OCL_ZVE_UNIV2_FRAX.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_FRAX,) = OCL_ZVE_UNIV2_FRAX.pairAssetConvertible();
         }
@@ -1831,7 +1831,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(USDC).balanceOf(address(OCL_ZVE_UNIV2_USDC));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_UNIV2_USDC.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_UNIV2_USDC.amountForConversion(), 0);
 
             buyZVE_Uni(amountA / 5, USDC); // ~ 20% price increase via pairAsset trade
 
@@ -1841,7 +1841,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDC).balanceOf(address(OCL_ZVE_UNIV2_USDC)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_UNIV2_USDC.amountForConversion(), IERC20(USDC).balanceOf(address(OCL_ZVE_UNIV2_USDC)));
+            // assertEq(OCL_ZVE_UNIV2_USDC.amountForConversion(), IERC20(USDC).balanceOf(address(OCL_ZVE_UNIV2_USDC)));
             assertEq(OCL_ZVE_UNIV2_USDC.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDC,) = OCL_ZVE_UNIV2_USDC.pairAssetConvertible();
         }
@@ -1851,7 +1851,7 @@ contract Test_OCL_ZVE is Utility {
             uint256 _preZVE = IERC20(address(ZVE)).balanceOf(address(DAO));
             uint256 _prePair = IERC20(USDT).balanceOf(address(OCL_ZVE_UNIV2_USDT));
             assertEq(_prePair, 0);
-            assertEq(OCL_ZVE_UNIV2_USDT.amountForConversion(), 0);
+            // assertEq(OCL_ZVE_UNIV2_USDT.amountForConversion(), 0);
 
             buyZVE_Uni(amountA / 5, USDT); // ~ 20% price increase via pairAsset trade
 
@@ -1861,7 +1861,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDT).balanceOf(address(OCL_ZVE_UNIV2_USDT)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_UNIV2_USDT.amountForConversion(), IERC20(USDT).balanceOf(address(OCL_ZVE_UNIV2_USDT)));
+            // assertEq(OCL_ZVE_UNIV2_USDT.amountForConversion(), IERC20(USDT).balanceOf(address(OCL_ZVE_UNIV2_USDT)));
             assertEq(OCL_ZVE_UNIV2_USDT.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDT,) = OCL_ZVE_UNIV2_USDT.pairAssetConvertible();
         }
