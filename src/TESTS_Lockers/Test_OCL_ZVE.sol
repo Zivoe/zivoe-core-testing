@@ -6,6 +6,8 @@ import "../Utility/Utility.sol";
 import "../../lib/zivoe-core-foundry/src/lockers/OCL/OCL_ZVE.sol";
 import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_YDL.sol";
 
+import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20_FreeClaim.sol";
+
 contract Test_OCL_ZVE is Utility {
 
     using SafeERC20 for IERC20;
@@ -21,6 +23,8 @@ contract Test_OCL_ZVE is Utility {
     OCL_ZVE OCL_ZVE_UNIV2_USDT;
 
     OCT_YDL Treasury;
+
+    OCG_ERC20_FreeClaim ZVEClaimer;
 
     function setUp() public {
 
@@ -52,6 +56,13 @@ contract Test_OCL_ZVE is Utility {
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_FRAX), true);
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_USDC), true);
         zvl.try_updateIsLocker(address(GBL), address(OCL_ZVE_SUSHI_USDT), true);
+
+        // Create an OCG locker which moves ZVE from DAO -> OCG ... allows another account to claim.
+        // We need ZVE accessible by someone to test the ZivoeRewards functionality contract (generic $ZVE staking contract).
+        ZVEClaimer = new OCG_ERC20_FreeClaim(address(DAO));
+        assert(zvl.try_updateIsLocker(address(GBL), address(ZVEClaimer), true));
+        assert(god.try_push(address(DAO), address(ZVEClaimer), address(ZVE), 100_000 ether, ""));
+        ZVEClaimer.forward(address(ZVE), 100_000 ether, address(this));
 
     }
 
@@ -1879,53 +1890,73 @@ contract Test_OCL_ZVE is Utility {
 
         if (modularity == 0) {
             (uint256 _preAmt,) = OCL_ZVE_UNIV2_DAI.fetchBasis();
+            emit log_named_uint("_preAmt", _preAmt);
             
             buyZVE_Uni(amountA / 5, DAI); // ~ 20% price increase via pairAsset trade
             (uint256 _postAmt,) = OCL_ZVE_UNIV2_DAI.fetchBasis();
+            emit log_named_uint("_postAmt", _postAmt);
             
             assertGt(_postAmt, _preAmt);
 
-            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(this)) / 2, DAI); // Sell 50% of ZVE
+            address pool = IFactory_OCL_ZVE(OCL_ZVE_UNIV2_DAI.factory()).getPair(OCL_ZVE_UNIV2_DAI.pairAsset(), IZivoeGlobals_OCL_ZVE(OCL_ZVE_UNIV2_DAI.GBL()).ZVE());
+
+            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(pool)) / 2, DAI); // Sell 50% of ZVE
             (uint256 _postAmt2,) = OCL_ZVE_UNIV2_DAI.fetchBasis();
+            emit log_named_uint("_postAmt2", _postAmt2);
             
             assertLt(_postAmt2, _postAmt);
         }
         else if (modularity == 1) {
             (uint256 _preAmt,) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
+            emit log_named_uint("_preAmt", _preAmt);
 
             buyZVE_Uni(amountA / 5, FRAX); // ~ 20% price increase via pairAsset trade
             (uint256 _postAmt,) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
+            emit log_named_uint("_postAmt", _postAmt);
             
             assertGt(_postAmt, _preAmt);
 
-            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(this)) / 2, FRAX); // Sell 50% of ZVE
+            address pool = IFactory_OCL_ZVE(OCL_ZVE_UNIV2_FRAX.factory()).getPair(OCL_ZVE_UNIV2_FRAX.pairAsset(), IZivoeGlobals_OCL_ZVE(OCL_ZVE_UNIV2_FRAX.GBL()).ZVE());
+
+            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(pool)) / 2, FRAX); // Sell 50% of ZVE
             (uint256 _postAmt2,) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
+            emit log_named_uint("_postAmt2", _postAmt2);
             
             assertLt(_postAmt2, _postAmt);
         }
         else if (modularity == 2) {
             (uint256 _preAmt,) = OCL_ZVE_UNIV2_USDC.fetchBasis();
+            emit log_named_uint("_preAmt", _preAmt);
 
             buyZVE_Uni(amountA / 5, USDC); // ~ 20% price increase via pairAsset trade
             (uint256 _postAmt,) = OCL_ZVE_UNIV2_USDC.fetchBasis();
+            emit log_named_uint("_postAmt", _postAmt);
             
             assertGt(_postAmt, _preAmt);
 
-            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(this)) / 2, USDC); // Sell 50% of ZVE
+            address pool = IFactory_OCL_ZVE(OCL_ZVE_UNIV2_USDC.factory()).getPair(OCL_ZVE_UNIV2_USDC.pairAsset(), IZivoeGlobals_OCL_ZVE(OCL_ZVE_UNIV2_USDC.GBL()).ZVE());
+
+            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(pool)) / 2, USDC); // Sell 50% of ZVE
             (uint256 _postAmt2,) = OCL_ZVE_UNIV2_USDC.fetchBasis();
+            emit log_named_uint("_postAmt2", _postAmt2);
             
             assertLt(_postAmt2, _postAmt);
         }
         else if (modularity == 3) {
             (uint256 _preAmt,) = OCL_ZVE_UNIV2_USDT.fetchBasis();
+            emit log_named_uint("_preAmt", _preAmt);
 
             buyZVE_Uni(amountA / 5, USDT); // ~ 20% price increase via pairAsset trade
             (uint256 _postAmt,) = OCL_ZVE_UNIV2_USDT.fetchBasis();
+            emit log_named_uint("_postAmt", _postAmt);
             
             assertGt(_postAmt, _preAmt);
 
-            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(this)) / 2, USDT); // Sell 50% of ZVE
+            address pool = IFactory_OCL_ZVE(OCL_ZVE_UNIV2_USDT.factory()).getPair(OCL_ZVE_UNIV2_USDT.pairAsset(), IZivoeGlobals_OCL_ZVE(OCL_ZVE_UNIV2_USDT.GBL()).ZVE());
+
+            sellZVE_Uni(IERC20(address(ZVE)).balanceOf(address(pool)) / 2, USDT); // Sell 50% of ZVE
             (uint256 _postAmt2,) = OCL_ZVE_UNIV2_USDT.fetchBasis();
+            emit log_named_uint("_postAmt2", _postAmt2);
             
             assertLt(_postAmt2, _postAmt);
         }
