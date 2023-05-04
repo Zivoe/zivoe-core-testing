@@ -844,7 +844,7 @@ contract Test_OCL_ZVE is Utility {
 
     }
 
-    // Note: This does not test the else-if or else branches.
+    // Note: This does not test the else case.
 
     function test_OCL_ZVE_SUSHI_pullFromLockerPartial_state(uint96 randomA, uint96 randomB) public {
 
@@ -1117,7 +1117,6 @@ contract Test_OCL_ZVE is Utility {
             uint256 _prePair = IERC20(DAI).balanceOf(address(YDL));
             uint256 _preNYD = OCL_ZVE_SUSHI_DAI.nextYieldDistribution();
             assertEq(_prePair, 0);
-            // assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
  
             buyZVE_Sushi(amountA / 5, DAI); // ~ 20% price increase via pairAsset trade
 
@@ -1128,7 +1127,6 @@ contract Test_OCL_ZVE is Utility {
             assertEq(IERC20(DAI).balanceOf(address(OCL_ZVE_SUSHI_DAI)), 0);
             assertGt(IERC20(DAI).balanceOf(address(YDL)), _prePair); // Note: YDL.distributedAsset() == DAI
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            // assertEq(OCL_ZVE_SUSHI_DAI.amountForConversion(), 0);
             assertEq(OCL_ZVE_SUSHI_DAI.nextYieldDistribution(), _preNYD + 30 days);
             (_PAC_DAI,) = OCL_ZVE_SUSHI_DAI.fetchBasis();
         }
@@ -1139,7 +1137,6 @@ contract Test_OCL_ZVE is Utility {
             uint256 _prePair = IERC20(FRAX).balanceOf(address(Treasury));
             uint256 _preNYD = OCL_ZVE_SUSHI_FRAX.nextYieldDistribution();
             assertEq(_prePair, 0);
-            // assertEq(OCL_ZVE_SUSHI_FRAX.amountForConversion(), 0);
 
             buyZVE_Sushi(amountA / 5, FRAX); // ~ 20% price increase via pairAsset trade
 
@@ -1149,7 +1146,6 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(FRAX).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            // assertEq(OCL_ZVE_SUSHI_FRAX.amountForConversion(), IERC20(FRAX).balanceOf(address(OCL_ZVE_SUSHI_FRAX)));
             assertEq(OCL_ZVE_SUSHI_FRAX.nextYieldDistribution(), _preNYD + 30 days);
             (_PAC_FRAX,) = OCL_ZVE_SUSHI_FRAX.fetchBasis();
         }
@@ -1160,7 +1156,6 @@ contract Test_OCL_ZVE is Utility {
             uint256 _prePair = IERC20(USDC).balanceOf(address(Treasury));
             uint256 _preNYD = OCL_ZVE_SUSHI_USDC.nextYieldDistribution();
             assertEq(_prePair, 0);
-            // assertEq(OCL_ZVE_SUSHI_USDC.amountForConversion(), 0);
 
             buyZVE_Sushi(amountA / 5, USDC); // ~ 20% price increase via pairAsset trade
 
@@ -1170,7 +1165,6 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDC).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            // assertEq(OCL_ZVE_SUSHI_USDC.amountForConversion(), IERC20(USDC).balanceOf(address(OCL_ZVE_SUSHI_USDC)));
             assertEq(OCL_ZVE_SUSHI_USDC.nextYieldDistribution(), _preNYD + 30 days);
             (_PAC_USDC,) = OCL_ZVE_SUSHI_USDC.fetchBasis();
         }
@@ -1181,7 +1175,6 @@ contract Test_OCL_ZVE is Utility {
             uint256 _prePair = IERC20(USDT).balanceOf(address(Treasury));
             uint256 _preNYD = OCL_ZVE_SUSHI_USDT.nextYieldDistribution();
             assertEq(_prePair, 0);
-            // assertEq(OCL_ZVE_SUSHI_USDT.amountForConversion(), 0);
 
             buyZVE_Sushi(amountA / 5, USDT); // ~ 20% price increase via pairAsset trade
 
@@ -1191,7 +1184,6 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDT).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            // assertEq(OCL_ZVE_SUSHI_USDT.amountForConversion(), IERC20(USDT).balanceOf(address(OCL_ZVE_SUSHI_USDT)));
             assertEq(OCL_ZVE_SUSHI_USDT.nextYieldDistribution(), _preNYD + 30 days);
             (_PAC_USDT,) = OCL_ZVE_SUSHI_USDT.fetchBasis();
         }

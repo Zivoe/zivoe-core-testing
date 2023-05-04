@@ -238,7 +238,9 @@ contract Test_OCE_ZVE is Utility {
             i++;
         }
 
-    }// Validate setExponentialDecayPerSecond() state changes.
+    }
+    
+    // Validate setExponentialDecayPerSecond() state changes.
     // Validate setExponentialDecayPerSecond() restrictions.
     // This includes:
     //  - Only governance contract (TLC / "god") may call this function.
