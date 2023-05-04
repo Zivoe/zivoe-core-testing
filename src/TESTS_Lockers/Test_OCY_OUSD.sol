@@ -94,8 +94,67 @@ contract Test_OCY_OUSD is Utility {
 
     // Validate pushToLocker() state changes.
     // Validate pushToLocker() restrictions.
+    // This includes:
+    //   - asset must be OUSD
+    //   - onlyOwner() modifier
+
+    function test_OCY_OUSD_pushToLocker_restrictions_msgSender() public {
+
+    }
+
+    function test_OCY_OUSD_pushToLocker_restrictions_asset() public {
+        
+    }
+
+    function test_OCY_OUSD_pushToLocker_state() public {
+        
+    }
+
+    // Validate pullFromLocker() state changes.
+    // Validate pullFromLocker() restrictions.
+    // This includes:
+    //   - asset must be OUSD
+    //   - onlyOwner() modifier
+
+    function test_OCY_OUSD_pullFromLocker_restrictions_msgSender() public {
+
+    }
+
+    function test_OCY_OUSD_pullFromLocker_restrictions_asset() public {
+        
+    }
+
+    function test_OCY_OUSD_pullFromLocker_state() public {
+        
+    }
+
+    // Validate pullFromLockerPartial() state changes.
+    // Validate pullFromLockerPartial() restrictions.
+    // This includes:
+    //   - asset must be OUSD
+    //   - onlyOwner() modifier
+
+    function test_OCY_OUSD_pullFromLockerPartial_restrictions_msgSender() public {
+
+    }
+
+    function test_OCY_OUSD_pullFromLockerPartial_restrictions_asset() public {
+        
+    }
+
+    function test_OCY_OUSD_pullFromLockerPartial_state() public {
+        
+    }
+
+    // Validate forwardYield() state changes.
+    // Validate forwardYield() restrictions.
+    // This includes:
+    //   - asset must be OUSD
+    //   - onlyOwner() modifier
 
     function test_OCY_OUSD_forwardYield() public {
+
+        helper_getAndDepositOUSD();
 
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
@@ -115,12 +174,6 @@ contract Test_OCY_OUSD is Utility {
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
 
         OUSDLocker.forwardYield();
-    }
-
-    // Validate rebase() state changes.
-    
-    function test_OCY_OUSD_rebase_state() public {
-
     }
 
     // Validate setOCTYDL() state changes.
