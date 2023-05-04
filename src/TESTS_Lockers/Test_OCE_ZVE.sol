@@ -239,6 +239,31 @@ contract Test_OCE_ZVE is Utility {
         }
 
     }
+    
+    // Validate setExponentialDecayPerSecond() state changes.
+    // Validate setExponentialDecayPerSecond() restrictions.
+    // This includes:
+    //  - Only governance contract (TLC / "god") may call this function.
+
+    function test_OCE_ZVE_Live_setExponentialDecayPerSecond_restrictions_msgSender(uint256 random) public {
+
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCE_ZVE::setExponentialDecayPerSecond() _msgSender() != IZivoeGlobals_OCE_ZVE(GBL).TLC()");
+        OCE_ZVE_Live.setExponentialDecayPerSecond(random);
+        hevm.stopPrank();
+    }
+
+    function test_OCE_ZVE_Live_setExponentialDecayPerSecond_state(uint256 random) public {
+        
+        // Pre-state.
+        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999998 / 100000000);
+
+        assert(god.try_setExponentialDecayPerSecond(address(OCE_ZVE_Live), random));
+        
+        // Post-state.
+        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), random);
+
+    }
 
     // Examine amountDistributable() values.
 
@@ -291,31 +316,6 @@ contract Test_OCE_ZVE is Utility {
         }
 
         // After 360 days ... 53682667269999381552324 (53.68k $ZVE)
-
-    }
-
-    // Validate setExponentialDecayPerSecond() state changes.
-    // Validate setExponentialDecayPerSecond() restrictions.
-    // This includes:
-    //  - Only governance contract (TLC / "god") may call this function.
-
-    function test_OCE_ZVE_Live_setExponentialDecayPerSecond_restrictions_msgSender(uint256 random) public {
-
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("OCE_ZVE::setExponentialDecayPerSecond() _msgSender() != IZivoeGlobals_OCE_ZVE(GBL).TLC()");
-        OCE_ZVE_Live.setExponentialDecayPerSecond(random);
-        hevm.stopPrank();
-    }
-
-    function test_OCE_ZVE_Live_setExponentialDecayPerSecond_state(uint256 random) public {
-        
-        // Pre-state.
-        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999998 / 100000000);
-
-        assert(god.try_setExponentialDecayPerSecond(address(OCE_ZVE_Live), random));
-        
-        // Post-state.
-        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), random);
 
     }
 
