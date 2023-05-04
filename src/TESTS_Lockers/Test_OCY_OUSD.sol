@@ -308,17 +308,13 @@ contract Test_OCY_OUSD is Utility {
 
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), 100_000 ether);
-        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
-        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
-        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
+        deal(DAI, address(OUSD_VAULT), randomIncrease);
+        deal(FRAX, address(OUSD_VAULT), randomIncrease);
         IVault(OUSD_VAULT).rebase();
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), 100_000 ether);
-        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
-        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
-        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
+        deal(DAI, address(OUSD_VAULT), randomIncrease);
+        deal(FRAX, address(OUSD_VAULT), randomIncrease);
         IVault(OUSD_VAULT).rebase();
 
         // Can't call if not past the INTERVAL
@@ -338,25 +334,31 @@ contract Test_OCY_OUSD is Utility {
 
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), 100_000 ether);
-        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
-        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
-        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
+        deal(DAI, address(OUSD_VAULT), randomIncrease);
+        deal(FRAX, address(OUSD_VAULT), randomIncrease);
         IVault(OUSD_VAULT).rebase();
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), 100_000 ether);
-        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
-        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
-        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
+        deal(DAI, address(OUSD_VAULT), randomIncrease);
+        deal(FRAX, address(OUSD_VAULT), randomIncrease);
         IVault(OUSD_VAULT).rebase();
         hevm.warp(block.timestamp + 14 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
 
         // Pre-state.
-        uint256 distributionLast = OUSDLocker.distributionLast();
+        uint256 amountOUSD = IERC20(OUSD).balanceOf(address(OUSDLocker));
+        uint256 preBasis = OUSDLocker.basis();
+        uint256 amountOUSD_OCT_YDL = IERC20(OUSD).balanceOf(address(TreasuryYDL));
 
+        assert(amountOUSD > preBasis);  // Assuming this.
+
+        hevm.expectEmit(false, false, false, true, address(OUSDLocker));
+        emit YieldForwarded(amountOUSD - preBasis, preBasis);
         OUSDLocker.forwardYield();
+
+        // Post-state.
+        assertEq(OUSDLocker.basis(), preBasis);
+        assertEq(OUSDLocker.distributionLast(), block.timestamp);
     }
 
     // Validate setOCTYDL() state changes.
