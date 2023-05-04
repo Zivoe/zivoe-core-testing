@@ -7,17 +7,7 @@ import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_DAO.sol";
 
 import "../../lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
-interface IVault {
-    function rebase() external;
-}
-
-
-interface IOUSD {
-    function rebaseOptIn() external;
-}
-
-
-contract Test_OCY_OUSD is Utility {
+contract Test_OCT_DAO is Utility {
 
     using SafeERC20 for IERC20;
 
@@ -82,29 +72,6 @@ contract Test_OCY_OUSD is Utility {
         assertEq(0, IERC20(assetIn).balanceOf(address(TreasuryDAO)));
         assert(IERC20(assetOut).balanceOf(address(DAO)) > 0);
 
-        assert(zvl.try_updateIsLocker(address(GBL), address(OUSDLocker), true));
-        assert(god.try_push(address(DAO), address(OUSDLocker), OUSD, IERC20(OUSD).balanceOf(address(DAO)), ""));
-
-        OUSDLocker.rebase();
-
-        hevm.warp(block.timestamp + 1 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), 100_000 ether);
-        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
-        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
-        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
-        IVault(OUSD_VAULT).rebase();
-        hevm.warp(block.timestamp + 1 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), 100_000 ether);
-        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
-        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
-        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
-        IVault(OUSD_VAULT).rebase();
-        hevm.warp(block.timestamp + 14 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-
-        OUSDLocker.forwardYield();
     }
 
 }

@@ -40,12 +40,12 @@ contract Test_OCY_OUSD is Utility {
         OUSDLocker = new OCY_OUSD(address(DAO), address(GBL), address(TreasuryYDL));
 
     }
-    
+
     event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
 
     event Logger(address);
 
-    function test_OCT_DAO_ConvertAndForward() public {
+    function test_OCY_OUSD_forwardYield() public {
 
         address assetIn = USDC;
         address assetOut = OUSD;
