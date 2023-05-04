@@ -45,7 +45,7 @@ contract Test_OCT_DAO is Utility {
         assert(TreasuryDAO.canPullMultiPartial());
     }
 
-    function test_OCT_DAO_ConvertAndForward() public {
+    function test_OCT_DAO_convertAndForward() public {
 
         address assetIn = USDC;
         address assetOut = OUSD;
