@@ -15,7 +15,13 @@ interface IVault {
 
 
 interface IOUSD {
+    // enum RebaseOptions {
+    //     NotSet,
+    //     OptOut,
+    //     OptIn
+    // }
     function rebaseOptIn() external;
+    function rebaseState(address) external returns (uint8); // Returns RebaseOptions enum (see above).
 }
 
 
@@ -40,7 +46,7 @@ contract Test_OCY_OUSD is Utility {
         OUSDLocker = new OCY_OUSD(address(DAO), address(GBL), address(TreasuryYDL));
 
         // This test suite assumes someone has called the rebase() function.
-        OUSDLocker.rebase();
+        // OUSDLocker.rebase();
 
     }
 
@@ -89,6 +95,29 @@ contract Test_OCY_OUSD is Utility {
         assertEq(OUSDLocker.distributionLast(), block.timestamp);
         assertEq(OUSDLocker.basis(), 0);
         assertEq(OUSDLocker.INTERVAL(), 14 days);
+
+    }
+
+    // Validate rebase() state changes.
+    
+    function test_OCY_OUSD_rebase() public {
+
+        // enum RebaseOptions {
+        //     NotSet,
+        //     OptOut,
+        //     OptIn
+        // }
+
+        // Pre-state.
+        uint8 rebaseSetting = IOUSD(OUSD).rebaseState(address(OUSDLocker));
+        assertEq(rebaseSetting, 0);
+
+        // rebase().
+        OUSDLocker.rebase();
+        
+        // Post-state.
+        rebaseSetting = IOUSD(OUSD).rebaseState(address(OUSDLocker));
+        assertEq(rebaseSetting, 2);
 
     }
 
