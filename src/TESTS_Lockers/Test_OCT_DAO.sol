@@ -60,13 +60,15 @@ contract Test_OCT_DAO is Utility {
 
         emit log_named_uint("TreasuryDAO assetIn pre-swap balance:", IERC20(assetIn).balanceOf(address(TreasuryDAO)));
         emit log_named_uint("TreasuryDAO assetOut pre-swap balance:", IERC20(assetOut).balanceOf(address(TreasuryDAO)));
+        emit log_named_uint("DAO assetOut pre-swap balance:", IERC20(assetOut).balanceOf(address(DAO)));
         emit Logger(address(TreasuryDAO));
         
         assert(zvl.try_updateIsKeeper(address(GBL), address(this), true));
         TreasuryDAO.convertAndForward(assetIn, assetOut, dataSwap);
 
         emit log_named_uint("TreasuryDAO assetIn after-swap balance:", IERC20(assetIn).balanceOf(address(TreasuryDAO)));
-        emit log_named_uint("TreasuryDAO assetOut after-swap balance:", IERC20(assetOut).balanceOf(address(DAO)));
+        emit log_named_uint("TreasuryDAO assetOut after-swap balance:", IERC20(assetOut).balanceOf(address(TreasuryDAO)));
+        emit log_named_uint("DAO assetOut after-swap balance:", IERC20(assetOut).balanceOf(address(DAO)));
 
         // assert balances after swap are correct.
         assertEq(0, IERC20(assetIn).balanceOf(address(TreasuryDAO)));
