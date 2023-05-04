@@ -294,12 +294,47 @@ contract Test_OCY_OUSD is Utility {
     // Validate forwardYield() state changes.
     // Validate forwardYield() restrictions.
     // This includes:
-    //   - asset must be OUSD
-    //   - onlyOwner() modifier
+    //   - Must be past the INTERVAL
 
-    function test_OCY_OUSD_forwardYield() public {
+    function test_OCY_OUSD_forwardYield_restrictions_interval(uint96 random) public {
 
+        uint256 randomIncrease = uint256(random) + 100_000 ether;
+
+        // NOTE: Must ensure rebase() is called in OUSDLocker.
+        OUSDLocker.rebase();
         helper_getAndDepositOUSD();
+
+        // Simulate OUSD protocol generating yield and rebasing it's overall protocol token (OUSD).
+
+        hevm.warp(block.timestamp + 1 days);
+        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
+        deal(DAI, address(OUSD_VAULT), 100_000 ether);
+        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
+        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
+        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
+        IVault(OUSD_VAULT).rebase();
+        hevm.warp(block.timestamp + 1 days);
+        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
+        deal(DAI, address(OUSD_VAULT), 100_000 ether);
+        deal(USDC, address(OUSD_VAULT), 100_000 * 10**6);
+        deal(FRAX, address(OUSD_VAULT), 100_000 ether);
+        deal(USDT, address(OUSD_VAULT), 100_000 * 10**6);
+        IVault(OUSD_VAULT).rebase();
+
+        // Can't call if not past the INTERVAL
+        hevm.expectRevert("OCY_OUSD::forwardYield() block.timestamp <= distributionLast + INTERVAL");
+        OUSDLocker.forwardYield();
+    }
+
+    function test_OCY_OUSD_forwardYield_state(uint96 random) public {
+
+        uint256 randomIncrease = uint256(random) + 100_000 ether;
+
+        // NOTE: Must ensure rebase() is called in OUSDLocker.
+        OUSDLocker.rebase();
+        helper_getAndDepositOUSD();
+
+        // Simulate OUSD protocol generating yield and rebasing it's overall protocol token (OUSD).
 
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
@@ -317,6 +352,9 @@ contract Test_OCY_OUSD is Utility {
         IVault(OUSD_VAULT).rebase();
         hevm.warp(block.timestamp + 14 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
+
+        // Pre-state.
+        uint256 distributionLast = OUSDLocker.distributionLast();
 
         OUSDLocker.forwardYield();
     }
