@@ -65,6 +65,14 @@ contract Test_OCL_ZVE is Utility {
         ZVEClaimer.forward(address(ZVE), 100_000 ether, address(this));
 
     }
+    
+    event LiquidityTokensBurned(uint256 amountBurned, uint256 claimedZVE, uint256 claimedPairAsset);
+
+    event LiquidityTokensMinted(uint256 amountMinted, uint256 depositedZVE, uint256 depositedPairAsset);
+
+    event UpdatedCompoundingRateBIPS(uint256 oldValue, uint256 newValue);
+
+    event YieldForwarded(address indexed asset, uint256 amount);
 
     // ----------------------
     //    Helper Functions
@@ -725,7 +733,7 @@ contract Test_OCL_ZVE is Utility {
         else { revert(); }
     }
 
-    // Note: This does not test the else-if or else branches.
+    // Note: This does not test the else branch.
 
     function test_OCL_ZVE_SUSHI_pullFromLocker_pair_state(uint96 randomA, uint96 randomB) public {
 
