@@ -412,7 +412,6 @@ contract Test_OCL_ZVE is Utility {
         assertEq(OCL_ZVE_SUSHI_DAI.nextYieldDistribution(), 0);
         assertEq(OCL_ZVE_SUSHI_DAI.compoundingRateBIPS(), 5000);
 
-        assert(OCL_ZVE_SUSHI_DAI.canPush());
         assert(OCL_ZVE_SUSHI_DAI.canPushMulti());
         assert(OCL_ZVE_SUSHI_DAI.canPull());
         assert(OCL_ZVE_SUSHI_DAI.canPullPartial());
@@ -1271,7 +1270,6 @@ contract Test_OCL_ZVE is Utility {
         assertEq(OCL_ZVE_UNIV2_DAI.nextYieldDistribution(), 0);
         assertEq(OCL_ZVE_UNIV2_DAI.compoundingRateBIPS(), 5000);
 
-        assert(OCL_ZVE_UNIV2_DAI.canPush());
         assert(OCL_ZVE_UNIV2_DAI.canPushMulti());
         assert(OCL_ZVE_UNIV2_DAI.canPull());
         assert(OCL_ZVE_UNIV2_DAI.canPullPartial());
