@@ -39,13 +39,12 @@ contract Test_OCY_OUSD is Utility {
 
         OUSDLocker = new OCY_OUSD(address(DAO), address(GBL), address(TreasuryYDL));
 
+        // This test suite assumes someone has called the rebase() function.
+        OUSDLocker.rebase();
+
     }
 
-    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
-
-    event Logger(address);
-
-    function test_OCY_OUSD_forwardYield() public {
+    function helper_getAndDepositOUSD() public {
 
         address assetIn = USDC;
         address assetOut = OUSD;
@@ -75,7 +74,28 @@ contract Test_OCY_OUSD is Utility {
         assert(zvl.try_updateIsLocker(address(GBL), address(OUSDLocker), true));
         assert(god.try_push(address(DAO), address(OUSDLocker), OUSD, IERC20(OUSD).balanceOf(address(DAO)), ""));
 
-        OUSDLocker.rebase();
+    }
+
+    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+
+    event Logger(address);
+
+    // Validate intial state of OUSDLocker
+
+    function test_OCY_OUSD_init() public {
+
+        assertEq(OUSDLocker.OUSD(), 0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86);
+        assertEq(OUSDLocker.GBL(), address(GBL));
+        assertEq(OUSDLocker.distributionLast(), block.timestamp);
+        assertEq(OUSDLocker.basis(), 0);
+        assertEq(OUSDLocker.INTERVAL(), 14 days);
+
+    }
+
+    // Validate pushToLocker() state changes.
+    // Validate pushToLocker() restrictions.
+
+    function test_OCY_OUSD_forwardYield() public {
 
         hevm.warp(block.timestamp + 1 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
@@ -95,6 +115,12 @@ contract Test_OCY_OUSD is Utility {
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
 
         OUSDLocker.forwardYield();
+    }
+
+    // Validate rebase() state changes.
+    
+    function test_OCY_OUSD_rebase_state() public {
+
     }
 
     // Validate setOCTYDL() state changes.
