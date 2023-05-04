@@ -70,6 +70,8 @@ contract Test_OCL_ZVE is Utility {
 
     event LiquidityTokensMinted(uint256 amountMinted, uint256 depositedZVE, uint256 depositedPairAsset);
 
+    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+
     event UpdatedCompoundingRateBIPS(uint256 oldValue, uint256 newValue);
 
     event YieldForwarded(address indexed asset, uint256 amount);
@@ -1997,6 +1999,36 @@ contract Test_OCL_ZVE is Utility {
             assertLt(_postAmt2, _postAmt);
         }
         else { revert(); }
+
+    }
+
+    // Validate setOCTYDL() state changes.
+    // Validate setOCTYDL() restrictions.
+    // This includes:
+    //   - _msgSender() must be ZVL
+
+    function test_OCL_ZVE_SUSHI_DAI_setOCTYDL_restrictions_msgSender() public {
+        // Can't call if _msgSender() is not ZVL.
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCL_ZVE::setOCTYDL() _msgSender() != IZivoeGlobals_OCL_ZVE(GBL).ZVL()");
+        OCL_ZVE_SUSHI_DAI.setOCTYDL(address(bob));
+        hevm.stopPrank();
+    }
+
+    function test_OCL_ZVE_SUSHI_DAI_setOCTYDL_state(address fuzzed) public {
+        
+        // Pre-state.
+        assertEq(OCL_ZVE_SUSHI_DAI.OCT_YDL(), address(Treasury));
+
+        // setOCTYDL().
+        hevm.expectEmit(true, true, false, false, address(OCL_ZVE_SUSHI_DAI));
+        emit OCTYDLSetZVL(address(fuzzed), address(Treasury));
+        hevm.startPrank(address(zvl));
+        OCL_ZVE_SUSHI_DAI.setOCTYDL(address(fuzzed));
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(OCL_ZVE_SUSHI_DAI.OCT_YDL(), address(fuzzed));
 
     }
 

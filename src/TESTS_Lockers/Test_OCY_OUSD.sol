@@ -91,7 +91,7 @@ contract Test_OCY_OUSD is Utility {
         hevm.warp(block.timestamp + 14 days);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OCY_A)));
 
-        OCY_A.swipeBasis();
+        OCY_A.forwardYield();
     }
 
 }
