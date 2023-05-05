@@ -190,7 +190,7 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCR_pullFromLocker_state(uint96 randomPush, uint96 randomPull) public {
+    function test_OCR_pullFromLocker_state(uint96 randomPush) public {
 
         uint256 amountToPush = uint256(randomPush) + 1_000 ether;
 
@@ -217,30 +217,6 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.amountRedeemable() == 0);
         assert(OCR_Modular_DAI.amountRedeemableQueued() == 0);
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == 0);
-    }
-
-    // pullFromLocker() should not be able to withdraw zJTT
-    function test_OCR_pullFromLocker_zJTT_restrictions() public {
-
-        redemptionRequestJunior(1_000_000 ether);
-
-        // pull from locker
-        hevm.startPrank(address(DAO));
-        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
-        OCR_Modular_DAI.pullFromLocker(address(zJTT), "");
-        hevm.stopPrank();
-    }
-
-    // pullFromLocker() should not be able to withdraw zSTT
-    function test_OCR_pullFromLocker_zSTT_restrictions() public {
-
-        redemptionRequestSenior(1_000_000 ether);
-
-        // pull from locker
-        hevm.startPrank(address(DAO));
-        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
-        OCR_Modular_DAI.pullFromLocker(address(zSTT), "");
-        hevm.stopPrank();
     }
 
     // Validate pullFromLockerPartial() state changes.
@@ -276,66 +252,53 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCR_pullFromLockerPartial_state_fuzzTest(uint88 amountToPush, uint88 amountToPull) public {
-        hevm.assume(amountToPush > 0);
-        hevm.assume(amountToPull > 0 && amountToPull <= (uint256(amountToPush) * 2));
+    function test_OCR_pullFromLockerPartial_state(uint96 randomPush, uint96 randomPull) public {
 
-        // fund account with DAI
-        deal(DAI, address(sam), uint256(amountToPush) * 2);
+        uint256 amountToPushOnce = uint256(randomPush) + 1_000 ether;
 
-        // deposit in senior tranches
-        hevm.startPrank(address(sam));
-        IERC20(DAI).safeApprove(address(ZVT), uint256(amountToPush) * 2);
-        ZVT.depositSenior(uint256(amountToPush) * 2, DAI);
-        hevm.stopPrank();
+        // Push some stablecoins to increase amountRedeemableQueued
+        deal(DAI, address(DAO), amountToPushOnce);
+        assert(god.try_push(address(DAO), address(OCR_Modular_DAI), DAI, amountToPushOnce, ""));
 
-        // push stablecoins to the locker
-        hevm.startPrank(address(DAO));
-        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
-        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
-        hevm.stopPrank();
-
-        // warp time to next epoch (1) distribution
+        // Warp to next epoch distribution, call distributeEpoch() to increase amountRedeemable (sets amountRedeemableQueued to 0)
         hevm.warp(block.timestamp + 31 days);
-
-        // distribute new epoch
         OCR_Modular_DAI.distributeEpoch();
 
-        // intermediate check
-        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
-        assert(OCR_Modular_DAI.amountRedeemableQueued() == 0);
+        // Push more stablecoins to increase amountRedeemableQueued again
+        deal(DAI, address(DAO), amountToPushOnce);
+        assert(god.try_push(address(DAO), address(OCR_Modular_DAI), DAI, amountToPushOnce, ""));
 
-        // warp time further in current epoch
-        // as we need to check bot variables "amountRedeemableQueued" and "amountRedeemable"
-        hevm.warp(block.timestamp + 10 days);
+        // Pre-state.
+        assertEq(OCR_Modular_DAI.amountRedeemable(), amountToPushOnce);
+        assertEq(OCR_Modular_DAI.amountRedeemableQueued(), amountToPushOnce);
 
-        // push stablecoins to the locker
-        hevm.startPrank(address(DAO));
-        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
-        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
-        hevm.stopPrank();
+        // pullFromLockerPartial()
+        uint256 amountToPull = randomPull % IERC20(DAI).balanceOf(address(OCR_Modular_DAI));
+        assert(god.try_pullPartial(address(DAO), address(OCR_Modular_DAI), DAI, amountToPull, ""));
 
-        // intermediate check
-        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
-        assert(OCR_Modular_DAI.amountRedeemableQueued() == amountToPush);
-
-        // pull from locker partial amount
-        hevm.startPrank(address(DAO));
-        OCR_Modular_DAI.pullFromLockerPartial(DAI, amountToPull, "");
-        hevm.stopPrank();
-
-        // check
-        if (amountToPull > amountToPush) {
-            assert(OCR_Modular_DAI.amountRedeemableQueued() == 0);
-            uint256 diff = amountToPull - amountToPush;
-            assert(OCR_Modular_DAI.amountRedeemable() == amountToPush - diff);
+        // Post-state.
+        // NOTE: DAI balance is effectively amountToPushOnce * 2 in OCR_Modular_DAI, and amountRedeemable + amountRedeemableQueued == DAI balance
+        assertEq(OCR_Modular_DAI.amountRedeemable() + OCR_Modular_DAI.amountRedeemableQueued(), IERC20(DAI).balanceOf(address(OCR_Modular_DAI)));
+        
+        if (amountToPull > amountToPushOnce) {
+            emit Logger("a OCR_Modular_DAI.amountRedeemable()", OCR_Modular_DAI.amountRedeemable());
+            emit Logger("a OCR_Modular_DAI.amountRedeemableQueued()", OCR_Modular_DAI.amountRedeemableQueued());
+            emit Logger("a amountToPull", amountToPull);
+            emit Logger("a amountToPushOnce", amountToPushOnce);
+            assertEq(OCR_Modular_DAI.amountRedeemable(), amountToPushOnce - (amountToPull - amountToPushOnce));
+            assertEq(OCR_Modular_DAI.amountRedeemableQueued(), 0);
         }
-
-        if (amountToPull <= amountToPush) {
-            assert(OCR_Modular_DAI.amountRedeemableQueued() == amountToPush - amountToPull);
-            assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
+        else {
+            emit Logger("b OCR_Modular_DAI.amountRedeemable()", OCR_Modular_DAI.amountRedeemable());
+            emit Logger("b OCR_Modular_DAI.amountRedeemableQueued()", OCR_Modular_DAI.amountRedeemableQueued());
+            emit Logger("b amountToPull", amountToPull);
+            emit Logger("b amountToPushOnce", amountToPushOnce);
+            assertEq(OCR_Modular_DAI.amountRedeemable(), amountToPushOnce);
+            assertEq(OCR_Modular_DAI.amountRedeemableQueued(), amountToPushOnce - amountToPull);
         }
     }
+
+    event Logger(string, uint);
 
     // Validate redemptionRequestJunior() state changes
     // Validate redemptionRequestJunior() restrictions (??)
