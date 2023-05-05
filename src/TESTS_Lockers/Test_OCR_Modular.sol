@@ -157,38 +157,64 @@ contract Test_OCR_Modular is Utility {
 
     }
 
-    // validate pullFromLocker() state changes
-    function test_OCR_pullFromLocker_state() public {
-        uint256 amountToPush = 4_000_000 ether;
+    // Validate pullFromLocker() state changes.
+    // Validate pullFromLocker() restrictions.
+    // This includes:
+    //   - _msgSender() must be owner
+    //   - asset can't be zJTT or zSTT
+    
+    function test_OCR_pullFromLocker_restrictions_owner() public {
 
-        // push stablecoins to the locker
-        hevm.startPrank(address(DAO));
-        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
-        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
-        hevm.stopPrank();
-
-        // warp time to next epoch distribution
-        hevm.warp(block.timestamp + 31 days);
-
-        // distribute new epoch
-        OCR_Modular_DAI.distributeEpoch();
-
-        // push stablecoins to the locker
-        hevm.startPrank(address(DAO));
-        IERC20(DAI).safeApprove(address(OCR_Modular_DAI), amountToPush);
-        OCR_Modular_DAI.pushToLocker(DAI, amountToPush, "");
-        hevm.stopPrank();
-
-        // pre check
-        assert(OCR_Modular_DAI.amountRedeemable() == amountToPush);
-        assert(OCR_Modular_DAI.amountRedeemableQueued() == amountToPush);
-
-        // pull from locker
-        hevm.startPrank(address(DAO));
+        // Can't push to locker if _msgSender != owner
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
         OCR_Modular_DAI.pullFromLocker(DAI, "");
         hevm.stopPrank();
+    }
+    
+    function test_OCR_pullFromLocker_restrictions_zJTT() public {
 
-        // check
+        // Can't pull from locker if asset == zJTT
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLocker(address(zJTT), "");
+        hevm.stopPrank();
+    }
+    
+    function test_OCR_pullFromLocker_restrictions_zSTT() public {
+
+        // Can't pull from locker if asset == zSTT
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLocker(address(zSTT), "");
+        hevm.stopPrank();
+    }
+
+    // validate pullFromLocker() state changes
+    function test_OCR_pullFromLocker_state(uint96 randomPush, uint96 randomPull) public {
+
+        uint256 amountToPush = uint256(randomPush) + 1_000 ether;
+
+        // Push some stablecoins to increase amountRedeemableQueued
+        deal(DAI, address(DAO), amountToPush);
+        assert(god.try_push(address(DAO), address(OCR_Modular_DAI), DAI, amountToPush, ""));
+
+        // Warp to next epoch distribution, call distributeEpoch() to increase amountRedeemable (sets amountRedeemableQueued to 0)
+        hevm.warp(block.timestamp + 31 days);
+        OCR_Modular_DAI.distributeEpoch();
+
+        // Push more stablecoins to increase amountRedeemableQueued again
+        deal(DAI, address(DAO), amountToPush);
+        assert(god.try_push(address(DAO), address(OCR_Modular_DAI), DAI, amountToPush, ""));
+
+        // Pre-state.
+        assertEq(OCR_Modular_DAI.amountRedeemable(), amountToPush);
+        assertEq(OCR_Modular_DAI.amountRedeemableQueued(), amountToPush);
+
+        // pullFromLocker()
+        assert(god.try_pull(address(DAO), address(OCR_Modular_DAI), DAI, ""));
+
+        // Post-state.
         assert(OCR_Modular_DAI.amountRedeemable() == 0);
         assert(OCR_Modular_DAI.amountRedeemableQueued() == 0);
         assert(IERC20(DAI).balanceOf(address(OCR_Modular_DAI)) == 0);
