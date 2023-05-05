@@ -91,7 +91,8 @@ contract Test_OCR_Modular is Utility {
     //    Unit Tests
     // ----------------
 
-    // Validate initial state.
+    // Validate initial state of OCR_Modular.
+
     function test_OCR_init() public {
         
         // Ownership.
@@ -113,6 +114,47 @@ contract Test_OCR_Modular is Utility {
         assert(OCR_Modular_DAI.canPush());
         assert(OCR_Modular_DAI.canPull());
         assert(OCR_Modular_DAI.canPullPartial());
+    }
+
+    // Validate pushToLocker() state changes.
+    // Validate pushToLocker() restrictions.
+    // This includes:
+    //   - _msgSender() must be owner
+    //   - asset must be stablecoin (specified in state variable)
+    
+    function test_OCR_pushToLocker_restrictions_owner() public {
+
+        // Can't push to locker if _msgSender != owner
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        OCR_Modular_DAI.pushToLocker(FRAX, 1_000 ether, "");
+        hevm.stopPrank();
+    }
+    
+    function test_OCR_pushToLocker_restrictions_stablecoin() public {
+
+        // Can't push to locker if asset != stablecoin
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pushToLocker() asset != stablecoin");
+        OCR_Modular_DAI.pushToLocker(FRAX, 1_000 ether, "");
+        hevm.stopPrank();
+    }
+
+    function test_OCR_pushToLocker_state(uint96 random) public {
+
+        uint256 amount = uint256(random);
+
+        deal(DAI, address(DAO), amount);
+
+        // Pre-state.
+        assertEq(OCR_Modular_DAI.amountRedeemableQueued(), 0);
+
+        // pushToLocker().
+        assert(god.try_push(address(DAO), address(OCR_Modular_DAI), DAI, amount, ""));
+
+        // Post-state.
+        assertEq(OCR_Modular_DAI.amountRedeemableQueued(), amount);
+
     }
 
     // validate pullFromLocker() state changes
@@ -253,16 +295,6 @@ contract Test_OCR_Modular is Utility {
         hevm.startPrank(address(DAO));
         hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
         OCR_Modular_DAI.pullFromLockerPartial(address(zSTT), 1, "");
-        hevm.stopPrank();
-    }
-
-    // pushToLocker() should not be able to push an asset other than "stablecoin"
-    function test_OCR_pushToLocker_restrictions() public {
-
-        // push other stablecoin to locker
-        hevm.startPrank(address(DAO));
-        hevm.expectRevert("OCR_Modular::pushToLocker() asset != stablecoin");
-        OCR_Modular_DAI.pushToLocker(FRAX, 1_000 ether, "");
         hevm.stopPrank();
     }
 
