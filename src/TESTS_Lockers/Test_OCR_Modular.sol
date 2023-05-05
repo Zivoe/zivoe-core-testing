@@ -165,7 +165,7 @@ contract Test_OCR_Modular is Utility {
     
     function test_OCR_pullFromLocker_restrictions_owner() public {
 
-        // Can't push to locker if _msgSender != owner
+        // Can't pull from locker if _msgSender != owner
         hevm.startPrank(address(bob));
         hevm.expectRevert("Ownable: caller is not the owner");
         OCR_Modular_DAI.pullFromLocker(DAI, "");
@@ -190,7 +190,6 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
     }
 
-    // validate pullFromLocker() state changes
     function test_OCR_pullFromLocker_state(uint96 randomPush, uint96 randomPull) public {
 
         uint256 amountToPush = uint256(randomPush) + 1_000 ether;
@@ -244,7 +243,39 @@ contract Test_OCR_Modular is Utility {
         hevm.stopPrank();
     }
 
-    // validate pullFromLockerPartial() state changes
+    // Validate pullFromLockerPartial() state changes.
+    // Validate pullFromLockerPartial() restrictions.
+    // This includes:
+    //   - _msgSender() must be owner
+    //   - asset can't be zJTT or zSTT
+    
+    function test_OCR_pullFromLockerPartial_restrictions_owner() public {
+
+        // Can't pull from locker if _msgSender != owner
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        OCR_Modular_DAI.pullFromLockerPartial(DAI, 10, "");
+        hevm.stopPrank();
+    }
+    
+    function test_OCR_pullFromLockerPartial_restrictions_zJTT() public {
+
+        // Can't pull from locker if asset == zJTT
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLockerPartial(address(zJTT), 10, "");
+        hevm.stopPrank();
+    }
+    
+    function test_OCR_pullFromLockerPartial_restrictions_zSTT() public {
+
+        // Can't pull from locker if asset == zSTT
+        hevm.startPrank(address(DAO));
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
+        OCR_Modular_DAI.pullFromLockerPartial(address(zSTT), 10, "");
+        hevm.stopPrank();
+    }
+
     function test_OCR_pullFromLockerPartial_state_fuzzTest(uint88 amountToPush, uint88 amountToPull) public {
         hevm.assume(amountToPush > 0);
         hevm.assume(amountToPull > 0 && amountToPull <= (uint256(amountToPush) * 2));
@@ -306,25 +337,11 @@ contract Test_OCR_Modular is Utility {
         }
     }
 
-    // validate pullFromLockerPartial() restrictions, pull zJTT 
-    function test_OCR_pullFromLockerPartial_zJTT_restrictions() public {
-        // try to pull zJTT from locker
-        hevm.startPrank(address(DAO));
-        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
-        OCR_Modular_DAI.pullFromLockerPartial(address(zJTT), 1, "");
-        hevm.stopPrank();
-    }
-
-    // validate pullFromLockerPartial() restrictions, pull zSTT
-    function test_OCR_pullFromLockerPartial_zSTT_restrictions() public {
-        // try to pull zJTT from locker
-        hevm.startPrank(address(DAO));
-        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
-        OCR_Modular_DAI.pullFromLockerPartial(address(zSTT), 1, "");
-        hevm.stopPrank();
-    }
-
     // Validate redemptionRequestJunior() state changes
+    // Validate redemptionRequestJunior() restrictions (??)
+    // This includes:
+    //   - None (?)
+
     function test_OCR_redemptionRequestJunior_state() public {
         
         uint256 amountToRedeem = 2_000_000 ether;
