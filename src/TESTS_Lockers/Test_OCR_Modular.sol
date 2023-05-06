@@ -628,6 +628,104 @@ contract Test_OCR_Modular is Utility {
 
     }
 
+    function test_OCR_processRequest_state_USDC(uint96 amountJunior, uint96 amountSenior, uint96 amountUSDC, uint96 defaults) public {
+        
+        hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT / 2);
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT / 2);
+        hevm.assume(defaults <= startingSupplySTT + startingSupplyJTT);
+
+        // Create 4 different requests (2 senior, 2 junior)
+        uint id_senior = helper_createRequest_USDC(amountSenior, true);
+        uint id_junior = helper_createRequest_USDC(amountJunior, false);
+
+        id_senior = helper_createRequest_USDC(amountSenior, true);
+        id_junior = helper_createRequest_USDC(amountJunior, false);
+
+        // Increase defaults in system
+        assert(god.try_increaseDefaults(address(OCG_Defaults_Test), defaults));
+        assertEq(GBL.defaults(), defaults);
+
+        // Warp to epoch start, tickEpoch
+        hevm.warp(OCR_USDC.epoch() + 14 days + 1 seconds);
+        OCR_USDC.tickEpoch();
+
+        assertEq(OCR_USDC.redemptionsAllowedSenior(), amountSenior * 2);
+        assertEq(OCR_USDC.redemptionsAllowedJunior(), amountJunior * 2);
+
+        // Provide stablecoin to OCR_USDC
+        deal(USDC, address(OCR_USDC), amountUSDC);
+
+        uint256 totalRedemptions = OCR_USDC.redemptionsAllowedSenior() * (BIPS - OCR_USDC.epochDiscountSenior()) + (
+            OCR_USDC.redemptionsAllowedJunior() * (BIPS - OCR_USDC.epochDiscountJunior())
+        );
+
+        uint256 preRedemptionsAllowedSenior = OCR_USDC.redemptionsAllowedSenior();
+        
+        // Burn senior position first
+        if (totalRedemptions == 0) { }  // Nothing to test in this situation
+        else {
+            (, uint256 amountPre,,) = OCR_USDC.requests(id_senior);
+
+            uint256 portion = (IERC20(USDC).balanceOf(address(OCR_USDC)) * RAY / totalRedemptions) / 10**23;
+            if (portion > BIPS) { portion = BIPS; }
+            uint256 burnAmount = amountPre * portion / BIPS;
+            uint256 redeemAmount = burnAmount * (BIPS - OCR_USDC.epochDiscountSenior()) / BIPS;
+            redeemAmount /= 10 ** (18 - 6);
+
+            uint preUSDC_sam = IERC20(USDC).balanceOf(address(sam));
+            uint preUSDC_DAO = IERC20(USDC).balanceOf(address(DAO));
+
+            // processRequest().
+            hevm.expectEmit(true, true, true, true, address(OCR_USDC));
+            emit RequestProcessed(id_senior, address(sam), burnAmount, redeemAmount, true);
+            OCR_USDC.processRequest(id_senior);
+
+            assertEq(IERC20(USDC).balanceOf(address(sam)), preUSDC_sam + redeemAmount * OCR_USDC.redemptionsFee() / BIPS);
+            assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFee()) / BIPS);
+
+            (, uint256 amountPost,,) = OCR_USDC.requests(id_senior);
+            
+            assertEq(amountPost, amountPre - burnAmount);
+            assertEq(OCR_USDC.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - burnAmount);
+        }
+
+        // Recalculate totalRedemptions
+        totalRedemptions = OCR_USDC.redemptionsAllowedSenior() * (BIPS - OCR_USDC.epochDiscountSenior()) + (
+            OCR_USDC.redemptionsAllowedJunior() * (BIPS - OCR_USDC.epochDiscountJunior())
+        );
+
+        uint256 preRedemptionsAllowedJunior = OCR_USDC.redemptionsAllowedJunior();
+
+        // Burn junior position next
+        if (totalRedemptions == 0) { }  // Nothing to test in this situation
+        else {
+            (, uint256 amountPre,,) = OCR_USDC.requests(id_junior);
+
+            uint256 portion = (IERC20(USDC).balanceOf(address(OCR_USDC)) * RAY / totalRedemptions) / 10**23;
+            if (portion > BIPS) { portion = BIPS; }
+            uint256 burnAmount = amountPre * portion / BIPS;
+            uint256 redeemAmount = burnAmount * (BIPS - OCR_USDC.epochDiscountJunior()) / BIPS;
+            redeemAmount /= 10 ** (18 - 6);
+
+            uint preUSDC_jim = IERC20(USDC).balanceOf(address(jim));
+            uint preUSDC_DAO = IERC20(USDC).balanceOf(address(DAO));
+
+            // processRequest().
+            hevm.expectEmit(true, true, true, true, address(OCR_USDC));
+            emit RequestProcessed(id_junior, address(jim), burnAmount, redeemAmount, false);
+            OCR_USDC.processRequest(id_junior);
+
+            assertEq(IERC20(USDC).balanceOf(address(jim)), preUSDC_jim + redeemAmount * OCR_USDC.redemptionsFee() / BIPS);
+            assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFee()) / BIPS);
+
+            (, uint256 amountPost,,) = OCR_USDC.requests(id_junior);
+
+            assertEq(amountPost, amountPre - burnAmount);
+            assertEq(OCR_USDC.redemptionsAllowedJunior(), preRedemptionsAllowedJunior - burnAmount);
+        }
+
+    }
+
     // Validate tickEpoch() state changes.
 
     function test_OCR_tickEpoch_state(uint96 amountJunior, uint96 amountSenior, uint96 defaults) public {
