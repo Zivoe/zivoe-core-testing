@@ -87,14 +87,40 @@ contract Test_OCR_Modular is Utility {
 
     function test_OCR_pushToLocker_restrictions_asset() public {
 
+        // asset must be stablecoin
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCR_Modular::pushToLocker() asset != stablecoin");
+        DAO.push(address(OCR_DAI), address(USDC), 10_000 ether, "");
+        hevm.stopPrank();
     }
 
     function test_OCR_pushToLocker_restrictions_onlyOwner() public {
 
+        // onlyOwner can call
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.push(address(OCR_DAI), address(DAI), 10_000 ether, "");
+        hevm.stopPrank();
     }
 
-    function test_OCR_pushToLocker_state() public {
+    function test_OCR_pushToLocker_state(uint96 amountDAI, uint96 amountUSDC) public {
         
+        // Pre-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), 0);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), 0);
+
+        deal(DAI, address(DAO), amountDAI);
+        deal(USDC, address(DAO), amountUSDC);
+
+        // pushToLocker()
+        hevm.startPrank(address(god));
+        DAO.push(address(OCR_DAI), DAI, amountDAI, "");
+        DAO.push(address(OCR_USDC), USDC, amountUSDC, "");
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), amountDAI);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), amountUSDC);
     }
 
     // Validate pullFromLocker() state changes.
