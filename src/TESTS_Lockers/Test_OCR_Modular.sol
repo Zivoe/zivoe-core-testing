@@ -131,14 +131,52 @@ contract Test_OCR_Modular is Utility {
 
     function test_OCR_pullFromLocker_restrictions_asset() public {
 
+        // asset must NOT be $zJTT or $zSTT
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
+        DAO.pull(address(OCR_DAI), address(zJTT), "");
+        hevm.expectRevert("OCR_Modular::pullFromLocker() asset == zJTT || asset == zSTT");
+        DAO.pull(address(OCR_DAI), address(zSTT), "");
+        hevm.stopPrank();
     }
 
     function test_OCR_pullFromLocker_restrictions_onlyOwner() public {
 
+        // onlyOwner can call
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pull(address(OCR_DAI), address(DAI), "");
+        hevm.stopPrank();
     }
 
-    function test_OCR_pullFromLocker_state() public {
+    function test_OCR_pullFromLocker_state(uint96 amountDAI, uint96 amountUSDC) public {
         
+        // Pre-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), 0);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), 0);
+
+        deal(DAI, address(DAO), amountDAI);
+        deal(USDC, address(DAO), amountUSDC);
+
+        // pushToLocker()
+        hevm.startPrank(address(god));
+        DAO.push(address(OCR_DAI), DAI, amountDAI, "");
+        DAO.push(address(OCR_USDC), USDC, amountUSDC, "");
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), amountDAI);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), amountUSDC);
+
+        // pullFromLocker()
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCR_DAI), DAI, "");
+        DAO.pull(address(OCR_USDC), USDC, "");
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), 0);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), 0);
     }
 
     // Validate pullFromLockerPartial() state changes.
@@ -149,14 +187,57 @@ contract Test_OCR_Modular is Utility {
 
     function test_OCR_pullFromLockerPartial_restrictions_asset() public {
 
+        // asset must NOT be $zJTT or $zSTT
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
+        DAO.pullPartial(address(OCR_DAI), address(zJTT), 1, "");
+        hevm.expectRevert("OCR_Modular::pullFromLockerPartial() asset == zJTT || asset == zSTT");
+        DAO.pullPartial(address(OCR_DAI), address(zSTT), 1, "");
+        hevm.stopPrank();
+
     }
 
     function test_OCR_pullFromLockerPartial_restrictions_onlyOwner() public {
 
+        // onlyOwner can call
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pullPartial(address(OCR_DAI), address(zJTT), 1, "");
+        hevm.stopPrank();
+
     }
 
-    function test_OCR_pullFromLockerPartial_state() public {
+    function test_OCR_pullFromLockerPartial_state(uint96 amountDAI, uint96 amountUSDC, uint96 random) public {
         
+        hevm.assume(amountDAI > 0 && amountUSDC > 0);
+        
+        // Pre-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), 0);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), 0);
+
+        deal(DAI, address(DAO), amountDAI);
+        deal(USDC, address(DAO), amountUSDC);
+
+        // pushToLocker()
+        hevm.startPrank(address(god));
+        DAO.push(address(OCR_DAI), DAI, amountDAI, "");
+        DAO.push(address(OCR_USDC), USDC, amountUSDC, "");
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), amountDAI);
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), amountUSDC);
+
+        // pullFromLockerPartial()
+        hevm.startPrank(address(god));
+        DAO.pullPartial(address(OCR_DAI), DAI, random % (amountDAI), "");
+        DAO.pullPartial(address(OCR_USDC), USDC, random % (amountUSDC), "");
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(IERC20(DAI).balanceOf(address(OCR_DAI)), amountDAI - random % (amountDAI));
+        assertEq(IERC20(USDC).balanceOf(address(OCR_USDC)), amountUSDC - random % (amountUSDC));
+
     }
 
     // Validate createRequest() state changes.
