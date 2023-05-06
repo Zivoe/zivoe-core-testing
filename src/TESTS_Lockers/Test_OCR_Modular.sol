@@ -64,8 +64,18 @@ contract Test_OCR_Modular is Utility {
     function test_OCR_init_state() public {
 
         // OCR_DAI
+        assertEq(OCR_DAI.owner(),           address(DAO));
+        assertEq(OCR_DAI.stablecoin(),      DAI);
+        assertEq(OCR_DAI.GBL(),             address(GBL));
+        assertEq(OCR_DAI.redemptionsFee(),  1000);
+        assertEq(OCR_DAI.epoch(),           block.timestamp);
 
         // OCR_USDC
+        assertEq(OCR_USDC.owner(),          address(DAO));
+        assertEq(OCR_USDC.stablecoin(),     USDC);
+        assertEq(OCR_USDC.GBL(),            address(GBL));
+        assertEq(OCR_USDC.redemptionsFee(), 1000);
+        assertEq(OCR_USDC.epoch(),          block.timestamp);
 
     }
 
@@ -210,6 +220,8 @@ contract Test_OCR_Modular is Utility {
 
         // updateRedemptionsFee().
         hevm.startPrank(address(god));
+        hevm.expectEmit(false, false, false, true, address(OCR_DAI));
+        emit UpdatedRedemptionsFee(1000, fee);
         OCR_DAI.updateRedemptionsFee(fee);
         hevm.stopPrank();
 
