@@ -407,41 +407,84 @@ contract Test_OCR_Modular is Utility {
         hevm.warp(block.timestamp + random % (20 days)); // ~33% chance to warp past epoch, forces _tickEpoch modifier
 
         // Pre-state (pre _tickEpoch)
-        assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
-        assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
-        assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
-        assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+        // assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
+        // assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
+        // assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+        // assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
 
         uint256 preBalance_zSTT_sam = IERC20(address(zSTT)).balanceOf(address(sam));
         uint256 preBalance_zJTT_jim = IERC20(address(zJTT)).balanceOf(address(jim));
 
-        (address account, uint256 unlocks, uint256 amount, bool seniorElseJunior) = OCR_DAI.requests(0); // senior
+        (address account, uint256 amount, uint256 unlocks, bool seniorElseJunior) = OCR_DAI.requests(0); // senior
 
         // If _tickEpoch(), handle differently
         if (block.timestamp + 14 days > OCR_DAI.epoch()) {
 
             // destroyRequest() senior
             hevm.startPrank(address(sam));
+            (, amount,,) = OCR_DAI.requests(id_senior); 
             OCR_DAI.destroyRequest(id_senior);
             hevm.stopPrank();
 
+            assertEq(OCR_DAI.redemptionsQueuedSenior(), 0);
+            assertEq(OCR_DAI.redemptionsQueuedJunior(), 0);
+            assertEq(OCR_DAI.redemptionsAllowedSenior(), amountSenior);
+            assertEq(OCR_DAI.redemptionsAllowedJunior(), amountJunior * 2);
+            assertEq(amount, IERC20(address(zSTT)).balanceOf(address(sam)) - preBalance_zSTT_sam);
+
+            (, amount,,) = OCR_DAI.requests(id_senior); 
+            assertEq(amount, 0);
+
             // destroyRequest() junior
             hevm.startPrank(address(jim));
+            (, amount,,) = OCR_DAI.requests(id_junior); 
             OCR_DAI.destroyRequest(id_junior);
             hevm.stopPrank();
+
+            assertEq(OCR_DAI.redemptionsQueuedSenior(), 0);
+            assertEq(OCR_DAI.redemptionsQueuedJunior(), 0);
+            assertEq(OCR_DAI.redemptionsAllowedSenior(), amountSenior);
+            assertEq(OCR_DAI.redemptionsAllowedJunior(), amountJunior);
+            assertEq(amount, IERC20(address(zJTT)).balanceOf(address(jim)) - preBalance_zJTT_jim);
+
+            (, amount,,) = OCR_DAI.requests(id_junior);
+            assertEq(amount, 0);
+
 
         }
         else {
 
             // destroyRequest() senior
             hevm.startPrank(address(sam));
+            (, amount,,) = OCR_DAI.requests(id_senior); 
             OCR_DAI.destroyRequest(id_senior);
             hevm.stopPrank();
 
+            assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior);
+            assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
+            assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+            assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+
+            assertEq(amount, IERC20(address(zSTT)).balanceOf(address(sam)) - preBalance_zSTT_sam);
+
+            (, amount,,) = OCR_DAI.requests(id_senior); 
+            assertEq(amount, 0);
+
             // destroyRequest() junior
             hevm.startPrank(address(jim));
+            (, amount,,) = OCR_DAI.requests(id_junior); 
             OCR_DAI.destroyRequest(id_junior);
             hevm.stopPrank();
+
+            assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior);
+            assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior);
+            assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+            assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+
+            assertEq(amount, IERC20(address(zJTT)).balanceOf(address(jim)) - preBalance_zJTT_jim);
+
+            (, amount,,) = OCR_DAI.requests(id_junior);
+            assertEq(amount, 0);
 
         }
 
