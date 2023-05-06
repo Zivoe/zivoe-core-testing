@@ -24,7 +24,7 @@ contract Test_OCR_Modular is Utility {
 
     uint256 startingSupplySTT = 10_000_000 ether;
     uint256 startingSupplyJTT = 4_000_000 ether;
-
+    
     function setUp() public {
 
         deployCore(false);
@@ -60,8 +60,8 @@ contract Test_OCR_Modular is Utility {
 
     event RequestDestroyed(uint256 indexed id, address indexed account, uint256 amount, bool indexed seniorElseJunior);
 
-    event RequestProcessed
-        (uint256 indexed id, 
+    event RequestProcessed(
+        uint256 indexed id, 
         address indexed account, 
         uint256 burnAmount, 
         uint256 redeemAmount, 
@@ -407,10 +407,10 @@ contract Test_OCR_Modular is Utility {
         hevm.warp(block.timestamp + random % (20 days)); // ~33% chance to warp past epoch, forces _tickEpoch modifier
 
         // Pre-state (pre _tickEpoch)
-        // assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
-        // assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
-        // assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
-        // assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
 
         uint256 preBalance_zSTT_sam = IERC20(address(zSTT)).balanceOf(address(sam));
         uint256 preBalance_zJTT_jim = IERC20(address(zJTT)).balanceOf(address(jim));
@@ -422,7 +422,9 @@ contract Test_OCR_Modular is Utility {
 
             // destroyRequest() senior
             hevm.startPrank(address(sam));
-            (, amount,,) = OCR_DAI.requests(id_senior); 
+            (, amount,,) = OCR_DAI.requests(id_senior);
+            hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+            emit RequestDestroyed(id_senior, address(sam), amount, true);
             OCR_DAI.destroyRequest(id_senior);
             hevm.stopPrank();
 
@@ -438,6 +440,8 @@ contract Test_OCR_Modular is Utility {
             // destroyRequest() junior
             hevm.startPrank(address(jim));
             (, amount,,) = OCR_DAI.requests(id_junior); 
+            hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+            emit RequestDestroyed(id_junior, address(jim), amount, false);
             OCR_DAI.destroyRequest(id_junior);
             hevm.stopPrank();
 
@@ -456,7 +460,9 @@ contract Test_OCR_Modular is Utility {
 
             // destroyRequest() senior
             hevm.startPrank(address(sam));
-            (, amount,,) = OCR_DAI.requests(id_senior); 
+            (, amount,,) = OCR_DAI.requests(id_senior);
+            hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+            emit RequestDestroyed(id_senior, address(sam), amount, true);
             OCR_DAI.destroyRequest(id_senior);
             hevm.stopPrank();
 
@@ -473,6 +479,8 @@ contract Test_OCR_Modular is Utility {
             // destroyRequest() junior
             hevm.startPrank(address(jim));
             (, amount,,) = OCR_DAI.requests(id_junior); 
+            hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+            emit RequestDestroyed(id_junior, address(jim), amount, false);
             OCR_DAI.destroyRequest(id_junior);
             hevm.stopPrank();
 
@@ -493,19 +501,115 @@ contract Test_OCR_Modular is Utility {
     // Validate processRequest() state changes.
     // Validate processRequest() restrictions.
     // This includes:
-    //  - _msgSender() must be requests[id].account
-    //  - requests[id].amount > 0
+    //  - amount > 0
+    //  - unlocks <= epoch
 
-    function test_OCR_processRequest_restrictions_msgSender() public {
+    function test_OCR_processRequest_restrictions_amount() public {
         
+        uint id = helper_createRequest_DAI(1_000 ether, true);
+
+        hevm.startPrank(address(sam));
+        OCR_DAI.destroyRequest(id);
+        hevm.expectRevert("OCR_Modular::processRequest() requests[id].amount == 0");
+        OCR_DAI.processRequest(id);
+        hevm.stopPrank();
     }
 
     function test_OCR_processRequest_restrictions_unlocks() public {
         
+        uint id = helper_createRequest_DAI(1_000 ether, true);
+
+        hevm.expectRevert("OCR_Modular::processRequest() requests[id].unlocks > epoch");
+        OCR_DAI.processRequest(id);
+
+        // Show success when arriving at epoch (totalRedemptions == 0 however, so no actions taken).
+        hevm.warp(OCR_DAI.epoch() + 14 days);
+        OCR_DAI.processRequest(id);
+        
     }
 
-    function test_OCR_processRequest_state() public {
+    function test_OCR_processRequest_state_DAI(uint96 amountJunior, uint96 amountSenior, uint96 amountDAI, uint96 defaults) public {
         
+        hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT / 2);
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT / 2);
+        hevm.assume(defaults <= startingSupplySTT + startingSupplyJTT);
+
+        // Create 4 different requests (2 senior, 2 junior)
+        uint id_senior = helper_createRequest_DAI(amountSenior, true);
+        uint id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        id_senior = helper_createRequest_DAI(amountSenior, true);
+        id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        // Increase defaults in system
+        assert(god.try_increaseDefaults(address(OCG_Defaults_Test), defaults));
+        assertEq(GBL.defaults(), defaults);
+
+        // Warp to epoch start, tickEpoch
+        hevm.warp(OCR_DAI.epoch() + 14 days);
+        OCR_DAI.tickEpoch();
+
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), amountJunior * 2);
+
+        // Provide stablecoin to OCR_DAI
+        deal(DAI, address(OCR_DAI), amountDAI);
+
+        uint256 totalRedemptions = OCR_DAI.redemptionsAllowedSenior() * (BIPS - OCR_DAI.epochDiscountSenior()) + (
+            OCR_DAI.redemptionsAllowedJunior() * (BIPS - OCR_DAI.epochDiscountJunior())
+        );
+
+        uint256 preRedemptionsAllowedSenior = OCR_DAI.redemptionsAllowedSenior();
+        
+        // Burn senior position first
+        if (totalRedemptions == 0) { }  // Nothing to test in this situation
+        else {
+            (, uint256 amountPre,,) = OCR_DAI.requests(id_senior);
+
+            uint256 portion = (IERC20(DAI).balanceOf(address(OCR_DAI)) * RAY / totalRedemptions) / 10**23;
+            if (portion > BIPS) { portion = BIPS; }
+            uint256 burnAmount = amountPre * portion / BIPS;
+            uint256 redeemAmount = burnAmount * (BIPS - OCR_DAI.epochDiscountSenior()) / BIPS;
+
+            // processRequest().
+            hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+            emit RequestProcessed(id_senior, address(sam), burnAmount, redeemAmount, true);
+            OCR_DAI.processRequest(id_senior);
+
+            (, uint256 amountPost,,) = OCR_DAI.requests(id_senior);
+            
+            assertEq(amountPost, amountPre - burnAmount);
+            assertEq(OCR_DAI.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - burnAmount);
+        }
+
+        // Recalculate totalRedemptions
+        totalRedemptions = OCR_DAI.redemptionsAllowedSenior() * (BIPS - OCR_DAI.epochDiscountSenior()) + (
+            OCR_DAI.redemptionsAllowedJunior() * (BIPS - OCR_DAI.epochDiscountJunior())
+        );
+
+        uint256 preRedemptionsAllowedJunior = OCR_DAI.redemptionsAllowedJunior();
+
+        // Burn junior position next
+        if (totalRedemptions == 0) { }  // Nothing to test in this situation
+        else {
+            (, uint256 amountPre,,) = OCR_DAI.requests(id_junior);
+
+            uint256 portion = (IERC20(DAI).balanceOf(address(OCR_DAI)) * RAY / totalRedemptions) / 10**23;
+            if (portion > BIPS) { portion = BIPS; }
+            uint256 burnAmount = amountPre * portion / BIPS;
+            uint256 redeemAmount = burnAmount * (BIPS - OCR_DAI.epochDiscountJunior()) / BIPS;
+
+            // processRequest().
+            hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+            emit RequestProcessed(id_junior, address(jim), burnAmount, redeemAmount, false);
+            OCR_DAI.processRequest(id_junior);
+
+            (, uint256 amountPost,,) = OCR_DAI.requests(id_junior);
+
+            assertEq(amountPost, amountPre - burnAmount);
+            assertEq(OCR_DAI.redemptionsAllowedJunior(), preRedemptionsAllowedJunior - burnAmount);
+        }
+
     }
 
     // Validate tickEpoch() state changes.
