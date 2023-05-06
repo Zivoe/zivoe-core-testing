@@ -75,9 +75,41 @@ contract Test_OCR_Modular is Utility {
     //    Helper Functions
     // ----------------------
 
-    function helper_createRequest(uint256 amount, bool seniorElseJunior) public {
+    function helper_createRequest_DAI(uint256 amount, bool seniorElseJunior) public returns (uint id) {
 
-        hevm.startPrank(address(tim));
+        id = OCR_DAI.requestCounter();
+
+        if (seniorElseJunior) {
+            hevm.startPrank(address(sam));
+            IERC20(address(zSTT)).approve(address(OCR_DAI), amount);
+            OCR_DAI.createRequest(amount, true);
+            hevm.stopPrank();
+        }
+        else {
+            hevm.startPrank(address(jim));
+            IERC20(address(zJTT)).approve(address(OCR_DAI), amount);
+            OCR_DAI.createRequest(amount, false);
+            hevm.stopPrank();
+        }
+
+    }
+
+    function helper_createRequest_USDC(uint256 amount, bool seniorElseJunior) public returns (uint id) {
+
+        id = OCR_USDC.requestCounter();
+
+        if (seniorElseJunior) {
+            hevm.startPrank(address(sam));
+            IERC20(address(zSTT)).approve(address(OCR_USDC), amount);
+            OCR_USDC.createRequest(amount, true);
+            hevm.stopPrank();
+        }
+        else {
+            hevm.startPrank(address(jim));
+            IERC20(address(zJTT)).approve(address(OCR_USDC), amount);
+            OCR_USDC.createRequest(amount, false);
+            hevm.stopPrank();
+        }
 
     }
 
@@ -282,10 +314,10 @@ contract Test_OCR_Modular is Utility {
 
     }
 
-    function test_OCR_createRequest_state_DAI(uint96 amountJunior, uint96 amountSenior) public {
+    function test_OCR_createRequest_state(uint96 amountJunior, uint96 amountSenior) public {
 
-        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT);
         hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT);
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT);
 
         // createRequest() junior
         hevm.startPrank(address(jim));
@@ -331,28 +363,6 @@ contract Test_OCR_Modular is Utility {
 
     }
 
-    function test_OCR_createRequest_state_USDC(uint96 amountJunior, uint96 amountSenior) public {
-
-        hevm.assume(amountJunior > 0 && amountSenior > 0);
-
-        hevm.startPrank(address(jim));
-        IERC20(USDC).approve(address(OCR_USDC), amountJunior);
-        hevm.stopPrank();
-
-        hevm.startPrank(address(sam));
-        IERC20(USDC).approve(address(OCR_USDC), amountSenior);
-        hevm.stopPrank();
-
-        // createRequest() junior
-
-        // Post-state.
-
-        // createRequest() senior
-
-        // Post-state.
-
-    }
-
     // Validate destroyRequest() state changes.
     // Validate destroyRequest() restrictions.
     // This includes:
@@ -361,14 +371,80 @@ contract Test_OCR_Modular is Utility {
 
     function test_OCR_destroyRequest_restrictions_msgSender() public {
         
+        uint id = helper_createRequest_DAI(1_000 ether, true);
+
+        // Can't destroyRequest if _msgSender() != account
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCR_Modular::destroyRequest() requests[id].account != _msgSender()");
+        OCR_DAI.destroyRequest(id);
+        hevm.stopPrank();
     }
 
-    function test_OCR_destroyRequest_restrictions_requests() public {
+    function test_OCR_destroyRequest_restrictions_amount() public {
         
+        uint id = helper_createRequest_DAI(1_000 ether, true);
+
+        // Can't destroyRequest if amount == 0 (meaning request already destroyed)
+        hevm.startPrank(address(sam));
+        OCR_DAI.destroyRequest(id);
+
+        hevm.expectRevert("OCR_Modular::destroyRequest() requests[id].amount == 0");
+        OCR_DAI.destroyRequest(id);
+        hevm.stopPrank();
     }
 
-    function test_OCR_destroyRequest_state() public {
+    function test_OCR_destroyRequest_state(uint96 amountJunior, uint96 amountSenior, uint96 random) public {
         
+        hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT / 2);
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT / 2);
+
+        uint id_senior = helper_createRequest_DAI(amountSenior, true);
+        uint id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        id_senior = helper_createRequest_DAI(amountSenior, true);   // Utilize 2nd request
+        id_junior = helper_createRequest_DAI(amountJunior, false);  // Utilize 2nd request
+
+        hevm.warp(block.timestamp + random % (20 days)); // ~33% chance to warp past epoch, forces _tickEpoch modifier
+
+        // Pre-state (pre _tickEpoch)
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+
+        uint256 preBalance_zSTT_sam = IERC20(address(zSTT)).balanceOf(address(sam));
+        uint256 preBalance_zJTT_jim = IERC20(address(zJTT)).balanceOf(address(jim));
+
+        (address account, uint256 unlocks, uint256 amount, bool seniorElseJunior) = OCR_DAI.requests(0); // senior
+
+        // If _tickEpoch(), handle differently
+        if (block.timestamp + 14 days > OCR_DAI.epoch()) {
+
+            // destroyRequest() senior
+            hevm.startPrank(address(sam));
+            OCR_DAI.destroyRequest(id_senior);
+            hevm.stopPrank();
+
+            // destroyRequest() junior
+            hevm.startPrank(address(jim));
+            OCR_DAI.destroyRequest(id_junior);
+            hevm.stopPrank();
+
+        }
+        else {
+
+            // destroyRequest() senior
+            hevm.startPrank(address(sam));
+            OCR_DAI.destroyRequest(id_senior);
+            hevm.stopPrank();
+
+            // destroyRequest() junior
+            hevm.startPrank(address(jim));
+            OCR_DAI.destroyRequest(id_junior);
+            hevm.stopPrank();
+
+        }
+
     }
 
     // Validate processRequest() state changes.
