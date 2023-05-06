@@ -248,9 +248,10 @@ contract Utility is DSTest, Test {
 
     /// @notice Simulates an ITO and calls migrateDeposits()/
     /// @dev    Does not claim / stake tokens.
-    function simulateITO_byTranche_stakeTokens(
+    function simulateITO_byTranche_optionalStake(
         uint256 amountSenior,
-        uint256 amountJunior
+        uint256 amountJunior,
+        bool stake
     ) public {
 
         // mint().
@@ -280,12 +281,13 @@ contract Utility is DSTest, Test {
         // assert(sam.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
         // assert(jim.try_stake(address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
         
-        assert(sam.try_approveToken(address(zSTT), address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
-        assert(sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
+        if (stake) {
+            assert(sam.try_approveToken(address(zSTT), address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
+            assert(sam.try_stake(address(stSTT), IERC20(address(zSTT)).balanceOf(address(sam))));
 
-        assert(jim.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim))));
-        assert(jim.try_stake(address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim))));
-            
+            assert(jim.try_approveToken(address(zJTT), address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim))));
+            assert(jim.try_stake(address(stJTT), IERC20(address(zJTT)).balanceOf(address(jim))));
+        }
 
     }
 
