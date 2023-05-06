@@ -728,16 +728,142 @@ contract Test_OCR_Modular is Utility {
 
     // Validate tickEpoch() state changes.
 
-    function test_OCR_tickEpoch_state(uint96 amountJunior, uint96 amountSenior, uint96 defaults) public {
+    function test_OCR_tickEpoch_state_single(uint96 amountJunior, uint96 amountSenior, uint256 defaults) public {
         
-        // Warp to epoch start, tickEpoch
-        hevm.warp(OCR_DAI.epoch() + 14 days + 1 seconds);
+        hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT / 2);
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT / 2);
+        hevm.assume(defaults <= startingSupplySTT + startingSupplyJTT);
+
+        // Create 4 different requests (2 senior, 2 junior)
+        uint id_senior = helper_createRequest_DAI(amountSenior, true);
+        uint id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        id_senior = helper_createRequest_DAI(amountSenior, true);
+        id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        // Increase defaults in system
+        assert(god.try_increaseDefaults(address(OCG_Defaults_Test), defaults));
+        assertEq(GBL.defaults(), defaults);
+
+        // Pre-state.
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
+        assertEq(OCR_DAI.epochDiscountSenior(), 0);
+        assertEq(OCR_DAI.epochDiscountJunior(), 0);
+        assertEq(OCR_DAI.epoch(), block.timestamp);
+
+        uint preEpoch = block.timestamp;
+
+        // NOTE: e = expected
+        uint eRedemptionsAllowedSenior = OCR_DAI.redemptionsQueuedSenior();
+        uint eRedemptionsAllowedJunior = OCR_DAI.redemptionsQueuedJunior();
+        uint eEpochDiscountSenior;
+        uint eEpochDiscountJunior;
+
+        if (defaults > IERC20(address(zJTT)).totalSupply()) {
+            eEpochDiscountJunior = BIPS;
+            defaults -= IERC20(address(zJTT)).totalSupply();
+            eEpochDiscountSenior = (defaults * RAY / IERC20(address(zSTT)).totalSupply()) / 10**23;
+        }
+        else {
+            eEpochDiscountJunior = (defaults * RAY / IERC20(address(zJTT)).totalSupply()) / 10**23;
+        }
+
+        // Warp to epoch start, tickEpoch()
+        hevm.warp(OCR_DAI.epoch() + 14 days);
+        hevm.expectEmit(false, false, false, true, address(OCR_DAI));
+        emit EpochTicked(
+            OCR_DAI.epoch() + 14 days,
+            eRedemptionsAllowedJunior,
+            eRedemptionsAllowedSenior,
+            eEpochDiscountJunior,
+            eEpochDiscountSenior
+        );
         OCR_DAI.tickEpoch();
+
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), amountJunior * 2);
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), 0);
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), 0);
+        assertEq(OCR_DAI.epochDiscountSenior(), eEpochDiscountSenior);
+        assertEq(OCR_DAI.epochDiscountJunior(), eEpochDiscountJunior);
+        assertEq(OCR_DAI.epoch(), preEpoch + 14 days);
 
     }
 
-    function test_OCR_tickEpoch_state_recursive() public {
+    function test_OCR_tickEpoch_state_recursive(uint96 amountJunior, uint96 amountSenior, uint256 defaults) public {
         
+
+        hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT / 2);
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT / 2);
+        hevm.assume(defaults <= startingSupplySTT + startingSupplyJTT);
+
+        // Create 4 different requests (2 senior, 2 junior)
+        uint id_senior = helper_createRequest_DAI(amountSenior, true);
+        uint id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        id_senior = helper_createRequest_DAI(amountSenior, true);
+        id_junior = helper_createRequest_DAI(amountJunior, false);
+
+        // Increase defaults in system
+        assert(god.try_increaseDefaults(address(OCG_Defaults_Test), defaults));
+        assertEq(GBL.defaults(), defaults);
+
+        // Pre-state.
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), 0);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), 0);
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior * 2);
+        assertEq(OCR_DAI.epochDiscountSenior(), 0);
+        assertEq(OCR_DAI.epochDiscountJunior(), 0);
+        assertEq(OCR_DAI.epoch(), block.timestamp);
+
+        uint preEpoch = block.timestamp;
+
+        // NOTE: e = expected
+        uint eRedemptionsAllowedSenior = OCR_DAI.redemptionsQueuedSenior();
+        uint eRedemptionsAllowedJunior = OCR_DAI.redemptionsQueuedJunior();
+        uint eEpochDiscountSenior;
+        uint eEpochDiscountJunior;
+
+        if (defaults > IERC20(address(zJTT)).totalSupply()) {
+            eEpochDiscountJunior = BIPS;
+            defaults -= IERC20(address(zJTT)).totalSupply();
+            eEpochDiscountSenior = (defaults * RAY / IERC20(address(zSTT)).totalSupply()) / 10**23;
+        }
+        else {
+            eEpochDiscountJunior = (defaults * RAY / IERC20(address(zJTT)).totalSupply()) / 10**23;
+        }
+
+        // Warp to epoch start, tickEpoch()
+        hevm.warp(OCR_DAI.epoch() + 30 days);
+        hevm.expectEmit(false, false, false, true, address(OCR_DAI));
+        emit EpochTicked(
+            OCR_DAI.epoch() + 14 days,
+            eRedemptionsAllowedJunior,
+            eRedemptionsAllowedSenior,
+            eEpochDiscountJunior,
+            eEpochDiscountSenior
+        );
+        emit EpochTicked(
+            OCR_DAI.epoch() + 28 days,
+            eRedemptionsAllowedJunior,
+            eRedemptionsAllowedSenior,
+            eEpochDiscountJunior,
+            eEpochDiscountSenior
+        );
+        OCR_DAI.tickEpoch();
+
+        assertEq(OCR_DAI.redemptionsAllowedSenior(), amountSenior * 2);
+        assertEq(OCR_DAI.redemptionsAllowedJunior(), amountJunior * 2);
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), 0);
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), 0);
+        assertEq(OCR_DAI.epochDiscountSenior(), eEpochDiscountSenior);
+        assertEq(OCR_DAI.epochDiscountJunior(), eEpochDiscountJunior);
+        assertEq(OCR_DAI.epoch(), preEpoch + 28 days);
+
     }
 
     // Validate updateRedemptionsFee() state changes.
