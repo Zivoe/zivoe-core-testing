@@ -418,7 +418,7 @@ contract Test_OCR_Modular is Utility {
         (address account, uint256 amount, uint256 unlocks, bool seniorElseJunior) = OCR_DAI.requests(0); // senior
 
         // If _tickEpoch(), handle differently
-        if (block.timestamp + 14 days > OCR_DAI.epoch()) {
+        if (block.timestamp > OCR_DAI.epoch() + 14 days) {
 
             // destroyRequest() senior
             hevm.startPrank(address(sam));
@@ -523,10 +523,13 @@ contract Test_OCR_Modular is Utility {
         OCR_DAI.processRequest(id);
 
         // Show success when arriving at epoch (totalRedemptions == 0 however, so no actions taken).
-        hevm.warp(OCR_DAI.epoch() + 14 days);
+        hevm.warp(OCR_DAI.epoch() + 14 days + 1 seconds);
         OCR_DAI.processRequest(id);
         
     }
+
+    // TODO: Track ERC20 transfers (DAI)
+    // TODO: Test USDC here with state_USDC
 
     function test_OCR_processRequest_state_DAI(uint96 amountJunior, uint96 amountSenior, uint96 amountDAI, uint96 defaults) public {
         
@@ -546,7 +549,7 @@ contract Test_OCR_Modular is Utility {
         assertEq(GBL.defaults(), defaults);
 
         // Warp to epoch start, tickEpoch
-        hevm.warp(OCR_DAI.epoch() + 14 days);
+        hevm.warp(OCR_DAI.epoch() + 14 days + 1 seconds);
         OCR_DAI.tickEpoch();
 
         assertEq(OCR_DAI.redemptionsAllowedSenior(), amountSenior * 2);
@@ -571,12 +574,19 @@ contract Test_OCR_Modular is Utility {
             uint256 burnAmount = amountPre * portion / BIPS;
             uint256 redeemAmount = burnAmount * (BIPS - OCR_DAI.epochDiscountSenior()) / BIPS;
 
+            uint preDAI_sam = IERC20(DAI).balanceOf(address(sam));
+            uint preDAI_DAO = IERC20(DAI).balanceOf(address(DAO));
+
             // processRequest().
             hevm.expectEmit(true, true, true, true, address(OCR_DAI));
             emit RequestProcessed(id_senior, address(sam), burnAmount, redeemAmount, true);
             OCR_DAI.processRequest(id_senior);
 
+            assertEq(IERC20(DAI).balanceOf(address(sam)), preDAI_sam + redeemAmount * OCR_DAI.redemptionsFee() / BIPS);
+            assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFee()) / BIPS);
+
             (, uint256 amountPost,,) = OCR_DAI.requests(id_senior);
+            
             
             assertEq(amountPost, amountPre - burnAmount);
             assertEq(OCR_DAI.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - burnAmount);
@@ -599,10 +609,16 @@ contract Test_OCR_Modular is Utility {
             uint256 burnAmount = amountPre * portion / BIPS;
             uint256 redeemAmount = burnAmount * (BIPS - OCR_DAI.epochDiscountJunior()) / BIPS;
 
+            uint preDAI_jim = IERC20(DAI).balanceOf(address(jim));
+            uint preDAI_DAO = IERC20(DAI).balanceOf(address(DAO));
+
             // processRequest().
             hevm.expectEmit(true, true, true, true, address(OCR_DAI));
             emit RequestProcessed(id_junior, address(jim), burnAmount, redeemAmount, false);
             OCR_DAI.processRequest(id_junior);
+
+            assertEq(IERC20(DAI).balanceOf(address(jim)), preDAI_jim + redeemAmount * OCR_DAI.redemptionsFee() / BIPS);
+            assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFee()) / BIPS);
 
             (, uint256 amountPost,,) = OCR_DAI.requests(id_junior);
 
@@ -614,8 +630,12 @@ contract Test_OCR_Modular is Utility {
 
     // Validate tickEpoch() state changes.
 
-    function test_OCR_tickEpoch_state() public {
+    function test_OCR_tickEpoch_state(uint96 amountJunior, uint96 amountSenior, uint96 defaults) public {
         
+        // Warp to epoch start, tickEpoch
+        hevm.warp(OCR_DAI.epoch() + 14 days + 1 seconds);
+        OCR_DAI.tickEpoch();
+
     }
 
     function test_OCR_tickEpoch_state_recursive() public {
