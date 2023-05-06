@@ -15,11 +15,22 @@ contract Test_OCR_Modular is Utility {
 
     OCG_Defaults OCG_Defaults_Test;
 
+    struct Request {
+        address account;        /// @dev The account making the request.
+        uint256 amount;         /// @dev The amount of the request ($zSTT or $zJTT).
+        uint256 unlocks;        /// @dev The timestamp after which this request may be processed.
+        bool seniorElseJunior;  /// @dev The tranche this request is for (true = Senior, false = Junior).
+    }
+
+    uint256 startingSupplySTT = 10_000_000 ether;
+    uint256 startingSupplyJTT = 4_000_000 ether;
+
     function setUp() public {
 
         deployCore(false);
 
-        simulateITO_byTranche_stakeTokens(25_000_000 ether, 4_000_000 ether);
+        // NOTE: "sam" owns $zSTT and "jim" owns $zJTT
+        simulateITO_byTranche_optionalStake(startingSupplySTT, startingSupplyJTT, false);
 
         // OCR_Modular Initialization & Whitelist
         OCR_DAI = new OCR_Modular(address(DAO), address(DAI), address(GBL), 1000);
@@ -32,8 +43,10 @@ contract Test_OCR_Modular is Utility {
         zvl.try_updateIsLocker(address(GBL), address(OCG_Defaults_Test), true);
 
     }
-    
 
+    // ------------
+    //    Events
+    // ------------
 
     event EpochTicked(
         uint256 epoch, 
@@ -58,6 +71,20 @@ contract Test_OCR_Modular is Utility {
     event UpdatedRedemptionsFee(uint256 oldFee, uint256 newFee);
 
 
+    // ----------------------
+    //    Helper Functions
+    // ----------------------
+
+    function helper_createRequest(uint256 amount, bool seniorElseJunior) public {
+
+        hevm.startPrank(address(tim));
+
+    }
+
+
+    // -----------
+    //    Tests
+    // -----------
 
     // Validate OCR_Modular initial state.
 
@@ -241,8 +268,88 @@ contract Test_OCR_Modular is Utility {
     }
 
     // Validate createRequest() state changes.
+    // Validate createRequest() restrictions.
+    // This includes:
+    //   - amount > 0
 
-    function test_OCR_createRequest_state() public {
+
+    function test_OCR_createRequest_restrictions_amount() public {
+
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCR_Modular::createRequest() amount == 0");
+        OCR_DAI.createRequest(0, true);
+        hevm.stopPrank();
+
+    }
+
+    function test_OCR_createRequest_state_DAI(uint96 amountJunior, uint96 amountSenior) public {
+
+        hevm.assume(amountJunior > 0 && amountJunior <= startingSupplyJTT);
+        hevm.assume(amountSenior > 0 && amountSenior <= startingSupplySTT);
+
+        // createRequest() junior
+        hevm.startPrank(address(jim));
+        IERC20(address(zJTT)).approve(address(OCR_DAI), amountJunior);
+
+        hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+        emit RequestCreated(OCR_DAI.requestCounter(), address(jim), amountJunior, false);
+        OCR_DAI.createRequest(amountJunior, false);
+        hevm.stopPrank();
+
+        // Post-state.
+        (address account, uint amount, uint unlocks, bool seniorElseJunior) = OCR_DAI.requests(0);
+
+        assertEq(account, address(jim));
+        assertEq(amount, amountJunior);
+        assertEq(unlocks, OCR_DAI.epoch() + 14 days);
+        assert(!seniorElseJunior);
+        
+        assertEq(OCR_DAI.redemptionsQueuedJunior(), amountJunior);
+        assertEq(OCR_DAI.requestCounter(), 1);
+        assertEq(IERC20(address(zJTT)).balanceOf(address(OCR_DAI)), amountJunior);
+
+        // createRequest() senior
+        hevm.startPrank(address(sam));
+        IERC20(address(zSTT)).approve(address(OCR_DAI), amountSenior);
+
+        hevm.expectEmit(true, true, true, true, address(OCR_DAI));
+        emit RequestCreated(OCR_DAI.requestCounter(), address(sam), amountSenior, true);
+        OCR_DAI.createRequest(amountSenior, true);
+        hevm.stopPrank();
+
+        // Post-state.
+        (account, amount, unlocks, seniorElseJunior) = OCR_DAI.requests(1);
+
+        assertEq(account, address(sam));
+        assertEq(amount, amountSenior);
+        assertEq(unlocks, OCR_DAI.epoch() + 14 days);
+        assert(seniorElseJunior);
+        
+        assertEq(OCR_DAI.redemptionsQueuedSenior(), amountSenior);
+        assertEq(OCR_DAI.requestCounter(), 2);
+        assertEq(IERC20(address(zSTT)).balanceOf(address(OCR_DAI)), amountSenior);
+
+    }
+
+    function test_OCR_createRequest_state_USDC(uint96 amountJunior, uint96 amountSenior) public {
+
+        hevm.assume(amountJunior > 0 && amountSenior > 0);
+
+        hevm.startPrank(address(jim));
+        IERC20(USDC).approve(address(OCR_USDC), amountJunior);
+        hevm.stopPrank();
+
+        hevm.startPrank(address(sam));
+        IERC20(USDC).approve(address(OCR_USDC), amountSenior);
+        hevm.stopPrank();
+
+        // createRequest() junior
+
+        // Post-state.
+
+        // createRequest() senior
+
+        // Post-state.
 
     }
 

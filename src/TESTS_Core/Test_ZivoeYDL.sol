@@ -709,7 +709,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amtJunior = uint256(randomJunior) + 1000 ether; // Minimum amount $1,000 USD for each coin.
 
         // Simulating the ITO will "unlock" the YDL
-        simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
+        simulateITO_byTranche_optionalStake(amtSenior, amtJunior, true);
         
         // Can't call distributeYield() if block.timestamp < lastDistribution + daysBetweenDistributions * 86400
         hevm.startPrank(address(bob));
@@ -735,7 +735,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random);
 
         // Simulating the ITO will "unlock" the YDL
-        simulateITO_byTranche_stakeTokens(amtSenior, amtJunior);
+        simulateITO_byTranche_optionalStake(amtSenior, amtJunior, true);
 
         // Must warp forward to make successfull distributYield() call.
         hevm.warp(YDL.lastDistribution() + YDL.daysBetweenDistributions() * 86400);
@@ -825,7 +825,7 @@ contract Test_ZivoeYDL is Utility {
     ) public {
         
         // Simulating the ITO will "unlock" the YDL
-        simulateITO_byTranche_stakeTokens(uint256(randomSenior) + 1000 ether, uint256(randomJunior) + 1000 ether);
+        simulateITO_byTranche_optionalStake(uint256(randomSenior) + 1000 ether, uint256(randomJunior) + 1000 ether, true);
 
         // NOTE: To deal with stack-overflow, simply comment out one of these, then the corresponding ones at end of
         //       the for loop below.
@@ -901,7 +901,7 @@ contract Test_ZivoeYDL is Utility {
     ) public {
         
         // Simulating the ITO will "unlock" the YDL
-        simulateITO_byTranche_stakeTokens(uint256(randomSenior) + 1000 ether, uint256(randomJunior) + 1000 ether);
+        simulateITO_byTranche_optionalStake(uint256(randomSenior) + 1000 ether, uint256(randomJunior) + 1000 ether, true);
 
         for (uint i = 0; i < 10; i++) {
 
