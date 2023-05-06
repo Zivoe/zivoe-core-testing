@@ -175,26 +175,46 @@ contract Test_OCR_Modular is Utility {
         
     }
 
-    function test_OCR_processRequest_restrictions_unlocks() public {
-        
-    }
-
     // Validate updateRedemptionsFee() state changes.
     // Validate updateRedemptionsFee() restrictions.
     // This includes:
     //  - _msgSender() must be TLC
     //  - _redemptionsFee must be in range [250, 2000]
 
-    function test_OCR_pupdateRedemptionsFee_restrictions_msgSender() public {
+    function test_OCR_updateRedemptionsFee_restrictions_msgSender() public {
         
+        // Can't call if _msgSender() != TLC
+        hevm.startPrank(address(tim));
+        hevm.expectRevert("OCR_Modular::updateRedemptionsFee() _msgSender() != TLC()");
+        OCR_DAI.updateRedemptionsFee(500);
+        hevm.stopPrank();
     }
 
-    function test_OCR_pupdateRedemptionsFee_restrictions_range() public {
+    function test_OCR_updateRedemptionsFee_restrictions_range(uint16 fee) public {
         
+        // Can't update if fee < 250 || fee > 2000
+        hevm.startPrank(address(god));
+        if (fee < 250 || fee > 2000) {
+            hevm.expectRevert("OCR_Modular::updateRedemptionsFee() _redemptionsFee > 2000 && _redemptionsFee < 250");
+        }
+        OCR_DAI.updateRedemptionsFee(fee);
+        hevm.stopPrank();
     }
 
-    function test_OCR_pupdateRedemptionsFee_state() public {
-        
+    function test_OCR_updateRedemptionsFee_state(uint16 fee) public {
+
+        hevm.assume(fee >= 250 && fee <= 2000);
+
+        // Pre-state.
+        assertEq(OCR_DAI.redemptionsFee(), 1000);
+
+        // updateRedemptionsFee().
+        hevm.startPrank(address(god));
+        OCR_DAI.updateRedemptionsFee(fee);
+        hevm.stopPrank();
+
+        // Post-state.
+        assertEq(OCR_DAI.redemptionsFee(), fee);   
     }
 
 }
