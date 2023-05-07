@@ -140,7 +140,6 @@ contract Test_OCY_Convex_A is Utility {
         hevm.expectRevert("Ownable: caller is not the owner");
         DAO.pull(address(OCY_CVX_A), USDT, "");
         hevm.stopPrank();
-
     }
 
     function test_OCY_Convex_A_pullFromLocker_restrictions_asset() public {
@@ -150,6 +149,22 @@ contract Test_OCY_Convex_A is Utility {
         hevm.expectRevert("OCY_Convex_A::pullFromLocker() asset != convexPoolToken");
         DAO.pull(address(OCY_CVX_A), USDT, "");
         hevm.stopPrank();
+    }
+
+    function test_OCY_Convex_A_pullFromLocker_state_alUSD(uint96 amountalUSD) public {
+
+        hevm.assume(amountalUSD > 1_000 ether && amountalUSD < 10_000_000 ether);
+
+        // pushToLocker().
+        deal(alUSD, address(DAO), amountalUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
+
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
+        hevm.stopPrank();
+
+        assertEq(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
     }
 
     function test_OCY_Convex_A_pullFromLocker_state_FRAX(uint96 amountFRAX) public {
@@ -165,6 +180,23 @@ contract Test_OCY_Convex_A is Utility {
         DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
         hevm.stopPrank();
 
+        assertEq(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
+    }
+
+    function test_OCY_Convex_A_pullFromLocker_state_USDC(uint96 amountUSDC) public {
+
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
+
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
+        hevm.stopPrank();
+
+        assertEq(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
     }
 
     // Validate pullFromLockerPartial() state changes.
@@ -175,13 +207,79 @@ contract Test_OCY_Convex_A is Utility {
 
     function test_OCY_Convex_A_pullFromLockerPartial_restrictions_msgSender() public {
 
+        // Can't push to contract if _msgSender() != owner()
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pullPartial(address(OCY_CVX_A), USDT, 5, "");
+        hevm.stopPrank();
     }
 
     function test_OCY_Convex_A_pullFromLockerPartial_restrictions_asset() public {
         
+        // Can't pull if asset != convexPoolToken
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_A::pullFromLockerPartial() asset != convexPoolToken");
+        DAO.pullPartial(address(OCY_CVX_A), USDT, 5, "");
+        hevm.stopPrank();
     }
 
-    function test_OCY_Convex_A_pullFromLockerPartial_state(uint96 random) public {
+    function test_OCY_Convex_A_pullFromLockerPartial_state_alUSD(uint96 amountalUSD, uint96 amountPull) public {
+
+        hevm.assume(amountalUSD > 1_000 ether && amountalUSD < 10_000_000 ether);
+        hevm.assume(amountPull > 100 ether);
+
+        // pushToLocker().
+        deal(alUSD, address(DAO), amountalUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
+
+        uint256 preRewardsTokens = IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A));
+
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, "");
+        hevm.stopPrank();
+
+        assertLt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), preRewardsTokens);
+        
+    }
+
+    function test_OCY_Convex_A_pullFromLockerPartial_state_FRAX(uint96 amountFRAX, uint96 amountPull) public {
+
+        hevm.assume(amountFRAX > 1_000 ether && amountFRAX < 10_000_000 ether);
+        hevm.assume(amountPull > 100 ether);
+
+        // pushToLocker().
+        deal(FRAX, address(DAO), amountFRAX);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
+
+        uint256 preRewardsTokens = IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A));
+
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, "");
+        hevm.stopPrank();
+
+        assertLt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), preRewardsTokens);
+        
+    }
+
+    function test_OCY_Convex_A_pullFromLockerPartial_state_USDC(uint96 amountUSDC, uint96 amountPull) public {
+
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+        hevm.assume(amountPull > 100 * 10**6);
+
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
+
+        uint256 preRewardsTokens = IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A));
+
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, "");
+        hevm.stopPrank();
+
+        assertLt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), preRewardsTokens);
         
     }
 
