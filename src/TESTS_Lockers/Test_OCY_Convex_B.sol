@@ -372,18 +372,30 @@ contract Test_OCY_Convex_B is Utility {
         
     }
 
-
-
     // Validate claimRewards() state changes.
-    // Validate claimRewards() restrictions.
-    // This includes:
-    //   - Must be past the INTERVAL
 
-    function test_OCY_Convex_B_claimRewards_restrictions_interval(uint96 random) public {
+    function test_OCY_Convex_B_claimRewards_state(uint96 amountDAI) public {
 
-    }
+        hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
 
-    function test_OCY_Convex_B_claimRewards_state(uint96 random) public {
+        // pushToLocker().
+        deal(DAI, address(DAO), amountDAI);
+        assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, ""));
+
+        // Post-state.
+        assertGt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
+
+        hevm.warp(block.timestamp + 7 days);
+
+        OCY_CVX_B.claimRewards(true);
+
+        hevm.warp(block.timestamp + 7 days);
+
+        OCY_CVX_B.claimRewards(true);
+
+        hevm.warp(block.timestamp + 7 days);
+
+        OCY_CVX_B.claimRewards(true);
 
     }
 

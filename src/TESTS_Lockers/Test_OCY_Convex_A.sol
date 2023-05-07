@@ -284,15 +284,21 @@ contract Test_OCY_Convex_A is Utility {
     }
 
     // Validate claimRewards() state changes.
-    // Validate claimRewards() restrictions.
-    // This includes:
-    //   - Must be past the INTERVAL
+    
+    function test_OCY_Convex_A_claimRewards_state(uint96 amountFRAX) public {
 
-    function test_OCY_Convex_A_claimRewards_restrictions_interval(uint96 random) public {
+        hevm.assume(amountFRAX > 1_000 ether && amountFRAX < 10_000_000 ether);
 
-    }
+        // pushToLocker().
+        deal(FRAX, address(DAO), amountFRAX);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
 
-    function test_OCY_Convex_A_claimRewards_state(uint96 random) public {
+        // Post-state.
+        assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
+
+        hevm.warp(block.timestamp + 14 days);
+
+        OCY_CVX_A.claimRewards(true);
 
     }
 
