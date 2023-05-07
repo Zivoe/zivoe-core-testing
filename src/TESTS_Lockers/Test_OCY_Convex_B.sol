@@ -32,8 +32,44 @@ contract Test_OCY_Convex_B is Utility {
         zvl.try_updateIsLocker(address(GBL), address(OCY_CVX_B), true);
 
     }
+
+    // Events.
+
+    event Logger(address);
     
     event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+
+    // Helper function.
+
+    function acquire_sUSD_DAO() public {
+
+        address assetIn = USDC;
+        address assetOut = sUSD;
+        uint256 amountIn = 1_000_000 * 10**6;
+
+        // 1,000,000 USDC -> sUSD
+        bytes memory dataSwap =
+        hex"12aa3caf0000000000000000000000001136b25047e142fa3018184793aec68fbb173ce4000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800000000000000000000000057ab1ec28d129707052df4df418d58a2d46d5f510000000000000000000000001136b25047e142fa3018184793aec68fbb173ce4000000000000000000000000883816205341a6ba3c32ae8dadcebdd9d59bc2c4000000000000000000000000000000000000000000000000000000e8d4a5100000000000000000000000000000000000000000000000d2ba13a9bebf632eee68000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000001400000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002f50000000000000000000000000000000000000002d70002a900025f00024500a0c9e75c480000000000000000080200000000000000000000000000000000000000000000000000021700013d00a007e5c0d20000000000000000000000000000000000000000000001190000ca0000b05120dcef968d416a41cdac0ed8702fac8128a64241a2a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800443df021240000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000029f129e3ae170c9db6f10020d6bdbf78853d955acef822db058eb8505911ed77f175b99e02a00000000000000000000000000000000000000000000029de2cf789ee532ad4dcee63c1e50034ff465ee92516e9855eb60f520df0384f410b45853d955acef822db058eb8505911ed77f175b99e00a007e5c0d20000000000000000000000000000000000000000000000000000b600000600a0fd53121f5120a5407eae9ba41422680e2e00537571bcc53efbfd6b175474e89094c44da98b954eedeac495271d0f00443df0212400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a761247090af5da2744e0020d6bdbf7857ab1ec28d129707052df4df418d58a2d46d5f5100a0f2fa6b6657ab1ec28d129707052df4df418d58a2d46d5f5100000000000000000000000000000000000000000000d35c66ea72cdd43435390000000000000000461421c2b0134d5480a06c4eca2757ab1ec28d129707052df4df418d58a2d46d5f511111111254eeb25477b68fb85ed929f73a9605820000000000000000000000cfee7c08";
+        
+        // fund contract with the right amount of tokens to swap.
+        deal(assetIn, address(TreasuryDAO), amountIn);
+
+        emit log_named_uint("TreasuryDAO assetIn pre-swap balance:", IERC20(assetIn).balanceOf(address(TreasuryDAO)));
+        emit log_named_uint("TreasuryDAO assetOut pre-swap balance:", IERC20(assetOut).balanceOf(address(TreasuryDAO)));
+        emit Logger(address(TreasuryDAO));
+        
+        assert(zvl.try_updateIsKeeper(address(GBL), address(this), true));
+        TreasuryDAO.convertAndForward(assetIn, assetOut, dataSwap);
+
+        emit log_named_uint("TreasuryDAO assetIn after-swap balance:", IERC20(assetIn).balanceOf(address(TreasuryDAO)));
+        emit log_named_uint("TreasuryDAO assetOut after-swap balance:", IERC20(assetOut).balanceOf(address(DAO)));
+
+        // assert balances after swap are correct.
+        assertEq(0, IERC20(assetIn).balanceOf(address(TreasuryDAO)));
+        assert(IERC20(assetOut).balanceOf(address(DAO)) > 0);
+
+    }
+
 
     // Validate intial state of OCY_Convex_B
 
@@ -72,31 +108,69 @@ contract Test_OCY_Convex_B is Utility {
     function test_OCY_Convex_B_pushToLocker_restrictions_msgSender() public {
 
         // Can't push to contract if _msgSender() != owner()
-        // hevm.startPrank(address(bob));
-        // hevm.expectRevert("Ownable: caller is not the owner");
-        // OUSDLocker.pushToLocker(address(OUSD), 100 ether, "");
-        // hevm.stopPrank();
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        OCY_CVX_B.pushToLocker(address(DAI), 100 ether, "");
+        hevm.stopPrank();
     }
 
     function test_OCY_Convex_B_pushToLocker_restrictions_asset() public {
         
-        // Can't push to contract if asset != OUSD
-        // hevm.startPrank(address(DAO));
-        // hevm.expectRevert("OCY_OUSD::pushToLocker() asset != OUSD");
-        // OUSDLocker.pushToLocker(address(ZVE), 100 ether, "");
-        // hevm.stopPrank();
+        deal(FRAX, address(DAO), 100 ether);
+
+        // Can't push to contract if asset != DAI && asset != USDC && asset != USDT && asset != sUSD
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_B::pushToLocker() asset != DAI && asset != USDC && asset != USDT && asset != sUSD");
+        DAO.push(address(OCY_CVX_B), FRAX, 100 ether, "");
+        hevm.stopPrank();
     }
 
-    function test_OCY_Convex_B_pushToLocker_state() public {
+    function test_OCY_Convex_B_pushToLocker_state_DAI(uint96 amountDAI) public {
+
+        hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
 
         // pushToLocker().
-        // hevm.expectEmit(false, false, false, true, address(OUSDLocker));
-        // emit BasisAdjusted(0, balanceOUSD);
-        // assert(god.try_push(address(DAO), address(OUSDLocker), OUSD, balanceOUSD, ""));
+        deal(DAI, address(DAO), amountDAI);
+        assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, ""));
 
         // Post-state.
-        // assertEq(balanceOUSD, IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        // assertEq(OUSDLocker.basis(), IERC20(OUSD).balanceOf(address(OUSDLocker)));
+
+    }
+
+    function test_OCY_Convex_B_pushToLocker_state_USDC(uint96 amountUSDC) public {
+
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_B), USDC, amountUSDC, ""));
+
+        // Post-state.
+
+    }
+
+    function test_OCY_Convex_B_pushToLocker_state_USDT(uint96 amountUSDT) public {
+
+        hevm.assume(amountUSDT > 1_000 * 10**6 && amountUSDT < 10_000_000 * 10**6);
+
+        // pushToLocker().
+        deal(USDT, address(DAO), amountUSDT);
+        assert(god.try_push(address(DAO), address(OCY_CVX_B), USDT, amountUSDT, ""));
+
+        // Post-state.
+
+    }
+
+    function test_OCY_Convex_B_pushToLocker_state_sUSD(uint96 amountsUSD) public {
+
+        acquire_sUSD_DAO();
+
+        hevm.assume(amountsUSD > 1_000 ether && amountsUSD < IERC20(sUSD).balanceOf(address(DAO)));
+
+        // pushToLocker().
+        assert(god.try_push(address(DAO), address(OCY_CVX_B), sUSD, amountsUSD, ""));
+
+        // Post-state.
 
     }
 
