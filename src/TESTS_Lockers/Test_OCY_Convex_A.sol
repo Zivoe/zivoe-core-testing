@@ -136,32 +136,34 @@ contract Test_OCY_Convex_A is Utility {
     function test_OCY_Convex_A_pullFromLocker_restrictions_msgSender() public {
 
         // Can't push to contract if _msgSender() != owner()
-        // hevm.startPrank(address(bob));
-        // hevm.expectRevert("Ownable: caller is not the owner");
-        // OUSDLocker.pullFromLocker(address(OUSD), "");
-        // hevm.stopPrank();
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pull(address(OCY_CVX_A), USDT, "");
+        hevm.stopPrank();
 
     }
 
     function test_OCY_Convex_A_pullFromLocker_restrictions_asset() public {
         
-        // Can't push to contract if asset != OUSD
-        // hevm.startPrank(address(DAO));
-        // hevm.expectRevert("OCY_OUSD::pullFromLocker() asset != OUSD");
-        // OUSDLocker.pullFromLocker(address(ZVE), "");
-        // hevm.stopPrank();
+        // Can't pull if asset != convexPoolToken
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_A::pullFromLocker() asset != convexPoolToken");
+        DAO.pull(address(OCY_CVX_A), USDT, "");
+        hevm.stopPrank();
     }
 
-    function test_OCY_Convex_A_pullFromLocker_state() public {
+    function test_OCY_Convex_A_pullFromLocker_state_FRAX(uint96 amountFRAX) public {
+
+        hevm.assume(amountFRAX > 1_000 ether && amountFRAX < 10_000_000 ether);
+
+        // pushToLocker().
+        deal(FRAX, address(DAO), amountFRAX);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
 
         // pullFromLocker().
-        // hevm.expectEmit(false, false, false, true, address(OUSDLocker));
-        // emit BasisAdjusted(balanceOUSD, 0);
-        // assert(god.try_pull(address(DAO), address(OUSDLocker), OUSD, ""));
-
-        // Post-state.
-        // assertEq(balanceOUSD, IERC20(OUSD).balanceOf(address(DAO)));
-        // assertEq(OUSDLocker.basis(), 0);
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
+        hevm.stopPrank();
 
     }
 

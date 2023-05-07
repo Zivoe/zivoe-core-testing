@@ -181,38 +181,40 @@ contract Test_OCY_Convex_B is Utility {
     // Validate pullFromLocker() state changes.
     // Validate pullFromLocker() restrictions.
     // This includes:
-    //   - asset must be OUSD
     //   - onlyOwner() modifier
+    //   - asset must be OUSD
 
     function test_OCY_Convex_B_pullFromLocker_restrictions_msgSender() public {
 
         // Can't push to contract if _msgSender() != owner()
-        // hevm.startPrank(address(bob));
-        // hevm.expectRevert("Ownable: caller is not the owner");
-        // OUSDLocker.pullFromLocker(address(OUSD), "");
-        // hevm.stopPrank();
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pull(address(OCY_CVX_B), USDT, "");
+        hevm.stopPrank();
 
     }
 
     function test_OCY_Convex_B_pullFromLocker_restrictions_asset() public {
         
-        // Can't push to contract if asset != OUSD
-        // hevm.startPrank(address(DAO));
-        // hevm.expectRevert("OCY_OUSD::pullFromLocker() asset != OUSD");
-        // OUSDLocker.pullFromLocker(address(ZVE), "");
-        // hevm.stopPrank();
+        // Can't pull if asset != convexPoolToken
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_A::pullFromLocker() asset != convexPoolToken");
+        DAO.pull(address(OCY_CVX_B), USDT, "");
+        hevm.stopPrank();
     }
 
-    function test_OCY_Convex_B_pullFromLocker_state() public {
+    function test_OCY_Convex_B_pullFromLocker_state_DAI(uint96 amountDAI) public {
+
+        hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
+
+        // pushToLocker().
+        deal(DAI, address(DAO), amountDAI);
+        assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, ""));
 
         // pullFromLocker().
-        // hevm.expectEmit(false, false, false, true, address(OUSDLocker));
-        // emit BasisAdjusted(balanceOUSD, 0);
-        // assert(god.try_pull(address(DAO), address(OUSDLocker), OUSD, ""));
-
-        // Post-state.
-        // assertEq(balanceOUSD, IERC20(OUSD).balanceOf(address(DAO)));
-        // assertEq(OUSDLocker.basis(), 0);
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), "");
+        hevm.stopPrank();
 
     }
 
