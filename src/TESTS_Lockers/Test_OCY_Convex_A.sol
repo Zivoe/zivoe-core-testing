@@ -97,6 +97,7 @@ contract Test_OCY_Convex_A is Utility {
         assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
 
         // Post-state.
+        assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
 
     }
 
@@ -109,6 +110,7 @@ contract Test_OCY_Convex_A is Utility {
         assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
 
         // Post-state.
+        assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
 
     }
 
@@ -121,6 +123,7 @@ contract Test_OCY_Convex_A is Utility {
         assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
 
         // Post-state.
+        assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
 
     }
 
