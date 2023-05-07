@@ -27,6 +27,10 @@ contract Test_OCY_Convex_B is Utility {
 
         OCY_CVX_B = new OCY_Convex_B(address(DAO), address(GBL), address(TreasuryYDL));
 
+        zvl.try_updateIsLocker(address(GBL), address(TreasuryDAO), true);
+        zvl.try_updateIsLocker(address(GBL), address(TreasuryYDL), true);
+        zvl.try_updateIsLocker(address(GBL), address(OCY_CVX_B), true);
+
     }
     
     event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);

@@ -101,6 +101,7 @@ contract Utility is DSTest, Test {
     address constant USDC  = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;    
     address constant USDT  = 0xdAC17F958D2ee523a2206206994597C13D831ec7;    /// Tether.
     address constant OUSD  = 0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86;    /// Origin.
+    address constant alUSD = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;    /// Alchemix.
 
     address constant AAVE  = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;    /// AAVE(v3).
     address constant WETH  = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;    /// WrappedETH.

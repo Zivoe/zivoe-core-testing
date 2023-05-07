@@ -27,6 +27,10 @@ contract Test_OCY_Convex_A is Utility {
 
         OCY_CVX_A = new OCY_Convex_A(address(DAO), address(GBL), address(TreasuryYDL));
 
+        zvl.try_updateIsLocker(address(GBL), address(TreasuryDAO), true);
+        zvl.try_updateIsLocker(address(GBL), address(TreasuryYDL), true);
+        zvl.try_updateIsLocker(address(GBL), address(OCY_CVX_A), true);
+
     }
     
     event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
@@ -44,37 +48,62 @@ contract Test_OCY_Convex_A is Utility {
     // Validate pushToLocker() state changes.
     // Validate pushToLocker() restrictions.
     // This includes:
-    //   - asset must be OUSD
     //   - onlyOwner() modifier
+    //   - asset must be FRAX, USDC, or aUSD
 
     function test_OCY_Convex_A_pushToLocker_restrictions_msgSender() public {
 
         // Can't push to contract if _msgSender() != owner()
-        // hevm.startPrank(address(bob));
-        // hevm.expectRevert("Ownable: caller is not the owner");
-        // OUSDLocker.pushToLocker(address(OUSD), 100 ether, "");
-        // hevm.stopPrank();
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        OCY_CVX_A.pushToLocker(address(DAI), 100 ether, "");
+        hevm.stopPrank();
     }
 
     function test_OCY_Convex_A_pushToLocker_restrictions_asset() public {
         
-        // Can't push to contract if asset != OUSD
-        // hevm.startPrank(address(DAO));
-        // hevm.expectRevert("OCY_OUSD::pushToLocker() asset != OUSD");
-        // OUSDLocker.pushToLocker(address(ZVE), 100 ether, "");
-        // hevm.stopPrank();
+        deal(USDT, address(DAO), 100 ether);
+
+        // Can't push to contract if asset != FRAX && asset != USDC && asset != alUSD
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_A::pushToLocker() asset != FRAX && asset != USDC && asset != alUSD");
+        DAO.push(address(OCY_CVX_A), USDT, 100 ether, "");
+        hevm.stopPrank();
     }
 
-    function test_OCY_Convex_A_pushToLocker_state() public {
+    function test_OCY_Convex_A_pushToLocker_state_FRAX(uint96 amountFRAX) public {
+
+        hevm.assume(amountFRAX > 1_000 ether && amountFRAX < 10_000_000 ether);
 
         // pushToLocker().
-        // hevm.expectEmit(false, false, false, true, address(OUSDLocker));
-        // emit BasisAdjusted(0, balanceOUSD);
-        // assert(god.try_push(address(DAO), address(OUSDLocker), OUSD, balanceOUSD, ""));
+        deal(FRAX, address(DAO), amountFRAX);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
 
         // Post-state.
-        // assertEq(balanceOUSD, IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        // assertEq(OUSDLocker.basis(), IERC20(OUSD).balanceOf(address(OUSDLocker)));
+
+    }
+
+    function test_OCY_Convex_A_pushToLocker_state_USDC(uint96 amountUSDC) public {
+
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
+
+        // Post-state.
+
+    }
+
+    function test_OCY_Convex_A_pushToLocker_state_alUSD(uint96 amountalUSD) public {
+
+        hevm.assume(amountalUSD > 1_000 ether && amountalUSD < 10_000_000 ether);
+
+        // pushToLocker().
+        deal(alUSD, address(DAO), amountalUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
+
+        // Post-state.
 
     }
 
