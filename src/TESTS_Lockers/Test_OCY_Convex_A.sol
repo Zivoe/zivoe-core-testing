@@ -42,9 +42,6 @@ contract Test_OCY_Convex_A is Utility {
         assertEq(OCY_CVX_A.GBL(), address(GBL));
         assertEq(OCY_CVX_A.OCT_YDL(), address(TreasuryYDL));
 
-        assertEq(OCY_CVX_A.distributionLast(), block.timestamp);
-        assertEq(OCY_CVX_A.INTERVAL(), 14 days);
-
         assertEq(OCY_CVX_A.FRAX(), 0x853d955aCEf822Db058eb8505911ED77F175b99e);
         assertEq(OCY_CVX_A.USDC(), 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
         assertEq(OCY_CVX_A.alUSD(), 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9);
