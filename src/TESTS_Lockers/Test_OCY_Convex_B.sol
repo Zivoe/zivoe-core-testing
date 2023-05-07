@@ -40,8 +40,26 @@ contract Test_OCY_Convex_B is Utility {
     function test_OCY_Convex_B_init() public {
 
         assertEq(OCY_CVX_B.GBL(), address(GBL));
+        assertEq(OCY_CVX_B.OCT_YDL(), address(TreasuryYDL));
+
         assertEq(OCY_CVX_B.distributionLast(), block.timestamp);
         assertEq(OCY_CVX_B.INTERVAL(), 14 days);
+
+        assertEq(OCY_CVX_B.DAI(), 0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        assertEq(OCY_CVX_B.USDC(), 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+        assertEq(OCY_CVX_B.USDT(), 0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        assertEq(OCY_CVX_B.sUSD(), 0x57Ab1ec28D129707052df4dF418D58a2D46d5f51);
+        assertEq(OCY_CVX_B.SNX(), 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F);
+        assertEq(OCY_CVX_B.CVX(), 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
+        assertEq(OCY_CVX_B.CRV(), 0xD533a949740bb3306d119CC777fa900bA034cd52);
+
+        assertEq(OCY_CVX_B.convexPoolToken(), 0xC25a3A3b969415c80451098fa907EC722572917F);
+        assertEq(OCY_CVX_B.convexDeposit(), 0xF403C135812408BFbE8713b5A23a04b3D48AAE31);
+        assertEq(OCY_CVX_B.convexRewards(), 0x22eE18aca7F3Ee920D01F25dA85840D12d98E8Ca);
+        assertEq(OCY_CVX_B.convexPoolID(), 4);
+
+        assertEq(OCY_CVX_B.curveBasePool(), 0xA5407eAE9Ba41422680e2e00537571bcC53efBfD);
+        assertEq(OCY_CVX_B.curveBasePoolToken(), 0xC25a3A3b969415c80451098fa907EC722572917F);
 
     }
 
