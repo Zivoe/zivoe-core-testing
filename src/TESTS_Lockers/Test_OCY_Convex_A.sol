@@ -63,7 +63,7 @@ contract Test_OCY_Convex_A is Utility {
     // Validate pushToLocker() restrictions.
     // This includes:
     //   - onlyOwner() modifier
-    //   - asset must be FRAX, USDC, or aUSD
+    //   - asset must be FRAX, USDC, or alUSD
 
     function test_OCY_Convex_A_pushToLocker_restrictions_msgSender() public {
 
@@ -127,7 +127,7 @@ contract Test_OCY_Convex_A is Utility {
     // Validate pullFromLocker() state changes.
     // Validate pullFromLocker() restrictions.
     // This includes:
-    //   - asset must be OUSD
+    //   - asset must be convexPoolToken
     //   - onlyOwner() modifier
 
     function test_OCY_Convex_A_pullFromLocker_restrictions_msgSender() public {
@@ -199,7 +199,7 @@ contract Test_OCY_Convex_A is Utility {
     // Validate pullFromLockerPartial() state changes.
     // Validate pullFromLockerPartial() restrictions.
     // This includes:
-    //   - asset must be OUSD
+    //   - asset must be convexPoolToken
     //   - onlyOwner() modifier
 
     function test_OCY_Convex_A_pullFromLockerPartial_restrictions_msgSender() public {
