@@ -384,15 +384,13 @@ contract Test_OCY_Convex_B is Utility {
 
         hevm.warp(block.timestamp + 7 days);
 
+        uint256 preCRV = IERC20(CRV).balanceOf(address(OCT_YDL));
+        uint256 preCVX = IERC20(CVX).balanceOf(address(OCT_YDL));
+
         OCY_CVX_B.claimRewards(true);
 
-        // hevm.warp(block.timestamp + 7 days);
-
-        // OCY_CVX_B.claimRewards(true);
-
-        // hevm.warp(block.timestamp + 7 days);
-
-        // OCY_CVX_B.claimRewards(true);
+        assertGt(IERC20(CRV).balanceOf(address(OCT_YDL)), preCRV);
+        assertGt(IERC20(CVX).balanceOf(address(OCT_YDL)), preCVX);
 
     }
 

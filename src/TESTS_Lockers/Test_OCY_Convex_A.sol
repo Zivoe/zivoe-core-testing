@@ -293,9 +293,15 @@ contract Test_OCY_Convex_A is Utility {
         // Post-state.
         assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
 
-        hevm.warp(block.timestamp + 14 days);
+        hevm.warp(block.timestamp + 7 days);
+
+        uint256 preCRV = IERC20(CRV).balanceOf(address(OCT_YDL));
+        uint256 preCVX = IERC20(CVX).balanceOf(address(OCT_YDL));
 
         OCY_CVX_A.claimRewards(true);
+
+        assertGt(IERC20(CRV).balanceOf(address(OCT_YDL)), preCRV);
+        assertGt(IERC20(CVX).balanceOf(address(OCT_YDL)), preCVX);
 
     }
 
