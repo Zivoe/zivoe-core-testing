@@ -666,6 +666,7 @@ contract Test_OCR_Modular is Utility {
         );
 
         uint256 preRedemptionsAllowedSenior = OCR_USDC.redemptionsAllowedSenior();
+        uint256 preRedemptionsQueuedSenior = OCR_USDC.redemptionsQueuedSenior();
         
         // Burn senior position first
         if (totalRedemptions == 0) { }  // Nothing to test in this situation
@@ -689,10 +690,12 @@ contract Test_OCR_Modular is Utility {
             assertEq(IERC20(USDC).balanceOf(address(sam)), preUSDC_sam + redeemAmount * OCR_USDC.redemptionsFee() / BIPS);
             assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFee()) / BIPS);
 
-            (, uint256 amountPost,,) = OCR_USDC.requests(id_senior);
+            (, uint256 amountPost, uint256 unlocksPost,) = OCR_USDC.requests(id_senior);
             
             assertEq(amountPost, amountPre - burnAmount);
-            assertEq(OCR_USDC.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - burnAmount);
+            assertEq(unlocksPost, OCR_USDC.epoch() + 14 days);
+            assertEq(OCR_USDC.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - amountPre);
+            assertEq(OCR_USDC.redemptionsQueuedSenior(), preRedemptionsQueuedSenior + amountPost);
         }
 
         // Recalculate totalRedemptions
@@ -701,6 +704,7 @@ contract Test_OCR_Modular is Utility {
         );
 
         uint256 preRedemptionsAllowedJunior = OCR_USDC.redemptionsAllowedJunior();
+        uint256 preRedemptionsQueuedJunior = OCR_USDC.redemptionsQueuedJunior();
 
         // Burn junior position next
         if (totalRedemptions == 0) { }  // Nothing to test in this situation
@@ -724,10 +728,12 @@ contract Test_OCR_Modular is Utility {
             assertEq(IERC20(USDC).balanceOf(address(jim)), preUSDC_jim + redeemAmount * OCR_USDC.redemptionsFee() / BIPS);
             assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFee()) / BIPS);
 
-            (, uint256 amountPost,,) = OCR_USDC.requests(id_junior);
+            (, uint256 amountPost, uint256 unlocksPost,) = OCR_USDC.requests(id_junior);
 
             assertEq(amountPost, amountPre - burnAmount);
-            assertEq(OCR_USDC.redemptionsAllowedJunior(), preRedemptionsAllowedJunior - burnAmount);
+            assertEq(unlocksPost, OCR_USDC.epoch() + 14 days);
+            assertEq(OCR_USDC.redemptionsAllowedJunior(), preRedemptionsAllowedJunior - amountPre);
+            assertEq(OCR_USDC.redemptionsQueuedJunior(), preRedemptionsQueuedJunior + amountPost);
         }
 
     }
