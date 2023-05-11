@@ -563,6 +563,7 @@ contract Test_OCR_Modular is Utility {
         );
 
         uint256 preRedemptionsAllowedSenior = OCR_DAI.redemptionsAllowedSenior();
+        uint256 preRedemptionsQueuedSenior = OCR_DAI.redemptionsQueuedSenior();
         
         // Burn senior position first
         if (totalRedemptions == 0) { }  // Nothing to test in this situation
@@ -585,11 +586,13 @@ contract Test_OCR_Modular is Utility {
             assertEq(IERC20(DAI).balanceOf(address(sam)), preDAI_sam + redeemAmount * OCR_DAI.redemptionsFee() / BIPS);
             assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFee()) / BIPS);
 
-            (, uint256 amountPost,,) = OCR_DAI.requests(id_senior);
+            (, uint256 amountPost, uint256 unlocksPost,) = OCR_DAI.requests(id_senior);
             
             
             assertEq(amountPost, amountPre - burnAmount);
-            assertEq(OCR_DAI.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - burnAmount);
+            assertEq(unlocksPost, OCR_DAI.epoch() + 14 days);
+            assertEq(OCR_DAI.redemptionsAllowedSenior(), preRedemptionsAllowedSenior - amountPre);
+            assertEq(OCR_DAI.redemptionsQueuedSenior(), preRedemptionsQueuedSenior + amountPost);
         }
 
         // Recalculate totalRedemptions
@@ -598,6 +601,7 @@ contract Test_OCR_Modular is Utility {
         );
 
         uint256 preRedemptionsAllowedJunior = OCR_DAI.redemptionsAllowedJunior();
+        uint256 preRedemptionsQueuedJunior = OCR_DAI.redemptionsQueuedJunior();
 
         // Burn junior position next
         if (totalRedemptions == 0) { }  // Nothing to test in this situation
@@ -609,8 +613,8 @@ contract Test_OCR_Modular is Utility {
             uint256 burnAmount = amountPre * portion / BIPS;
             uint256 redeemAmount = burnAmount * (BIPS - OCR_DAI.epochDiscountJunior()) / BIPS;
 
-            uint preDAI_jim = IERC20(DAI).balanceOf(address(jim));
-            uint preDAI_DAO = IERC20(DAI).balanceOf(address(DAO));
+            uint256 preDAI_jim = IERC20(DAI).balanceOf(address(jim));
+            uint256 preDAI_DAO = IERC20(DAI).balanceOf(address(DAO));
 
             // processRequest().
             hevm.expectEmit(true, true, true, true, address(OCR_DAI));
@@ -620,10 +624,12 @@ contract Test_OCR_Modular is Utility {
             assertEq(IERC20(DAI).balanceOf(address(jim)), preDAI_jim + redeemAmount * OCR_DAI.redemptionsFee() / BIPS);
             assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFee()) / BIPS);
 
-            (, uint256 amountPost,,) = OCR_DAI.requests(id_junior);
+            (, uint256 amountPost, uint256 unlocksPost,) = OCR_DAI.requests(id_junior);
 
             assertEq(amountPost, amountPre - burnAmount);
-            assertEq(OCR_DAI.redemptionsAllowedJunior(), preRedemptionsAllowedJunior - burnAmount);
+            assertEq(unlocksPost, OCR_DAI.epoch() + 14 days);
+            assertEq(OCR_DAI.redemptionsAllowedJunior(), preRedemptionsAllowedJunior - amountPre);
+            assertEq(OCR_DAI.redemptionsQueuedJunior(), preRedemptionsQueuedJunior + amountPost);
         }
 
     }
