@@ -82,9 +82,8 @@ contract Test_OCY_Convex_B is Utility {
         assertEq(OCY_CVX_B.USDC(), 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
         assertEq(OCY_CVX_B.USDT(), 0xdAC17F958D2ee523a2206206994597C13D831ec7);
         assertEq(OCY_CVX_B.sUSD(), 0x57Ab1ec28D129707052df4dF418D58a2D46d5f51);
-        assertEq(OCY_CVX_B.SNX(), 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F);
-        assertEq(OCY_CVX_B.CVX(), 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
         assertEq(OCY_CVX_B.CRV(), 0xD533a949740bb3306d119CC777fa900bA034cd52);
+        assertEq(OCY_CVX_B.CVX(), 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
 
         assertEq(OCY_CVX_B.convexPoolToken(), 0xC25a3A3b969415c80451098fa907EC722572917F);
         assertEq(OCY_CVX_B.convexDeposit(), 0xF403C135812408BFbE8713b5A23a04b3D48AAE31);
@@ -384,13 +383,13 @@ contract Test_OCY_Convex_B is Utility {
 
         hevm.warp(block.timestamp + 7 days);
 
-        uint256 preCRV = IERC20(CRV).balanceOf(address(OCT_YDL));
-        uint256 preCVX = IERC20(CVX).balanceOf(address(OCT_YDL));
+        uint256 preCRV = IERC20(CRV).balanceOf(address(TreasuryYDL));
+        uint256 preCVX = IERC20(CVX).balanceOf(address(TreasuryYDL));
 
         OCY_CVX_B.claimRewards(true);
 
-        assertGt(IERC20(CRV).balanceOf(address(OCT_YDL)), preCRV);
-        assertGt(IERC20(CVX).balanceOf(address(OCT_YDL)), preCVX);
+        assertGt(IERC20(CRV).balanceOf(address(TreasuryYDL)), preCRV);
+        assertGt(IERC20(CVX).balanceOf(address(TreasuryYDL)), preCVX);
 
     }
 

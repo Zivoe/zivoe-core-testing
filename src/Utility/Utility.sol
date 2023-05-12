@@ -105,6 +105,8 @@ contract Utility is DSTest, Test {
     address constant sUSD  = 0x57Ab1ec28D129707052df4dF418D58a2D46d5f51;    /// Synthetix.
 
     address constant AAVE  = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;    /// AAVE(v3).
+    address constant CRV = 0xD533a949740bb3306d119CC777fa900bA034cd52;      /// Curve.
+    address constant CVX = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;      /// Convex.
     address constant WETH  = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;    /// WrappedETH.
     address constant WBTC  = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;    /// WrappedBTC.
 
