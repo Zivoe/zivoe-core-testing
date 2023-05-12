@@ -54,10 +54,10 @@ contract Test_ZivoeRewardsVesting is Utility {
     //  - Reward isn't already set (rewardData[_rewardsToken].rewardsDuration == 0)
     //  - Maximum of 10 rewards are set (rewardTokens.length < 10) .. TODO: Discuss with auditors @RTV what max feasible size is?
 
-    function test_ZivoeRewardsVesting_addReward_restrictions_owner() public {
-        // Can't call if not owner(), which should be "zvl".
+    function test_ZivoeRewardsVesting_addReward_restrictions_ZVL() public {
+        // Can't call if not ZVL().
         hevm.startPrank(address(bob));
-        hevm.expectRevert("Ownable: caller is not the owner");
+        hevm.expectRevert("_msgSender() != ZivoeRewardsVesting_IZivoeGlobals(GBL).ZVL()");
         vestZVE.addReward(FRAX, 30 days);
         hevm.stopPrank();
     }
