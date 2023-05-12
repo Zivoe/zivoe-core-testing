@@ -162,9 +162,6 @@ contract Test_DeployCore_Modular is Utility {
         address _ZVE = IZivoeGlobals(_GBL).ZVE();
         address _ZVL = IZivoeGlobals(_GBL).ZVL();
 
-        // Ownership.
-        assertEq(IZivoeRewards(_stJTT).owner(), _ZVL);
-
         // State variables.
         Reward memory _rewardZVE = IZivoeRewards(_stJTT).rewardData(_ZVE);
         Reward memory _rewardDAI = IZivoeRewards(_stJTT).rewardData(DAI);
@@ -192,9 +189,6 @@ contract Test_DeployCore_Modular is Utility {
         address _ZVE = IZivoeGlobals(_GBL).ZVE();
         address _ZVL = IZivoeGlobals(_GBL).ZVL();
 
-        // Ownership.
-        assertEq(IZivoeRewards(_stSTT).owner(), _ZVL);
-
         // State variables.
         Reward memory _rewardZVE = IZivoeRewards(_stSTT).rewardData(_ZVE);
         Reward memory _rewardDAI = IZivoeRewards(_stSTT).rewardData(DAI);
@@ -221,9 +215,6 @@ contract Test_DeployCore_Modular is Utility {
         address _ZVE = IZivoeGlobals(_GBL).ZVE();
         address _ZVL = IZivoeGlobals(_GBL).ZVL();
 
-        // Ownership.
-        assertEq(IZivoeRewards(_stZVE).owner(), _ZVL);
-
         // State variables.
         Reward memory _rewardZVE = IZivoeRewards(_stZVE).rewardData(_ZVE);
         Reward memory _rewardDAI = IZivoeRewards(_stZVE).rewardData(DAI);
@@ -249,9 +240,6 @@ contract Test_DeployCore_Modular is Utility {
         address _vestZVE = IZivoeGlobals(_GBL).vestZVE();
         address _ZVE = IZivoeGlobals(_GBL).ZVE();
         address _ZVL = IZivoeGlobals(_GBL).ZVL();
-
-        // Ownership.
-        assertEq(IZivoeRewardsVesting(_vestZVE).owner(), _ZVL);
 
         // State variables.
         Reward memory _rewardZVE = IZivoeRewardsVesting(_vestZVE).rewardData(DAI);

@@ -704,24 +704,6 @@ contract Utility is DSTest, Test {
             address(GBL)
         );
 
-        // stSTT.owner() must add DAI and ZVE as rewardToken's with "30 days" rewardDuration's.
-        // stJTT.owner() must add DAI and ZVE as rewardToken's with "30 days" rewardDuration's.
-        // stZVE.owner() must add DAI and ZVE as rewardToken's with "30 days" rewardDuration's.
-        stSTT.addReward(DAI, 30 days);
-        stSTT.addReward(address(ZVE), 30 days);
-        stJTT.addReward(DAI, 30 days);
-        stJTT.addReward(address(ZVE), 30 days);
-        stZVE.addReward(DAI, 30 days);
-        stZVE.addReward(address(ZVE), 30 days);
-
-        // stSTT.owner() MUST transfer ownership to ZVL ("zvl").
-        // stJTT.owner() MUST transfer ownership to ZVL ("zvl").
-        // stZVE.owner() MUST transfer ownership to ZVL ("zvl").
-        stSTT.transferOwnership(address(zvl));
-        stJTT.transferOwnership(address(zvl));
-        stZVE.transferOwnership(address(zvl));
-
-
         // Step #9 --- Deploy ZivoeYDL.sol.
 
         YDL = new ZivoeYDL(
@@ -741,13 +723,6 @@ contract Utility is DSTest, Test {
 
         // "jay" MUST transfer 60% of ZVE tokens to vestZVE.
         jay.transferToken(address(ZVE), address(vestZVE), ZVE.totalSupply() * 6 / 10);
-        
-        // vestZVE.owner() MUST add DAI as a rewardToken with "30 days" for rewardsDuration.
-        vestZVE.addReward(DAI, 30 days);
-
-        // vestZVE.owner() MUST transfer ownership to ZVL ("zvl").
-        vestZVE.transferOwnership(address(zvl));
-
         
         // Step #11 - Update the ZivoeGlobals.sol contract.
 
@@ -780,6 +755,23 @@ contract Utility is DSTest, Test {
 
         // GBL.owner() SHOULD renounce ownership.
         GBL.renounceOwnership();
+        
+        // stSTT.owner() must add DAI and ZVE as rewardToken's with "30 days" rewardDuration's.
+        // stJTT.owner() must add DAI and ZVE as rewardToken's with "30 days" rewardDuration's.
+        // stZVE.owner() must add DAI and ZVE as rewardToken's with "30 days" rewardDuration's.
+        hevm.startPrank(address(zvl));
+        stSTT.addReward(DAI, 30 days);
+        stSTT.addReward(address(ZVE), 30 days);
+        stJTT.addReward(DAI, 30 days);
+        stJTT.addReward(address(ZVE), 30 days);
+        stZVE.addReward(DAI, 30 days);
+        stZVE.addReward(address(ZVE), 30 days);
+        hevm.stopPrank();
+
+        // vestZVE.owner() MUST add DAI as a rewardToken with "30 days" for rewardsDuration.
+        hevm.startPrank(address(zvl));
+        vestZVE.addReward(DAI, 30 days);
+        hevm.stopPrank();
 
         // "zvl" MUST add ZVT to the isLocker whitelist.
         assert(zvl.try_updateIsLocker(address(GBL), address(ZVT), true));
