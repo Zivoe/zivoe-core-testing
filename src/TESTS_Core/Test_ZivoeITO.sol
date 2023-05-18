@@ -238,7 +238,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositJunior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() asset != stables[0] && asset != stables[1] && asset != stables[2] && asset != stables[3]");
+        hevm.expectRevert("ZivoeITO::depositJunior() asset != stables[0-4]");
         ITO.depositJunior(100 ether, address(WETH));
         hevm.stopPrank();
     }
@@ -255,7 +255,7 @@ contract Test_ZivoeITO is Utility {
         // Should throw with: "ZivoeITO::depositJunior() ~ has vesting schedule ~"
         hevm.startPrank(address(bob));
         hevm.warp(ITO.start() + 1 seconds);
-        hevm.expectRevert("ZivoeITO::depositJunior() ITO_IZivoeRewardsVesting(ITO_IZivoeGlobals(GBL).vestZVE()).vestingScheduleSet(_msgSender())");
+        hevm.expectRevert("ZivoeITO::depositJunior() ITO_IZivoeRewardsVesting(vestZVE).vestingScheduleSet(_msgSender())");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
     }
@@ -338,7 +338,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositSenior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() asset != stables[0] && asset != stables[1] && asset != stables[2] && asset != stables[3]");
+        hevm.expectRevert("ZivoeITO::depositSenior() asset != stables[0-4]");
         ITO.depositSenior(100 ether, address(WETH));
         hevm.stopPrank();
     }
@@ -355,7 +355,7 @@ contract Test_ZivoeITO is Utility {
         // Should throw with: "ZivoeITO::depositSenior() ~ has vesting schedule ~"
         hevm.startPrank(address(bob));
         hevm.warp(ITO.start() + 1 seconds);
-        hevm.expectRevert("ZivoeITO::depositSenior() ITO_IZivoeRewardsVesting(ITO_IZivoeGlobals(GBL).vestZVE()).vestingScheduleSet(_msgSender())");
+        hevm.expectRevert("ZivoeITO::depositSenior() ITO_IZivoeRewardsVesting(vestZVE).vestingScheduleSet(_msgSender())");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }

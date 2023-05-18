@@ -325,7 +325,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push to address(OCG_ERC721Locker), does not expose canPush().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::push() !DAO_ILocker(locker).canPush()");
+        hevm.expectRevert("ZivoeDAO::push() !ILocker_DAO(locker).canPush()");
         DAO.push(address(OCG_ERC721Locker), address(DAI), 1000 ether, "");
         hevm.stopPrank();
     }
@@ -464,7 +464,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPull().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pull() !DAO_ILocker(locker).canPull()");
+        hevm.expectRevert("ZivoeDAO::pull() !ILocker_DAO(locker).canPull()");
         DAO.pull(address(OCG_ERC721Locker), address(DAI), "");
         hevm.stopPrank();
     }
@@ -597,7 +597,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPullPartial().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullPartial() !DAO_ILocker(locker).canPullPartial()");
+        hevm.expectRevert("ZivoeDAO::pullPartial() !ILocker_DAO(locker).canPullPartial()");
         DAO.pullPartial(address(OCG_ERC721Locker), address(DAI), 1000 ether, "");
         hevm.stopPrank();
     }
@@ -779,7 +779,7 @@ contract Test_ZivoeDAO is Utility {
         ) = pushMultiRestrictions(random);
 
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMulti() !DAO_ILocker(locker).canPushMulti()");
+        hevm.expectRevert("ZivoeDAO::pushMulti() !ILocker_DAO(locker).canPushMulti()");
         DAO.pushMulti(address(OCG_ERC721Locker), assets_good, amounts, new bytes[](4));
         hevm.stopPrank();
     }
@@ -869,7 +869,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPullMulti().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullMulti() !DAO_ILocker(locker).canPullMulti()");
+        hevm.expectRevert("ZivoeDAO::pullMulti() !ILocker_DAO(locker).canPullMulti()");
         DAO.pullMulti(address(OCG_ERC721Locker), assets, new bytes[](1));
         hevm.stopPrank();
     }
@@ -975,7 +975,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull from address(OCG_ERC721Locker), does not expose canPushMulti().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullMultiPartial() !DAO_ILocker(locker).canPullMultiPartial()");
+        hevm.expectRevert("ZivoeDAO::pullMultiPartial() !ILocker_DAO(locker).canPullMultiPartial()");
         DAO.pullMultiPartial(address(OCG_ERC721Locker), assets_bad, amounts, new bytes[](1));
         hevm.stopPrank();
     }
@@ -1135,7 +1135,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push NFT to address(OCG_ERC20Locker), does not expose canPushERC721().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC721() !DAO_ILocker(locker).canPushERC721()");
+        hevm.expectRevert("ZivoeDAO::pushERC721() !ILocker_DAO(locker).canPushERC721()");
         DAO.pushERC721(address(OCG_ERC20Locker), address(ZivoeNFT), 0, "");
         hevm.stopPrank();
 
@@ -1247,7 +1247,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushMulti NFT to address(OCG_ERC20Locker), does not expose canPushMultiERC721().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !DAO_ILocker(locker).canPushMultiERC721()");
+        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !ILocker_DAO(locker).canPushMultiERC721()");
         DAO.pushMultiERC721(address(OCG_ERC20Locker), good_assets, good_tokenIds, good_data);
         hevm.stopPrank();   
     }
@@ -1324,7 +1324,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pull if canPullERC721() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullERC721() !DAO_ILocker(locker).canPullERC721()");
+        hevm.expectRevert("ZivoeDAO::pullERC721() !ILocker_DAO(locker).canPullERC721()");
         DAO.pullERC721(address(OCG_ERC20Locker), address(ZivoeNFT), 0, '');
         hevm.stopPrank();          
     }
@@ -1398,7 +1398,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pullMulti NFT from address(OCG_ERC20Locker), does not expose canPullMultiERC721().
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullMultiERC721() !DAO_ILocker(locker).canPullMultiERC721()");
+        hevm.expectRevert("ZivoeDAO::pullMultiERC721() !ILocker_DAO(locker).canPullMultiERC721()");
         DAO.pullMultiERC721(address(OCG_ERC20Locker), good_assets, good_tokenIds, good_data);
         hevm.stopPrank();          
     
@@ -1557,7 +1557,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushERC1155Batch() if canPushERC1155() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !DAO_ILocker(locker).canPushERC1155()");
+        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !ILocker_DAO(locker).canPushERC1155()");
         DAO.pushERC1155Batch(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
     }
@@ -1639,7 +1639,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pullERC1155Batch() if canPullERC1155() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullERC1155Batch() !DAO_ILocker(locker).canPullERC1155()");
+        hevm.expectRevert("ZivoeDAO::pullERC1155Batch() !ILocker_DAO(locker).canPullERC1155()");
         DAO.pullERC1155Batch(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
 
