@@ -57,7 +57,7 @@ contract Test_ZivoeRewardsVesting is Utility {
     function test_ZivoeRewardsVesting_addReward_restrictions_ZVL() public {
         // Can't call if not ZVL().
         hevm.startPrank(address(bob));
-        hevm.expectRevert("_msgSender() != ZivoeRewardsVesting_IZivoeGlobals(GBL).ZVL()");
+        hevm.expectRevert("_msgSender() != IZivoeGlobals_ZivoeRewardsVesting(GBL).ZVL()");
         vestZVE.addReward(FRAX, 30 days);
         hevm.stopPrank();
     }
@@ -65,7 +65,7 @@ contract Test_ZivoeRewardsVesting is Utility {
     function test_ZivoeRewardsVesting_addReward_restrictions_ZVE() public {
         // Can't call if asset == ZVE().
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::addReward() _rewardsToken == ZivoeRewardsVesting_IZivoeGlobals(GBL).ZVE()");
+        hevm.expectRevert("ZivoeRewardsVesting::addReward() _rewardsToken == IZivoeGlobals_ZivoeRewardsVesting(GBL).ZVE()");
         vestZVE.addReward(address(ZVE), 30 days);
         hevm.stopPrank();
     }

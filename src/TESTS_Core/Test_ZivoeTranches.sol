@@ -48,7 +48,7 @@ contract Test_ZivoeTranches is Utility {
 
         // Can't push non-ZVE asset to ZVT.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeTranches::pushToLocker() asset != ZivoeTranches_IZivoeGlobals(GBL).ZVE()");
+        hevm.expectRevert("ZivoeTranches::pushToLocker() asset != IZivoeGlobals_ZivoeTranches(GBL).ZVE()");
         DAO.push(address(ZVT), address(FRAX), 10_000 ether, "");
         hevm.stopPrank();
     }
@@ -99,7 +99,7 @@ contract Test_ZivoeTranches is Utility {
 
         // Can't call depositJunior() if asset not whitelisted.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::depositJunior() !ZivoeTranches_IZivoeGlobals(GBL).stablecoinWhitelist(asset)");
+        hevm.expectRevert("ZivoeTranches::depositJunior() !IZivoeGlobals_ZivoeTranches(GBL).stablecoinWhitelist(asset)");
         ZVT.depositJunior(100 ether, address(WETH));
         hevm.stopPrank();
     }
@@ -236,7 +236,7 @@ contract Test_ZivoeTranches is Utility {
 
         // Can't call depositSenior() if asset not whitelisted.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::depositSenior() !ZivoeTranches_IZivoeGlobals(GBL).stablecoinWhitelist(asset)");
+        hevm.expectRevert("ZivoeTranches::depositSenior() !IZivoeGlobals_ZivoeTranches(GBL).stablecoinWhitelist(asset)");
         ZVT.depositSenior(100 ether, address(WETH));
         hevm.stopPrank();
     }
@@ -314,7 +314,7 @@ contract Test_ZivoeTranches is Utility {
 
     function test_ZivoeTranches_switchPause_restrictions() public {
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::switchPause() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).ZVL()");
+        hevm.expectRevert("ZivoeTranches::switchPause() _msgSender() != IZivoeGlobals_ZivoeTranches(GBL).ZVL()");
         ZVT.switchPause();
         hevm.stopPrank();
     }
@@ -348,7 +348,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateMaxTrancheRatio() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != IZivoeGlobals_ZivoeTranches(GBL).TLC()");
         ZVT.updateMaxTrancheRatio(3000);
         hevm.stopPrank();
     }
@@ -356,7 +356,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateMinZVEPerJTTMint() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != IZivoeGlobals_ZivoeTranches(GBL).TLC()");
         ZVT.updateMinZVEPerJTTMint(0.001 * 10**18);
         hevm.stopPrank();
     }
@@ -364,7 +364,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateMaxZVEPerJTTMint() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != IZivoeGlobals_ZivoeTranches(GBL).TLC()");
         ZVT.updateMaxZVEPerJTTMint(0.022 * 10**18);
         hevm.stopPrank();
     }
@@ -372,7 +372,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateLowerRatioIncentive() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != IZivoeGlobals_ZivoeTranches(GBL).TLC()");
         ZVT.updateLowerRatioIncentive(2000);
         hevm.stopPrank();
     }
@@ -380,7 +380,7 @@ contract Test_ZivoeTranches is Utility {
     function test_ZivoeTranches_restrictions_governance_owner_updateUpperRatioIncentives() public {
         // Can't call this function unless "owner" (intended to be governance contract, ZVT.TLC()).
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != ZivoeTranches_IZivoeGlobals(GBL).TLC()");
+        hevm.expectRevert("ZivoeTranches::onlyGovernance() _msgSender() != IZivoeGlobals_ZivoeTranches(GBL).TLC()");
         ZVT.updateUpperRatioIncentives(2250);
         hevm.stopPrank();
     }
