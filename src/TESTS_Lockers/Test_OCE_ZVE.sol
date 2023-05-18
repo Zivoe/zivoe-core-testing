@@ -102,7 +102,7 @@ contract Test_OCE_ZVE is Utility {
         // Sum must equal 10000 (a.k.a. BIPS).
         uint256[3] memory initDistribution = [uint256(0), uint256(0), uint256(0)];
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCE_ZVE::updateDistributionRatioBIPS() _distributionRatioBIPS[0] + _distributionRatioBIPS[1] + _distributionRatioBIPS[2] != BIPS");
+        hevm.expectRevert("OCE_ZVE::updateDistributionRatioBIPS() sum(_distributionRatioBIPS[0-2]) != BIPS");
         OCE_ZVE_Live.updateDistributionRatioBIPS(initDistribution);
         hevm.stopPrank();
     }
@@ -112,7 +112,7 @@ contract Test_OCE_ZVE is Utility {
         // Sum must equal 10000 (a.k.a. BIPS).
         uint256[3] memory initDistribution = [uint256(4999), uint256(5000), uint256(0)];
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCE_ZVE::updateDistributionRatioBIPS() _distributionRatioBIPS[0] + _distributionRatioBIPS[1] + _distributionRatioBIPS[2] != BIPS");
+        hevm.expectRevert("OCE_ZVE::updateDistributionRatioBIPS() sum(_distributionRatioBIPS[0-2]) != BIPS");
         OCE_ZVE_Live.updateDistributionRatioBIPS(initDistribution);
         hevm.stopPrank();
     }
