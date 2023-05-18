@@ -268,7 +268,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         uint256 zveBalanceOverflow = ZVE.balanceOf(address(vestZVE)) + 1;
         // Can't vest more ZVE than is present.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() amountToVest > IERC20(vestingToken).balanceOf(address(this)) - vestingTokenAllocated");
+        hevm.expectRevert("ZivoeRewardsVesting::vest() amountToVest > vestingToken.balanceOf(address(this)) - vestingTokenAllocated");
         vestZVE.vest(address(poe), 30, 90, zveBalanceOverflow, false);
         hevm.stopPrank();
     }
