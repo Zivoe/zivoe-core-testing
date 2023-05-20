@@ -898,7 +898,7 @@ contract Test_OCR_Modular is Utility {
         // Can't update if fee < 250 || fee > 2000
         hevm.startPrank(address(god));
         if (fee < 250 || fee > 2000) {
-            hevm.expectRevert("OCR_Modular::updateRedemptionsFee() _redemptionsFee > 2000 && _redemptionsFee < 250");
+            hevm.expectRevert("OCR_Modular::updateRedemptionsFee() _redemptionsFee > 2000");
         }
         OCR_DAI.updateRedemptionsFee(fee);
         hevm.stopPrank();
