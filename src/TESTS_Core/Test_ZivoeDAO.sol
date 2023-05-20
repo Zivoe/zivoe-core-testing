@@ -316,7 +316,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push to address(0), not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::push() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::push() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
         DAO.push(address(0), address(DAI), 1000 ether, "");
         hevm.stopPrank();
     }
@@ -735,7 +735,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push to address(0), not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMulti() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushMulti() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
         DAO.pushMulti(address(0), assets_good, amounts, new bytes[](4));
         hevm.stopPrank();
     }
@@ -1120,7 +1120,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't push NFT to address(0), locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC721() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushERC721() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
         DAO.pushERC721(address(0), address(ZivoeNFT), 0, "");
         hevm.stopPrank();
 
@@ -1190,7 +1190,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushMulti NFT to address(0), locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushMultiERC721() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
         DAO.pushMultiERC721(address(0), good_assets, good_tokenIds, good_data);
         hevm.stopPrank();
 
@@ -1524,7 +1524,7 @@ contract Test_ZivoeDAO is Utility {
 
         // Can't pushERC1155Batch() if locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !DAO_IZivoeGlobals(GBL).isLocker(locker)");
+        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
         DAO.pushERC1155Batch(address(0), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
 
