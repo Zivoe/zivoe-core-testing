@@ -3627,9 +3627,11 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    function test_OCC_Modular_applyExtension_state(uint96 random, bool choice, uint intervals) public {
+    function test_OCC_Modular_applyExtension_state(uint96 random, bool choice, uint24 intervalRandom) public {
         
-        hevm.assume(intervals > 0);
+        hevm.assume(intervalRandom > 0);
+
+        uint256 intervals = uint256(intervalRandom);
 
         simulateITO_and_createOffers(random, choice);
 
