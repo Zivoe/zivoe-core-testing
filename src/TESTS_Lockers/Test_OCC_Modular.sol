@@ -4027,90 +4027,67 @@ contract Test_OCC_Modular is Utility {
     // Validate unapproveCombine() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
-    //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
 
     function test_OCC_Modular_unapproveCombine_restrictions_underwriter() public {
         
-        // // Can't call if not underwriter
-        // hevm.startPrank(address(bob));
-        // hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        // OCC_Modular_DAI.unapproveCombine(address(tim), 86400 * 14);
-        // hevm.stopPrank();
+        // Can't call if not underwriter
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
+        OCC_Modular_DAI.unapproveCombine(0);
+        hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveCombine_restrictions_paymentInterval() public {
+    function test_OCC_Modular_unapproveCombine_state(address account, uint8 select, uint termOffer, bool choice) public {
         
-        // // Can't call if not underwriter
-        // hevm.startPrank(address(roy));
-        // hevm.expectRevert("OCC_Modular::unapproveCombine() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 91 || 364)");
-        // OCC_Modular_DAI.unapproveCombine(address(tim), 86400 * 30);
-        // hevm.stopPrank();
-    }
+        hevm.assume(termOffer > 0 && termOffer < 100);
 
-    function test_OCC_Modular_unapproveCombine_state(address account, uint8 select, uint term) public {
+        uint256[] memory loanIDs = new uint256[](2);
+
+        loanIDs[0] = 0;
+        loanIDs[1] = 1;
+
+        uint256 option = uint256(select) % 5;
         
-        // uint256 option = uint256(select) % 5;
+        int8 paymentScheduleOffer = choice ? int8(0) : int8(1);
 
-        // // Pre-state.
-        // assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 7 * 86400), 0);
-        // assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 14 * 86400), 0);
-        // assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 28 * 86400), 0);
-        // assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 91 * 86400), 0);
-        // assertEq(OCC_Modular_DAI.viewCombinations(address(tim), 364 * 86400), 0);
+        // approveCombine().
+        hevm.startPrank(address(roy));
+        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        hevm.stopPrank();
 
-        // // approveCombine().
-        // hevm.startPrank(address(roy));
-        // hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        // emit CombineApproved(account, options[option], term);
-        // OCC_Modular_DAI.approveCombine(account, options[option], term);
-        // hevm.stopPrank();
+        // Pre-state.
+        (
+            uint256 paymentInterval,
+            uint256 term,
+            uint256 expires,
+            int8 paymentSchedule,
+            bool valid
+        ) = OCC_Modular_DAI.combinations(0);
 
-        // // Post-state.
-        // if (option == 0) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 7 * 86400), term);
-        // }
-        // else if (option == 1) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 14 * 86400), term);
-        // }
-        // else if (option == 2) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 28 * 86400), term);
-        // }
-        // else if (option == 3) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 91 * 86400), term);
-        // }
-        // else if (option == 4) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 364 * 86400), term);
-        // }
-        // else {
-        //     revert();
-        // }
+        assertEq(paymentInterval, options[option]);
+        assertEq(term, termOffer);
+        assertEq(expires, block.timestamp + 72 hours);
+        assertEq(paymentSchedule, paymentScheduleOffer);
+        assert(valid);
 
-        // // unapproveCombine().
-        // hevm.startPrank(address(roy));
-        // hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        // emit CombineUnapproved(account, options[option]);
-        // OCC_Modular_DAI.unapproveCombine(account, options[option]);
-        // hevm.stopPrank();
+        // unapproveCombine().
+        hevm.startPrank(address(roy));
+        hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
+        emit CombineUnapproved(0);
+        OCC_Modular_DAI.unapproveCombine(0);
+        hevm.stopPrank();
 
-        // // Post-state.
-        // if (option == 0) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 7 * 86400), 0);
-        // }
-        // else if (option == 1) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 14 * 86400), 0);
-        // }
-        // else if (option == 2) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 28 * 86400), 0);
-        // }
-        // else if (option == 3) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 91 * 86400), 0);
-        // }
-        // else if (option == 4) {
-        //     assertEq(OCC_Modular_DAI.viewCombinations(account, 364 * 86400), 0);
-        // }
-        // else {
-        //     revert();
-        // }
+        // Post-state.
+        (
+            paymentInterval,
+            term,
+            expires,
+            paymentSchedule,
+            valid
+        ) = OCC_Modular_DAI.combinations(0);
+
+        assert(!valid);
+
     }
 
     // Validate unapproveConversionAmortization() state changes.
