@@ -676,7 +676,7 @@ contract Test_OCC_Modular is Utility {
 
         // Can't callLoan() unless _msgSender() == borrower.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::callLoan() _msgSender() != loans[id].borrower");
+        hevm.expectRevert("OCC_Modular::callLoan() _msgSender() != loans[id].borrower && !isLocker(_msgSender())");
         OCC_Modular_DAI.callLoan(_loanID_DAI);
         hevm.stopPrank();
 
@@ -3603,7 +3603,7 @@ contract Test_OCC_Modular is Utility {
         // applyExtension()
         hevm.startPrank(address(sam));
         hevm.expectRevert("OCC_Modular::applyExtension() _msgSender() != loans[id].borrower");
-        OCC_Modular_DAI.applyExtension(0, 1);
+        OCC_Modular_DAI.applyExtension(0);
         hevm.stopPrank();
 
     }
@@ -3621,8 +3621,8 @@ contract Test_OCC_Modular is Utility {
 
         // applyExtension()
         hevm.startPrank(address(tim));
-        hevm.expectRevert("OCC_Modular::applyExtension() intervals > extensions[id]");
-        OCC_Modular_DAI.applyExtension(0, 1);
+        hevm.expectRevert("OCC_Modular::applyExtension() extensions[id] == 0");
+        OCC_Modular_DAI.applyExtension(0);
         hevm.stopPrank();
 
     }
@@ -3642,20 +3642,18 @@ contract Test_OCC_Modular is Utility {
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
 
-        uint extensionToApply = random % intervals + 1;
-
         // applyExtension()
         hevm.startPrank(address(tim));
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit ExtensionApplied(0, extensionToApply);
-        OCC_Modular_DAI.applyExtension(0, extensionToApply);
+        emit ExtensionApplied(0, intervals);
+        OCC_Modular_DAI.applyExtension(0);
         hevm.stopPrank();
 
         // Post-state.
         (,, uint256[10] memory postDetails_0) = OCC_Modular_DAI.loanInfo(0);
 
-        assertEq(postDetails_0[4], preDetails_0[4] + extensionToApply);
-        assertEq(OCC_Modular_DAI.extensions(0), intervals - extensionToApply);
+        assertEq(postDetails_0[4], preDetails_0[4] + intervals);
+        assertEq(OCC_Modular_DAI.extensions(0), 0);
 
     }
 
