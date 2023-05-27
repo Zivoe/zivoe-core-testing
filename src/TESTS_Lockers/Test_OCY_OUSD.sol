@@ -142,10 +142,12 @@ contract Test_OCY_OUSD is Utility {
 
     function test_OCY_OUSD_pushToLocker_restrictions_asset() public {
         
+        assert(zvl.try_updateIsLocker(address(GBL), address(OUSDLocker), true));
+        
         // Can't push to contract if asset != OUSD
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(address(god));
         hevm.expectRevert("OCY_OUSD::pushToLocker() asset != OUSD");
-        OUSDLocker.pushToLocker(address(ZVE), 100 ether, "");
+        DAO.push(address(OUSDLocker), address(ZVE), 100 ether, "");
         hevm.stopPrank();
     }
 
@@ -196,9 +198,9 @@ contract Test_OCY_OUSD is Utility {
     function test_OCY_OUSD_pullFromLocker_restrictions_asset() public {
         
         // Can't push to contract if asset != OUSD
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(address(god));
         hevm.expectRevert("OCY_OUSD::pullFromLocker() asset != OUSD");
-        OUSDLocker.pullFromLocker(address(ZVE), "");
+        DAO.pull(address(OUSDLocker), address(ZVE), "");
         hevm.stopPrank();
     }
 

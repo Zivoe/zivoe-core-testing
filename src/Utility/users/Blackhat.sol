@@ -443,9 +443,9 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_applyExtension(address occ, uint id, uint intervals) external returns (bool ok) {
-        string memory sig = "applyExtension(uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
+    function try_applyExtension(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyExtension(uint256)";
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
     function try_applyRefinance(address occ, uint id) external returns (bool ok) {

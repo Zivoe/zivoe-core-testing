@@ -464,9 +464,9 @@ contract Test_OCL_ZVE is Utility {
         amounts[1] = 0;
 
         // Can't push if amounts[0] || amounts[1] < 10 * 10**6.
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(address(god));
         hevm.expectRevert("OCL_ZVE::pushToLockerMulti() amounts[i] < 10 * 10**6");
-        OCL_ZVE_SUSHI_DAI.pushToLockerMulti(assets, amounts, new bytes[](1));
+        DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
     }
 
@@ -482,10 +482,9 @@ contract Test_OCL_ZVE is Utility {
 
         // Can't push if amounts[0] || amounts[1] < 10 * 10**6.
         amounts[0] = 10 * 10**6;
-        hevm.startPrank(address(DAO));
-        IERC20(DAI).safeApprove(address(OCL_ZVE_SUSHI_DAI), amounts[0]);
+        hevm.startPrank(address(god));
         hevm.expectRevert("OCL_ZVE::pushToLockerMulti() amounts[i] < 10 * 10**6");
-        OCL_ZVE_SUSHI_DAI.pushToLockerMulti(assets, amounts, new bytes[](1));
+        DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
 
         amounts[1] = 10 * 10**6;
@@ -493,10 +492,9 @@ contract Test_OCL_ZVE is Utility {
         assets[1] = address(ZVE);
 
         // Acceptable inputs now.
-        hevm.startPrank(address(DAO));
-        IERC20(DAI).safeApprove(address(OCL_ZVE_SUSHI_DAI), 0);
+        hevm.startPrank(address(god));
+        DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
-        assert(god.try_pushMulti(address(DAO), address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2)));
     }
 
     function test_OCL_ZVE_SUSHI_pushToLockerMulti_restrictions_wrongAsset_0() public {
@@ -510,9 +508,9 @@ contract Test_OCL_ZVE is Utility {
         amounts[1] = 0;
 
         // Can't push if assets[0] != pairAsset and assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE();
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(address(god));
         hevm.expectRevert("OCL_ZVE::pushToLockerMulti() assets[0] != pairAsset || assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE()");
-        OCL_ZVE_SUSHI_DAI.pushToLockerMulti(assets, amounts, new bytes[](1));
+        DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
     }
 
@@ -527,9 +525,9 @@ contract Test_OCL_ZVE is Utility {
         amounts[1] = 100 * 10**6;
 
         // Can't push if assets[0] != pairAsset and assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE();
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(address(god));
         hevm.expectRevert("OCL_ZVE::pushToLockerMulti() assets[0] != pairAsset || assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE()");
-        OCL_ZVE_SUSHI_DAI.pushToLockerMulti(assets, amounts, new bytes[](1));
+        DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
     }
 
