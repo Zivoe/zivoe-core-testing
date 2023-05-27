@@ -386,11 +386,11 @@ contract Test_ZivoeTranches is Utility {
     }
 
     function test_ZivoeTranches_restrictions_governance_greaterThan_updateMaxTrancheRatio() public {
-        assert(god.try_updateMaxTrancheRatio(address(ZVT), 3500));
-        // Can't updateMaxTrancheRatio() greater than 3500.
+        assert(god.try_updateMaxTrancheRatio(address(ZVT), 4500));
+        // Can't updateMaxTrancheRatio() greater than 4500.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeTranches::updateMaxTrancheRatio() ratio > 3500");
-        ZVT.updateMaxTrancheRatio(3501);
+        hevm.expectRevert("ZivoeTranches::updateMaxTrancheRatio() ratio > 4500");
+        ZVT.updateMaxTrancheRatio(4501);
         hevm.stopPrank();
     }
 
