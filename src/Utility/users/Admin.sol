@@ -234,7 +234,7 @@ contract Admin {
     }
 
     function try_updateExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
-        string memory sig = "setExponentialDecayPerSecond(uint256)";
+        string memory sig = "updateExponentialDecayPerSecond(uint256)";
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, val));
     }
 
