@@ -551,8 +551,8 @@ contract Test_OCC_Modular is Utility {
         assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
         assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
 
-        // Warp past expiry time (14 days past loan creation).
-        hevm.warp(block.timestamp + 14 days + 1 seconds);
+        // Warp past expiry time (3 days past loan creation).
+        hevm.warp(block.timestamp + 3 days + 1 seconds);
 
         // Can't accept loan offer loan if block.timestamp > loans[id].offerExpiry.
         hevm.startPrank(address(roy));
@@ -1303,7 +1303,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -1348,7 +1348,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -1392,7 +1392,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -1436,7 +1436,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
