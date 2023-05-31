@@ -2223,8 +2223,29 @@ contract Test_OCC_Modular is Utility {
     // Validate processPayment() state changes.
     // Validate processPayment() restrictions.
     // This includes:
+    //  - Can't call unless _msgSender() is underwriter or keeper
     //  - Can't call processPayment() unless state == LoanState.Active
     //  - Can't call processPayment() unless block.timestamp > nextPaymentDue
+
+    function test_OCC_Modular_processPayment_restrictions_msgSender(uint96 random, bool choice) public {
+        
+        (
+            uint256 _loanID_DAI,
+            uint256 _loanID_FRAX,
+            uint256 _loanID_USDC,
+            uint256 _loanID_USDT
+        ) = simulateITO_and_createOffers(random, choice);
+
+        // Can't call processPayment() unless state == LoanState.Active.
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::processPayment() _msgSender() != underwriter && !IZivoeGlobals_OCC(GBL).isKeeper(_msgSender())");
+        OCC_Modular_DAI.processPayment(_loanID_DAI);
+        hevm.stopPrank();
+
+        assert(!bob.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!bob.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!bob.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
+    }
 
     function test_OCC_Modular_processPayment_restrictions_loanState(uint96 random, bool choice) public {
         
@@ -2236,14 +2257,14 @@ contract Test_OCC_Modular is Utility {
         ) = simulateITO_and_createOffers(random, choice);
 
         // Can't call processPayment() unless state == LoanState.Active.
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::processPayment() loans[id].state != LoanState.Active");
         OCC_Modular_DAI.processPayment(_loanID_DAI);
         hevm.stopPrank();
 
-        assert(!bob.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
     function test_OCC_Modular_processPayment_restrictions_nextPaymentDue(uint96 random, bool choice) public {
@@ -2263,14 +2284,14 @@ contract Test_OCC_Modular is Utility {
         ) = createOffers_and_acceptOffers(random, choice);
 
         // Can't call processPayment() unless block.timestamp > nextPaymentDue.
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::processPayment() block.timestamp <= loans[id].paymentDueBy - 3 days");
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::processPayment() block.timestamp <= loans[id].paymentDueBy - 12 hours");
         OCC_Modular_DAI.processPayment(_loanID_DAI);
         hevm.stopPrank();
 
-        assert(!bob.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
     function test_OCC_Modular_processPayment_state_DAI(uint96 random, bool choice) public {
@@ -2347,9 +2368,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_DAI));
             emit PaymentMade(_loanID_DAI, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_DAI.processPayment(_loanID_DAI);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
@@ -2467,9 +2490,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_FRAX));
             emit PaymentMade(_loanID_FRAX, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_FRAX.processPayment(_loanID_FRAX);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
@@ -2586,9 +2611,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_USDC));
             emit PaymentMade(_loanID_USDC, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_USDC.processPayment(_loanID_USDC);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
@@ -2705,9 +2732,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_USDT));
             emit PaymentMade(_loanID_USDT, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_USDT.processPayment(_loanID_USDT);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
