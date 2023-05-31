@@ -1559,7 +1559,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -1677,7 +1677,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -1794,7 +1794,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -1911,7 +1911,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -2368,7 +2368,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -2490,7 +2490,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -2611,7 +2611,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
@@ -2732,7 +2732,7 @@ contract Test_OCC_Modular is Utility {
             // Check amountOwed() data ...
             assertEq(principalOwed + interestOwed + lateFeeOwed, totalOwed);
             if (schedule == int8(0)) {
-                // Balloon payment structure.
+                // Bullet payment structure.
                 if (_preDetails[4] == 1) {
                     assertEq(principalOwed, _preDetails[0]);
                 }
