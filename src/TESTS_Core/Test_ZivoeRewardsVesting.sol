@@ -39,7 +39,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
     event RewardDistributed(address indexed account, address indexed rewardsToken, uint256 reward);
 
-    event VestingScheduleAdded(address indexed account, uint256 startingUnix, uint256 cliffUnix, uint256 endingUnix, uint256 totalVesting, uint256 vestingPerSecond, bool revokable);
+    event VestingScheduleAdded(address indexed account, uint256 start, uint256 cliffUnix, uint256 endingUnix, uint256 totalVesting, uint256 vestingPerSecond, bool revokable);
 
     event VestingScheduleRevoked(address indexed account, uint256 amountRevoked, uint256 cliffUnix, uint256 endingUnix, uint256 totalVesting, bool revokable);
 
@@ -333,7 +333,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Pre-state.
         (
-            uint256 startingUnix, 
+            uint256 start, 
             uint256 cliffUnix, 
             uint256 endingUnix, 
             uint256 totalVesting, 
@@ -344,7 +344,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         assertEq(vestZVE.vestingTokenAllocated(), 0);
 
-        assertEq(startingUnix, 0);
+        assertEq(start, 0);
         assertEq(cliffUnix, 0);
         assertEq(endingUnix, 0);
         assertEq(totalVesting, 0);
@@ -378,7 +378,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Post-state.
         (
-            startingUnix, 
+            start, 
             cliffUnix, 
             endingUnix, 
             totalVesting, 
@@ -389,7 +389,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         assertEq(vestZVE.vestingTokenAllocated(), amount % 12_500_000 ether + 1);
 
-        assertEq(startingUnix, block.timestamp);
+        assertEq(start, block.timestamp);
         assertEq(cliffUnix, block.timestamp + (amount % 360 + 1) * 1 days);
         assertEq(endingUnix, block.timestamp + (amount % 360 * 5 + 1) * 1 days);
         assertEq(totalVesting, amount % 12_500_000 ether + 1);
@@ -501,7 +501,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Pre-state.
         (
-            uint256 startingUnix, 
+            uint256 start, 
             uint256 cliffUnix, 
             uint256 endingUnix, 
             uint256 totalVesting, 
@@ -509,7 +509,7 @@ contract Test_ZivoeRewardsVesting is Utility {
             uint256 vestingPerSecond,
         ) = vestZVE.viewSchedule(address(moe));
 
-        assertEq(startingUnix, block.timestamp);
+        assertEq(start, block.timestamp);
         assertEq(cliffUnix, block.timestamp + (amount % 360 + 1) * 1 days);
         assertEq(endingUnix, block.timestamp + (amount % 360 * 5 + 1) * 1 days);
         assertEq(totalVesting, amount % 12_500_000 ether + 1);
@@ -520,7 +520,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         assertEq(ZVE.balanceOf(address(moe)), 0);
 
         // warp some random amount of time from now to endingUnix.
-        hevm.warp(block.timestamp + amount % (endingUnix - startingUnix));
+        hevm.warp(block.timestamp + amount % (endingUnix - start));
 
         uint256 amountWithdrawable = vestZVE.amountWithdrawable(address(moe));
 
