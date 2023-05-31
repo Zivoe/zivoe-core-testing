@@ -960,7 +960,7 @@ contract Test_ZivoeITO is Utility {
 
         uint256 _post_zJTT_ITO = zJTT.balanceOf(address(ITO));
         assertEq(_pre_zJTT_ITO - _post_zJTT_ITO, GBL.standardize(amount_junior, USDT));
-        assertEq(_pre_zJTT_ITO - _post_zJTT_ITO, _zJTT_Vested_JIM);
+        assertEq(_pre_zJTT_ITO - _post_zJTT_ITO, _zJTT_Claimed_JIM);
 
         (
             uint256 startingUnix, 
@@ -1325,7 +1325,7 @@ contract Test_ZivoeITO is Utility {
         
         assert(!ITO.migrated());
         assert(!YDL.unlocked());
-        assert(!ZVT.tranchesUnlocked());
+        assert(!ZVT.unlocked());
         
 
         hevm.expectEmit(false, false, false, false, address(ITO));
@@ -1351,7 +1351,7 @@ contract Test_ZivoeITO is Utility {
 
         assert(ITO.migrated());
         assert(YDL.unlocked());
-        assert(ZVT.tranchesUnlocked());
+        assert(ZVT.unlocked());
 
     }
     

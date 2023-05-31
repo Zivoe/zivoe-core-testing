@@ -135,7 +135,7 @@ contract Test_ZivoeTranches is Utility {
         assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
 
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::depositJunior() !tranchesUnlocked");
+        hevm.expectRevert("ZivoeTranches::depositJunior() !unlocked");
         ZVT.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
     }
@@ -253,7 +253,7 @@ contract Test_ZivoeTranches is Utility {
 
         assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeTranches::depositSenior() !tranchesUnlocked");
+        hevm.expectRevert("ZivoeTranches::depositSenior() !unlocked");
         ZVT.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }

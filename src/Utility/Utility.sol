@@ -277,8 +277,8 @@ contract Utility is DSTest, Test {
         
         ITO.migrateDeposits();
     
-        assert(sam.try_claim(address(ITO), address(sam)));
-        assert(jim.try_claim(address(ITO), address(jim)));
+        assert(sam.try_claimAirdrop(address(ITO), address(sam)));
+        assert(jim.try_claimAirdrop(address(ITO), address(jim)));
 
         // assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
         // assert(jim.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
