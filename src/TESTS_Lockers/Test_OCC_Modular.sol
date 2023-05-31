@@ -101,7 +101,7 @@ contract Test_OCC_Modular is Utility {
     
     event ConversionToBulletUnapproved(uint indexed id);
     
-    event DefaultMarked(uint256 indexed id, uint256 principalDefaulted, uint256 priorNetDefaults, uint256 currentNetDefaults);
+    event DefaultMarked(uint256 indexed id, uint256 principalDefaulted);
 
     event DefaultResolved(uint256 indexed id, uint256 amount, address indexed payee, bool resolved);
     
@@ -2091,7 +2091,7 @@ contract Test_OCC_Modular is Utility {
         assertEq(loanInfo[9], 2);
         
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit DefaultMarked(_loanID_DAI, loanInfo[0], currentDefaults, currentDefaults + loanInfo[0]);
+        emit DefaultMarked(_loanID_DAI, loanInfo[0]);
         assert(roy.try_markDefault(address(OCC_Modular_DAI), _loanID_DAI));
 
         // Post-state, DAI.
@@ -2106,7 +2106,7 @@ contract Test_OCC_Modular is Utility {
         assertEq(loanInfo[9], 2);
 
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_FRAX));
-        emit DefaultMarked(_loanID_FRAX, loanInfo[0], currentDefaults, currentDefaults + loanInfo[0]);
+        emit DefaultMarked(_loanID_FRAX, loanInfo[0]);
         assert(roy.try_markDefault(address(OCC_Modular_FRAX), _loanID_FRAX));
 
         // Post-state, FRAX.
@@ -2121,7 +2121,7 @@ contract Test_OCC_Modular is Utility {
         assertEq(loanInfo[9], 2);
 
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_USDC));
-        emit DefaultMarked(_loanID_USDC, loanInfo[0], currentDefaults, currentDefaults + GBL.standardize(loanInfo[0], USDC));
+        emit DefaultMarked(_loanID_USDC, loanInfo[0]);
         assert(roy.try_markDefault(address(OCC_Modular_USDC), _loanID_USDC));
 
         // Post-state, USDC.
@@ -2136,7 +2136,7 @@ contract Test_OCC_Modular is Utility {
         assertEq(loanInfo[9], 2);
 
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_USDT));
-        emit DefaultMarked(_loanID_USDT, loanInfo[0], currentDefaults, currentDefaults + GBL.standardize(loanInfo[0], USDT));
+        emit DefaultMarked(_loanID_USDT, loanInfo[0]);
         assert(roy.try_markDefault(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Post-state, USDT.
