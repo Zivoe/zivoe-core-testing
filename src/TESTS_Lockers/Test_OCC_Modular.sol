@@ -58,9 +58,10 @@ contract Test_OCC_Modular is Utility {
     event CombineApproved(
         uint256 id, 
         uint256[] loanIDs,
-        uint paymentInterval, 
-        uint term, 
-        uint expires,
+        uint256 paymentInterval, 
+        uint256 term,
+        uint256 gracePeriod,
+        uint256 expires,
         int8 paymentSchedule
     );
     
@@ -69,8 +70,9 @@ contract Test_OCC_Modular is Utility {
     event CombineApplied(
         address indexed borrower, 
         uint256[] loanIDs, 
-        uint paymentInterval,
-        uint term, 
+        uint256 paymentInterval,
+        uint256 term,
+        uint256 gracePeriod,
         int8 paymentSchedule
     );
 
@@ -3204,9 +3206,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_expires(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3221,7 +3224,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         hevm.warp(block.timestamp + 72 hours);
@@ -3234,9 +3237,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_borrower(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3254,7 +3258,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         // applyCombine().
@@ -3265,9 +3269,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_loanState(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3285,7 +3290,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         // applyCombine().
@@ -3297,9 +3302,10 @@ contract Test_OCC_Modular is Utility {
 
 
     function test_OCC_Modular_applyCombine_twoLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3317,7 +3323,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
@@ -3364,7 +3370,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postDetails_2[5], termOffer); // term
             assertEq(postDetails_2[6], options[option]); // paymentInterval
             assertEq(postDetails_2[7], block.timestamp - 1 days); // offerExpiry
-            assertEq(postDetails_2[8], options[option]); // gracePeriod
+            assertEq(postDetails_2[8], gracePeriodOffer); // gracePeriod
             assertEq(postDetails_2[9], 2); // loanState (2 => active)
 
             assertEq(borrower, address(tim));
@@ -3373,9 +3379,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_threeLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3396,7 +3403,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
@@ -3462,7 +3469,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postDetails_3[5], termOffer); // term
             assertEq(postDetails_3[6], options[option]); // paymentInterval
             assertEq(postDetails_3[7], block.timestamp - 1 days); // offerExpiry
-            assertEq(postDetails_3[8], options[option]); // gracePeriod
+            assertEq(postDetails_3[8], gracePeriodOffer); // gracePeriod
             assertEq(postDetails_3[9], 2); // loanState (2 => active)
 
             assertEq(borrower, address(tim));
@@ -3472,9 +3479,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_fourLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
-        
+
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3498,7 +3506,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
@@ -3572,7 +3580,7 @@ contract Test_OCC_Modular is Utility {
             // assertEq(postDetails_4[5], termOffer); // term
             // assertEq(postDetails_4[6], options[option]); // paymentInterval
             // assertEq(postDetails_4[7], block.timestamp - 1 days); // offerExpiry
-            // assertEq(postDetails_4[8], options[option]); // gracePeriod
+            // assertEq(postDetails_4[8], gracePeriodOffer); // gracePeriod
             // assertEq(postDetails_4[9], 2); // loanState (2 => active)
 
             // assertEq(borrower, address(tim));
@@ -3906,6 +3914,7 @@ contract Test_OCC_Modular is Utility {
     //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
     //  - length must be greater than 1
     //  - term must be greater than 0
+    //  - gracePeriod must be 7 days or more
     //  - paymentSchedule must be less than or equal to 1
 
     function test_OCC_Modular_approveCombine_restrictions_underwriter() public {
@@ -3915,7 +3924,7 @@ contract Test_OCC_Modular is Utility {
         // Can't call if not underwriter
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 24, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 7, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
 
@@ -3926,7 +3935,7 @@ contract Test_OCC_Modular is Utility {
         // Can't call if paymentInterval isn't proper
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 91 || 364)");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 8, 24, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 8, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
 
@@ -3937,7 +3946,7 @@ contract Test_OCC_Modular is Utility {
         // Can't call if idsLength == 1 or == 0
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() loanIDs.length <= 1");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 24, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 7, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
 
@@ -3948,7 +3957,18 @@ contract Test_OCC_Modular is Utility {
         // Can't call if idsLength == 1 or == 0
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() term == 0");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 0, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 0, 86400 * 7, 86400 * 7, int8(0));
+        hevm.stopPrank();
+    }
+
+    function test_OCC_Modular_approveCombine_restrictions_gracePeriod() public {
+        
+        uint256[] memory loanIDs = new uint256[](2);
+
+        // Can't call if gracePeriod < 7 days
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::approveCombine() gracePeriod < 7 days");
+        OCC_Modular_DAI.approveCombine(loanIDs, 6, 86400 * 7, 86400 * 6, int8(2));
         hevm.stopPrank();
     }
 
@@ -3956,15 +3976,18 @@ contract Test_OCC_Modular is Utility {
         
         uint256[] memory loanIDs = new uint256[](2);
 
-        // Can't call if idsLength == 1 or == 0
+        // Can't call if paymentSchedule > 1
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() paymentSchedule > 1");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 6, int8(2));
+        OCC_Modular_DAI.approveCombine(loanIDs, 6, 86400 * 7, 86400 * 7, int8(2));
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveCombine_state(address account, uint8 select, uint termOffer, bool choice) public {
+    function test_OCC_Modular_approveCombine_state(
+        address account, uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
+    ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         uint256[] memory loanIDs = new uint256[](2);
@@ -3976,52 +3999,44 @@ contract Test_OCC_Modular is Utility {
         
         int8 paymentScheduleOffer = choice ? int8(0) : int8(1);
 
-        // Pre-state.
-        (
-            uint256 paymentInterval,
-            uint256 term,
-            uint256 expires,
-            int8 paymentSchedule,
-            bool valid
-        ) = OCC_Modular_DAI.combinations(0);
+        {
+            // approveCombine().
+            hevm.startPrank(address(roy));
+            hevm.expectEmit(false, false, false, true, address(OCC_Modular_DAI));
+            emit CombineApproved(
+                OCC_Modular_DAI.combineID(), 
+                loanIDs, 
+                termOffer,
+                options[option],
+                gracePeriodOffer,
+                block.timestamp + 72 hours, 
+                paymentScheduleOffer
+            );
+            OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
+            hevm.stopPrank();
+        }
 
-        assertEq(paymentInterval, 0);
-        assertEq(term, 0);
-        assertEq(expires, 0);
-        assertEq(paymentSchedule, 0);
-        assert(!valid);
+        {
+            // Post-state.
+            assertEq(OCC_Modular_DAI.combineID(), 1);
 
-        assertEq(OCC_Modular_DAI.combineID(), 0);
+            (
+                uint term,
+                uint paymentInterval,
+                uint gracePeriod,
+                uint expires,
+                int8 paymentSchedule,
+                bool valid
+            ) = OCC_Modular_DAI.combinations(0);
 
-        // approveCombine().
-        hevm.startPrank(address(roy));
-        hevm.expectEmit(false, false, false, true, address(OCC_Modular_DAI));
-        emit CombineApproved(
-            OCC_Modular_DAI.combineID(), 
-            loanIDs, 
-            options[option], 
-            termOffer, 
-            block.timestamp + 72 hours, 
-            paymentScheduleOffer
-        );
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
-        hevm.stopPrank();
-
-        // Post-state.
-        assertEq(OCC_Modular_DAI.combineID(), 1);
-
-        (
-            paymentInterval,
-            term,
-            expires,
-            paymentSchedule,
-            valid
-        ) = OCC_Modular_DAI.combinations(0);
-
-        assertEq(paymentInterval, options[option]);
-        assertEq(term, termOffer);
-        assertEq(expires, block.timestamp + 72 hours);
-        assertEq(paymentSchedule, paymentScheduleOffer);
+            assertEq(paymentInterval, options[option]);
+            assertEq(term, termOffer);
+            assertEq(gracePeriod, gracePeriodOffer);
+            assertEq(expires, block.timestamp + 72 hours);
+            assertEq(paymentSchedule, paymentScheduleOffer);
+            assert(valid);
+        }
+        
     }
 
     // Validate approveConversionAmortization() state changes.
@@ -4161,8 +4176,11 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveCombine_state(address account, uint8 select, uint termOffer, bool choice) public {
+    function test_OCC_Modular_unapproveCombine_state(
+        address account, uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
+    ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         uint256[] memory loanIDs = new uint256[](2);
@@ -4176,13 +4194,14 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         // Pre-state.
         (
-            uint256 paymentInterval,
             uint256 term,
+            uint256 paymentInterval,
+            uint256 gracePeriod,
             uint256 expires,
             int8 paymentSchedule,
             bool valid
@@ -4203,8 +4222,9 @@ contract Test_OCC_Modular is Utility {
 
         // Post-state.
         (
-            paymentInterval,
             term,
+            paymentInterval,
+            gracePeriod,
             expires,
             paymentSchedule,
             valid
