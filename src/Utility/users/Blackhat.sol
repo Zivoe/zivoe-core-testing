@@ -403,23 +403,23 @@ contract Blackhat {
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, recipients, proportions, protocol));
     }
 
-    function try_setTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setTargetAPYBIPS(uint256)";
+    function try_updateTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateTargetAPYBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setTargetRatioBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setTargetRatioBIPS(uint256)";
+    function try_updateTargetRatioBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateTargetRatioBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setProtocolEarningsRateBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setProtocolEarningsRateBIPS(uint256)";
+    function try_updateProtocolEarningsRateBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateProtocolEarningsRateBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setDistributedAsset(address ydl, address asset) external returns (bool ok) {
-        string memory sig = "setDistributedAsset(address)";
+    function try_updateDistributedAsset(address ydl, address asset) external returns (bool ok) {
+        string memory sig = "updateDistributedAsset(address)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, asset));
     }
 
