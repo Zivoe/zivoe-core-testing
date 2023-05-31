@@ -346,7 +346,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeYDL(_YDL).distributedAsset(), DAI);
         assertEq(IZivoeYDL(_YDL).emaSTT(), 0);
         assertEq(IZivoeYDL(_YDL).emaJTT(), 0);
-        assertEq(IZivoeYDL(_YDL).numDistributions(), 0);
+        assertEq(IZivoeYDL(_YDL).distributionCounter(), 0);
         assertEq(IZivoeYDL(_YDL).lastDistribution(), 0);
         assertEq(IZivoeYDL(_YDL).targetAPYBIPS(), 800);
         assertEq(IZivoeYDL(_YDL).targetRatioBIPS(), 16250);

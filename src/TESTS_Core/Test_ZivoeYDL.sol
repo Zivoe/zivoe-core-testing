@@ -757,7 +757,7 @@ contract Test_ZivoeYDL is Utility {
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
 
         // Pre-state.
-        assertEq(YDL.numDistributions(), 0);
+        assertEq(YDL.distributionCounter(), 0);
         assertEq(YDL.lastDistribution(), block.timestamp - YDL.daysBetweenDistributions() * 86400);
 
         assertEq(YDL.emaSTT(), zSTT.totalSupply());
@@ -797,7 +797,7 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.emaSTT(), zSTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
         assertEq(YDL.emaJTT(), zJTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
 
-        assertEq(YDL.numDistributions(), 1);
+        assertEq(YDL.distributionCounter(), 1);
         assertEq(YDL.lastDistribution(), block.timestamp);
 
         emit log_named_uint("protocol[0] - stZVE", protocol[0]);
@@ -912,7 +912,7 @@ contract Test_ZivoeYDL is Utility {
             mint("DAI", address(YDL), uint256(random));
 
             // Pre-state.
-            if (YDL.numDistributions() == 0 || YDL.numDistributions() == 1) {
+            if (YDL.distributionCounter() == 0 || YDL.distributionCounter() == 1) {
                 assertEq(YDL.emaSTT(), zSTT.totalSupply());
                 assertEq(YDL.emaJTT(), zJTT.totalSupply());
             }
@@ -932,13 +932,13 @@ contract Test_ZivoeYDL is Utility {
             // distributeYield().
             YDL.distributeYield();
 
-            // emaJTT = MATH.ema(emaJTT, aJTT, retrospectiveDistributions.min(numDistributions));
-            // emaSTT = MATH.ema(emaSTT, aSTT, retrospectiveDistributions.min(numDistributions));
+            // emaJTT = MATH.ema(emaJTT, aJTT, retrospectiveDistributions.min(distributionCounter));
+            // emaSTT = MATH.ema(emaSTT, aSTT, retrospectiveDistributions.min(distributionCounter));
 
             // Post-state.
             (uint256 aSTT, uint256 aJTT) = GBL.adjustedSupplies();
-            assertEq(YDL.emaSTT(), MATH.ema(pre_emaSTT, aSTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
-            assertEq(YDL.emaJTT(), MATH.ema(pre_emaJTT, aJTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
+            assertEq(YDL.emaSTT(), MATH.ema(pre_emaSTT, aSTT, YDL.retrospectiveDistributions().min(YDL.distributionCounter())));
+            assertEq(YDL.emaJTT(), MATH.ema(pre_emaJTT, aJTT, YDL.retrospectiveDistributions().min(YDL.distributionCounter())));
 
         }
 
