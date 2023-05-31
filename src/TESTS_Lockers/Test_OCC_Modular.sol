@@ -136,11 +136,11 @@ contract Test_OCC_Modular is Utility {
 
     event PaymentMade(uint256 indexed id, address indexed payee, uint256 amount, uint256 principal, uint256 interest, uint256 lateFee, uint256 nextPaymentDue);
 
-    event RefinanceApproved(uint indexed id, uint apr);
+    event RefinanceApproved(uint indexed id, uint APR);
     
     event RefinanceUnapproved(uint indexed id);
     
-    event RefinanceApplied(uint indexed id, uint aprNew, uint aprPrior);
+    event RefinanceApplied(uint indexed id, uint APRNew, uint APRPrior);
     
     event RepaidMarked(uint256 indexed id);
 
@@ -3820,13 +3820,13 @@ contract Test_OCC_Modular is Utility {
     //  - loan is approved for refinancing
     //  - state of loan is LoanState.Active
 
-    function test_OCC_Modular_applyRefinance_restrictions_borrower(uint96 random, bool choice, uint apr) public {
+    function test_OCC_Modular_applyRefinance_restrictions_borrower(uint96 random, bool choice, uint APR) public {
         
         simulateITO_and_createOffers(random, choice);
 
         // Approve refinance.
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveRefinance(0, apr);
+        OCC_Modular_DAI.approveRefinance(0, APR);
         hevm.stopPrank();
 
         // Can't apply refinance if not borrower.
@@ -3844,7 +3844,7 @@ contract Test_OCC_Modular is Utility {
 
         // Approve refinance.
         // hevm.startPrank(address(roy));
-        // OCC_Modular_DAI.approveRefinance(0, apr);
+        // OCC_Modular_DAI.approveRefinance(0, APR);
         // hevm.stopPrank();
 
         // Can't apply refinance if not approved.
@@ -3855,9 +3855,9 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    function test_OCC_Modular_applyRefinance_restrictions_loanState(uint96 random, bool choice, uint apr) public {
+    function test_OCC_Modular_applyRefinance_restrictions_loanState(uint96 random, bool choice, uint APR) public {
 
-        hevm.assume(apr > 0);
+        hevm.assume(APR > 0);
 
         simulateITO_and_createOffers(random, choice);
         
@@ -3865,7 +3865,7 @@ contract Test_OCC_Modular is Utility {
 
         // Approve refinance.
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveRefinance(0, apr);
+        OCC_Modular_DAI.approveRefinance(0, APR);
         hevm.stopPrank();
 
         // Can't apply refinance if LoanState not Active
@@ -3876,9 +3876,9 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    function test_OCC_Modular_applyRefinance_state(uint96 random, bool choice, uint apr) public {
+    function test_OCC_Modular_applyRefinance_state(uint96 random, bool choice, uint APR) public {
 
-        hevm.assume(apr > 0);
+        hevm.assume(APR > 0);
 
         simulateITO_and_createOffers(random, choice);
         
@@ -3886,23 +3886,23 @@ contract Test_OCC_Modular is Utility {
 
         // Approve refinance.
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveRefinance(0, apr);
+        OCC_Modular_DAI.approveRefinance(0, APR);
         hevm.stopPrank();
 
-        assertEq(OCC_Modular_DAI.refinancing(0), apr);
+        assertEq(OCC_Modular_DAI.refinancing(0), APR);
         
         (,, uint256[10] memory details) = OCC_Modular_DAI.loanInfo(0);
 
         // applyRefinance().
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit RefinanceApplied(0, apr, details[1]);
+        emit RefinanceApplied(0, APR, details[1]);
         hevm.startPrank(address(tim));
         OCC_Modular_DAI.applyRefinance(0);
 
         (,, details) = OCC_Modular_DAI.loanInfo(0);
 
         // Post-state.
-        assertEq(details[1], apr);
+        assertEq(details[1], APR);
         assertEq(OCC_Modular_DAI.refinancing(0), 0);
 
     }
@@ -4146,7 +4146,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveRefinance_state(uint id, uint apr) public {
+    function test_OCC_Modular_approveRefinance_state(uint id, uint APR) public {
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.refinancing(id), 0);
@@ -4154,12 +4154,12 @@ contract Test_OCC_Modular is Utility {
         // approveRefinance().
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit RefinanceApproved(id, apr);
-        OCC_Modular_DAI.approveRefinance(id, apr);
+        emit RefinanceApproved(id, APR);
+        OCC_Modular_DAI.approveRefinance(id, APR);
         hevm.stopPrank();
 
         // Post-state.
-        assertEq(OCC_Modular_DAI.refinancing(id), apr);
+        assertEq(OCC_Modular_DAI.refinancing(id), APR);
     }
 
     // Validate unapproveCombine() state changes.
@@ -4370,7 +4370,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveRefinance_state(uint id, uint apr) public {
+    function test_OCC_Modular_unapproveRefinance_state(uint id, uint APR) public {
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.refinancing(id), 0);
@@ -4378,12 +4378,12 @@ contract Test_OCC_Modular is Utility {
         // approveRefinance().
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit RefinanceApproved(id, apr);
-        OCC_Modular_DAI.approveRefinance(id, apr);
+        emit RefinanceApproved(id, APR);
+        OCC_Modular_DAI.approveRefinance(id, APR);
         hevm.stopPrank();
 
         // Post-state.
-        assertEq(OCC_Modular_DAI.refinancing(id), apr);
+        assertEq(OCC_Modular_DAI.refinancing(id), APR);
 
         // unapproveRefinance().
         hevm.startPrank(address(roy));

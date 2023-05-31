@@ -103,9 +103,9 @@ contract Manager {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
     }
 
-    function try_approveRefinance(address occ, uint id, uint apr) external returns (bool ok) {
+    function try_approveRefinance(address occ, uint id, uint APR) external returns (bool ok) {
         string memory sig = "approveRefinance(uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, apr));
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, APR));
     }
 
     function try_unapproveCombine(address occ, address borrower) external returns (bool ok) {
