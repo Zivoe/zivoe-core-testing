@@ -240,25 +240,25 @@ contract Test_OCE_ZVE is Utility {
 
     }
     
-    // Validate setExponentialDecayPerSecond() state changes.
-    // Validate setExponentialDecayPerSecond() restrictions.
+    // Validate updateExponentialDecayPerSecond() state changes.
+    // Validate updateExponentialDecayPerSecond() restrictions.
     // This includes:
     //  - Only governance contract (TLC / "god") may call this function.
 
-    function test_OCE_ZVE_Live_setExponentialDecayPerSecond_restrictions_msgSender(uint256 random) public {
+    function test_OCE_ZVE_Live_updateExponentialDecayPerSecond_restrictions_msgSender(uint256 random) public {
 
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCE_ZVE::setExponentialDecayPerSecond() _msgSender() != IZivoeGlobals_OCE_ZVE(GBL).TLC()");
-        OCE_ZVE_Live.setExponentialDecayPerSecond(random);
+        hevm.expectRevert("OCE_ZVE::updateExponentialDecayPerSecond() _msgSender() != IZivoeGlobals_OCE_ZVE(GBL).TLC()");
+        OCE_ZVE_Live.updateExponentialDecayPerSecond(random);
         hevm.stopPrank();
     }
 
-    function test_OCE_ZVE_Live_setExponentialDecayPerSecond_state(uint256 random) public {
+    function test_OCE_ZVE_Live_updateExponentialDecayPerSecond_state(uint256 random) public {
         
         // Pre-state.
         assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999998 / 100000000);
 
-        assert(god.try_setExponentialDecayPerSecond(address(OCE_ZVE_Live), random));
+        assert(god.try_updateExponentialDecayPerSecond(address(OCE_ZVE_Live), random));
         
         // Post-state.
         assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), random);

@@ -333,8 +333,8 @@ contract Blackhat {
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, dist));
     }
 
-    function try_setExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
-        string memory sig = "setExponentialDecayPerSecond(uint256)";
+    function try_updateExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
+        string memory sig = "updateExponentialDecayPerSecond(uint256)";
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, val));
     }
 
