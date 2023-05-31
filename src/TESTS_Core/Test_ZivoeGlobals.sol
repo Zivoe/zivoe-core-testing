@@ -17,17 +17,8 @@ contract Test_ZivoeGlobals is Utility {
     //    Helper Functions
     // ----------------------
 
-    function updatedDefaults(
-        uint256 increaseBy,
-        uint256 decreaseBy
-    ) 
-    public
-    view
-    returns (uint256 updated)
-    {
-        
-        return updated = decreaseBy > increaseBy ? 0: increaseBy - decreaseBy;
-
+    function updatedDefaults(uint256 increaseBy, uint256 decreaseBy) public view returns (uint256 updated) { 
+        updated = decreaseBy > increaseBy ? 0 : increaseBy - decreaseBy;
     }
 
     // ------------
@@ -122,10 +113,9 @@ contract Test_ZivoeGlobals is Utility {
         assertEq(GBL.defaults(), increaseBy);
 
         // decreaseDefaults().
-
-        uint256 updatedDefaults = updatedDefaults(increaseBy, decreaseBy);
+        uint256 updated = updatedDefaults(increaseBy, decreaseBy);
         hevm.expectEmit(true, false, false, true, address(GBL));
-        emit DefaultsDecreased(address(GenericDefaultsLocker), decreaseBy, updatedDefaults);
+        emit DefaultsDecreased(address(GenericDefaultsLocker), decreaseBy, updated);
         assert(god.try_decreaseDefaults(address(GenericDefaultsLocker), decreaseBy));
 
         // Post-state, decreaseDefaults().

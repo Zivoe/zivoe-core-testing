@@ -1325,7 +1325,7 @@ contract Test_ZivoeITO is Utility {
         
         assert(!ITO.migrated());
         assert(!YDL.unlocked());
-        assert(!ZVT.unlocked());
+        assert(!ZVT.tranchesUnlocked());
         
 
         hevm.expectEmit(false, false, false, false, address(ITO));
@@ -1351,7 +1351,7 @@ contract Test_ZivoeITO is Utility {
 
         assert(ITO.migrated());
         assert(YDL.unlocked());
-        assert(ZVT.unlocked());
+        assert(ZVT.tranchesUnlocked());
 
     }
     

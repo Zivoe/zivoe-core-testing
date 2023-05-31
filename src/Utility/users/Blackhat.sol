@@ -298,8 +298,8 @@ contract Blackhat {
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateUpperRatioIncentives(address gbl, uint256 amount) external returns (bool ok){
-        string memory sig = "updateUpperRatioIncentives(uint256)";
+    function try_updateUpperRatioIncentive(address gbl, uint256 amount) external returns (bool ok){
+        string memory sig = "updateUpperRatioIncentive(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
