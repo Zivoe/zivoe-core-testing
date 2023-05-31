@@ -159,7 +159,7 @@ contract Test_OCC_Modular is Utility {
         int8 paymentSchedule = choice ? int8(0) : int8(1);
 
         if (asset == DAI) {
-            loanID = OCC_Modular_DAI.counterID();
+            loanID = OCC_Modular_DAI.loanCounter();
             assert(roy.try_createOffer(
                 address(OCC_Modular_DAI),
                 address(tim),
@@ -174,7 +174,7 @@ contract Test_OCC_Modular is Utility {
         }
 
         else if (asset == FRAX) {
-            loanID = OCC_Modular_FRAX.counterID();
+            loanID = OCC_Modular_FRAX.loanCounter();
             assert(roy.try_createOffer(
                 address(OCC_Modular_FRAX),
                 address(tim),
@@ -189,7 +189,7 @@ contract Test_OCC_Modular is Utility {
         }
 
         else if (asset == USDC) {
-            loanID = OCC_Modular_USDC.counterID();
+            loanID = OCC_Modular_USDC.loanCounter();
             assert(roy.try_createOffer(
                 address(OCC_Modular_USDC),
                 address(tim),
@@ -204,7 +204,7 @@ contract Test_OCC_Modular is Utility {
         }
 
         else if (asset == USDT) {
-            loanID = OCC_Modular_USDT.counterID();
+            loanID = OCC_Modular_USDT.loanCounter();
             assert(roy.try_createOffer(
                 address(OCC_Modular_USDT),
                 address(tim),
@@ -516,7 +516,7 @@ contract Test_OCC_Modular is Utility {
     // Validate acceptOffer() state changes.
     // Validate acceptOffer() restrictions.
     // This includes:
-    //  - loans[id].state must be LoanState.Initialized
+    //  - loans[id].state must be LoanState.Offered
     //  - block.timestamp must be before offerExpiry
     //  - _msgSender() must be borrower
 
@@ -531,9 +531,9 @@ contract Test_OCC_Modular is Utility {
         assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
         assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
 
-        // Can't accept loan offer if state != LoanState.Initialized.
+        // Can't accept loan offer if state != LoanState.Offered.
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::acceptOffer() loans[id].state != LoanState.Initialized");
+        hevm.expectRevert("OCC_Modular::acceptOffer() loans[id].state != LoanState.Offered");
         OCC_Modular_DAI.acceptOffer(_loanID_DAI);
         hevm.stopPrank();
 
@@ -1041,7 +1041,7 @@ contract Test_OCC_Modular is Utility {
     // Validate cancelOffer() restrictions.
     // This includes:
     //  - _msgSender() must equal underwriter
-    //  - loans[id].state must equal LoanState.Initialized
+    //  - loans[id].state must equal LoanState.Offered
 
     function test_OCC_Modular_cancelOffer_restrictions_msgSender(uint96 random, bool choice) public {
 
@@ -1094,9 +1094,9 @@ contract Test_OCC_Modular is Utility {
         assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
         assert(roy.try_cancelOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
-        // Can't cancelOffer() if state != LoanState.Initialized.
+        // Can't cancelOffer() if state != LoanState.Offered.
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::cancelOffer() loans[id].state != LoanState.Initialized");
+        hevm.expectRevert("OCC_Modular::cancelOffer() loans[id].state != LoanState.Offered");
         OCC_Modular_DAI.cancelOffer(_loanID_DAI);
         hevm.stopPrank();   
 
@@ -1297,7 +1297,7 @@ contract Test_OCC_Modular is Utility {
 
         if (modularity % 4 == 0) {
 
-            loanID = OCC_Modular_DAI.counterID();
+            loanID = OCC_Modular_DAI.loanCounter();
             
             hevm.expectEmit(true, true, true, true, address(OCC_Modular_DAI));
             emit OfferCreated(
@@ -1335,13 +1335,13 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
-            assertEq(OCC_Modular_DAI.counterID(), loanID + 1);
+            assertEq(OCC_Modular_DAI.loanCounter(), loanID + 1);
 
         }
 
         if (modularity % 4 == 1) {
 
-            loanID = OCC_Modular_FRAX.counterID();
+            loanID = OCC_Modular_FRAX.loanCounter();
 
             
             hevm.expectEmit(true, true, true, true, address(OCC_Modular_FRAX));
@@ -1380,13 +1380,13 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
-            assertEq(OCC_Modular_FRAX.counterID(), loanID + 1);
+            assertEq(OCC_Modular_FRAX.loanCounter(), loanID + 1);
 
         }
 
         if (modularity % 4 == 2) {
 
-            loanID = OCC_Modular_USDC.counterID();
+            loanID = OCC_Modular_USDC.loanCounter();
 
             hevm.expectEmit(true, true, true, true, address(OCC_Modular_USDC));
             emit OfferCreated(
@@ -1424,13 +1424,13 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
-            assertEq(OCC_Modular_USDC.counterID(), loanID + 1);
+            assertEq(OCC_Modular_USDC.loanCounter(), loanID + 1);
 
         }
 
         if (modularity % 4 == 3) {
 
-            loanID = OCC_Modular_USDT.counterID();
+            loanID = OCC_Modular_USDT.loanCounter();
 
             hevm.expectEmit(true, true, true, true, address(OCC_Modular_USDT));
             emit OfferCreated(
@@ -1468,7 +1468,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
-            assertEq(OCC_Modular_USDT.counterID(), loanID + 1);
+            assertEq(OCC_Modular_USDT.loanCounter(), loanID + 1);
 
         }
 
@@ -3329,7 +3329,7 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
         (,, uint256[10] memory preDetails_1) = OCC_Modular_DAI.loanInfo(1);
 
-        assertEq(OCC_Modular_DAI.counterID(), 2);
+        assertEq(OCC_Modular_DAI.loanCounter(), 2);
 
         hevm.startPrank(address(tim));
         OCC_Modular_DAI.applyCombine(0);
@@ -3339,7 +3339,7 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory postDetails_1) = OCC_Modular_DAI.loanInfo(1);
         (address borrower, int8 paymentSchedule, uint256[10] memory postDetails_2) = OCC_Modular_DAI.loanInfo(2);
 
-        assertEq(OCC_Modular_DAI.counterID(), 3);
+        assertEq(OCC_Modular_DAI.loanCounter(), 3);
 
         // Loan ID #0 (combined into Loan ID #2)
         {
@@ -3410,7 +3410,7 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory preDetails_1) = OCC_Modular_DAI.loanInfo(1);
         (,, uint256[10] memory preDetails_2) = OCC_Modular_DAI.loanInfo(2);
 
-        assertEq(OCC_Modular_DAI.counterID(), 3);
+        assertEq(OCC_Modular_DAI.loanCounter(), 3);
 
         hevm.startPrank(address(tim));
         OCC_Modular_DAI.applyCombine(0);
@@ -3421,7 +3421,7 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory postDetails_2) = OCC_Modular_DAI.loanInfo(2);
         (address borrower, int8 paymentSchedule, uint256[10] memory postDetails_3) = OCC_Modular_DAI.loanInfo(3);
 
-        assertEq(OCC_Modular_DAI.counterID(), 4);
+        assertEq(OCC_Modular_DAI.loanCounter(), 4);
 
         // Loan ID #0 (combined into Loan ID #3)
         {
@@ -3514,7 +3514,7 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory preDetails_2) = OCC_Modular_DAI.loanInfo(2);
         (,, uint256[10] memory preDetails_3) = OCC_Modular_DAI.loanInfo(3);
 
-        assertEq(OCC_Modular_DAI.counterID(), 4);
+        assertEq(OCC_Modular_DAI.loanCounter(), 4);
 
         hevm.startPrank(address(tim));
         OCC_Modular_DAI.applyCombine(0);
@@ -3526,7 +3526,7 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory postDetails_3) = OCC_Modular_DAI.loanInfo(3);
         (address borrower, int8 paymentSchedule, uint256[10] memory postDetails_4) = OCC_Modular_DAI.loanInfo(4);
 
-        assertEq(OCC_Modular_DAI.counterID(), 5);
+        assertEq(OCC_Modular_DAI.loanCounter(), 5);
 
         // Loan ID #0 (combined into Loan ID #4)
         {
