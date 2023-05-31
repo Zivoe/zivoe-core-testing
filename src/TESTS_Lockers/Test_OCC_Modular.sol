@@ -3744,7 +3744,8 @@ contract Test_OCC_Modular is Utility {
         // Post-state.
         (,, uint256[10] memory postDetails_0) = OCC_Modular_DAI.loanInfo(0);
 
-        assertEq(postDetails_0[4], preDetails_0[4] + intervals);
+        assertEq(postDetails_0[4], preDetails_0[4] + intervals);    // paymentsRemaining
+        assertEq(postDetails_0[5], preDetails_0[5] + intervals);    // term
         assertEq(OCC_Modular_DAI.extensions(0), 0);
 
     }
