@@ -363,29 +363,29 @@ contract Test_OCY_OUSD is Utility {
         assertEq(OUSDLocker.distributionLast(), block.timestamp);
     }
 
-    // Validate setOCTYDL() state changes.
-    // Validate setOCTYDL() restrictions.
+    // Validate updateOCTYDL() state changes.
+    // Validate updateOCTYDL() restrictions.
     // This includes:
     //   - _msgSender() must be ZVL
 
-    function test_OCY_OUSD_setOCTYDL_restrictions_msgSender() public {
+    function test_OCY_OUSD_updateOCTYDL_restrictions_msgSender() public {
         // Can't call if _msgSender() is not ZVL.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCY_OUSD::setOCTYDL() _msgSender() != IZivoeGlobals_OCY_OUSD(GBL).ZVL()");
-        OUSDLocker.setOCTYDL(address(bob));
+        hevm.expectRevert("OCY_OUSD::updateOCTYDL() _msgSender() != IZivoeGlobals_OCY_OUSD(GBL).ZVL()");
+        OUSDLocker.updateOCTYDL(address(bob));
         hevm.stopPrank();
     }
 
-    function test_OCY_OUSD_setOCTYDL_state(address fuzzed) public {
+    function test_OCY_OUSD_updateOCTYDL_state(address fuzzed) public {
         
         // Pre-state.
         assertEq(OUSDLocker.OCT_YDL(), address(TreasuryYDL));
 
-        // setOCTYDL().
+        // updateOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OUSDLocker));
         emit UpdatedOCTYDL(address(fuzzed), address(TreasuryYDL));
         hevm.startPrank(address(zvl));
-        OUSDLocker.setOCTYDL(address(fuzzed));
+        OUSDLocker.updateOCTYDL(address(fuzzed));
         hevm.stopPrank();
 
         // Post-state.

@@ -2000,29 +2000,29 @@ contract Test_OCL_ZVE is Utility {
 
     }
 
-    // Validate setOCTYDL() state changes.
-    // Validate setOCTYDL() restrictions.
+    // Validate updateOCTYDL() state changes.
+    // Validate updateOCTYDL() restrictions.
     // This includes:
     //   - _msgSender() must be ZVL
 
-    function test_OCL_ZVE_SUSHI_DAI_setOCTYDL_restrictions_msgSender() public {
+    function test_OCL_ZVE_SUSHI_DAI_updateOCTYDL_restrictions_msgSender() public {
         // Can't call if _msgSender() is not ZVL.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCL_ZVE::setOCTYDL() _msgSender() != IZivoeGlobals_OCL_ZVE(GBL).ZVL()");
-        OCL_ZVE_SUSHI_DAI.setOCTYDL(address(bob));
+        hevm.expectRevert("OCL_ZVE::updateOCTYDL() _msgSender() != IZivoeGlobals_OCL_ZVE(GBL).ZVL()");
+        OCL_ZVE_SUSHI_DAI.updateOCTYDL(address(bob));
         hevm.stopPrank();
     }
 
-    function test_OCL_ZVE_SUSHI_DAI_setOCTYDL_state(address fuzzed) public {
+    function test_OCL_ZVE_SUSHI_DAI_updateOCTYDL_state(address fuzzed) public {
         
         // Pre-state.
         assertEq(OCL_ZVE_SUSHI_DAI.OCT_YDL(), address(Treasury));
 
-        // setOCTYDL().
+        // updateOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OCL_ZVE_SUSHI_DAI));
         emit UpdatedOCTYDL(address(fuzzed), address(Treasury));
         hevm.startPrank(address(zvl));
-        OCL_ZVE_SUSHI_DAI.setOCTYDL(address(fuzzed));
+        OCL_ZVE_SUSHI_DAI.updateOCTYDL(address(fuzzed));
         hevm.stopPrank();
 
         // Post-state.

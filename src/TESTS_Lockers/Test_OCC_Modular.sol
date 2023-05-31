@@ -3046,29 +3046,29 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    // Validate setOCTYDL() state changes.
-    // Validate setOCTYDL() restrictions.
+    // Validate updateOCTYDL() state changes.
+    // Validate updateOCTYDL() restrictions.
     // This includes:
     //   - _msgSender() must be ZVL
 
-    function test_OCC_Modular_setOCTYDL_restrictions_msgSender() public {
+    function test_OCC_Modular_updateOCTYDL_restrictions_msgSender() public {
         // Can't call if _msgSender() is not ZVL.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::setOCTYDL() _msgSender() != IZivoeGlobals_OCC(GBL).ZVL()");
-        OCC_Modular_DAI.setOCTYDL(address(bob));
+        hevm.expectRevert("OCC_Modular::updateOCTYDL() _msgSender() != IZivoeGlobals_OCC(GBL).ZVL()");
+        OCC_Modular_DAI.updateOCTYDL(address(bob));
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_setOCTYDL_state(address fuzzed) public {
+    function test_OCC_Modular_updateOCTYDL_state(address fuzzed) public {
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.OCT_YDL(), address(Treasury));
 
-        // setOCTYDL().
+        // updateOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OCC_Modular_DAI));
         emit UpdatedOCTYDL(address(fuzzed), address(Treasury));
         hevm.startPrank(address(zvl));
-        OCC_Modular_DAI.setOCTYDL(address(fuzzed));
+        OCC_Modular_DAI.updateOCTYDL(address(fuzzed));
         hevm.stopPrank();
 
         // Post-state.

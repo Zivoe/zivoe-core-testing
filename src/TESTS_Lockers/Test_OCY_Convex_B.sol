@@ -393,30 +393,30 @@ contract Test_OCY_Convex_B is Utility {
 
     }
 
-    // Validate setOCTYDL() state changes.
-    // Validate setOCTYDL() restrictions.
+    // Validate updateOCTYDL() state changes.
+    // Validate updateOCTYDL() restrictions.
     // This includes:
     //   - _msgSender() must be ZVL
 
-    function test_OCY_Convex_B_setOCTYDL_restrictions_msgSender() public {
+    function test_OCY_Convex_B_updateOCTYDL_restrictions_msgSender() public {
 
         // Can't call if _msgSender() is not ZVL.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCY_Convex_B::setOCTYDL() _msgSender() != IZivoeGlobals_OCY_Convex_B(GBL).ZVL()");
-        OCY_CVX_B.setOCTYDL(address(bob));
+        hevm.expectRevert("OCY_Convex_B::updateOCTYDL() _msgSender() != IZivoeGlobals_OCY_Convex_B(GBL).ZVL()");
+        OCY_CVX_B.updateOCTYDL(address(bob));
         hevm.stopPrank();
     }
 
-    function test_OCY_Convex_B_setOCTYDL_state(address fuzzed) public {
+    function test_OCY_Convex_B_updateOCTYDL_state(address fuzzed) public {
         
         // Pre-state.
         assertEq(OCY_CVX_B.OCT_YDL(), address(TreasuryYDL));
 
-        // setOCTYDL().
+        // updateOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OCY_CVX_B));
         emit UpdatedOCTYDL(address(fuzzed), address(TreasuryYDL));
         hevm.startPrank(address(zvl));
-        OCY_CVX_B.setOCTYDL(address(fuzzed));
+        OCY_CVX_B.updateOCTYDL(address(fuzzed));
         hevm.stopPrank();
 
         // Post-state.
