@@ -34,7 +34,7 @@ contract Test_ZivoeGlobals is Utility {
     //    Events
     // ------------
 
-    event AccessControlSetZVL(address indexed controller);
+    event TransferredZVL(address indexed controller);
 
     event DefaultsDecreased(address indexed locker, uint256 amount, uint256 updatedDefaults);
 
@@ -42,7 +42,7 @@ contract Test_ZivoeGlobals is Utility {
 
     event UpdatedKeeperStatus(address indexed account, bool status);
 
-    event UpdatedLockerStatus(address indexed locker, bool allowed);
+    event UpdatedLockerStatus(address indexed locker, bool status);
 
     event UpdatedStablecoinWhitelist(address indexed asset, bool allowed);    
 
@@ -162,7 +162,7 @@ contract Test_ZivoeGlobals is Utility {
 
         // transferZVL()
         hevm.expectEmit(true, false, false, false, address(GBL));
-        emit AccessControlSetZVL(random);
+        emit TransferredZVL(random);
         assert(zvl.try_transferZVL(address(GBL), random));
 
         // Post-state.
