@@ -1275,7 +1275,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_DAI.createOffer(
                 address(this),
@@ -1320,7 +1320,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_FRAX.createOffer(
                 address(this),
@@ -1364,7 +1364,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_USDC.createOffer(
                 address(this),
@@ -1408,7 +1408,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_USDT.createOffer(
                 address(this),
