@@ -138,13 +138,13 @@ contract Deployer {
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, tokenIds, data));
     }
 
-    function try_pushERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pushERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pushERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pushERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
-    function try_pullERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pullERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pullERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pullERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 

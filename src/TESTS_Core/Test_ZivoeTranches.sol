@@ -432,7 +432,7 @@ contract Test_ZivoeTranches is Utility {
         assert(god.try_updateLowerRatioIncentiveBIPS(address(ZVT), 1000));
         // Can't updateLowerRatioIncentiveBIPS() < 1000.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeTranches::updateLowerRatioIncentiveBIPS() lowerRatio < 1000");
+        hevm.expectRevert("ZivoeTranches::updateLowerRatioIncentiveBIPS() _lowerRatioIncentiveBIPS < 1000");
         ZVT.updateLowerRatioIncentiveBIPS(999);
         hevm.stopPrank();
     }

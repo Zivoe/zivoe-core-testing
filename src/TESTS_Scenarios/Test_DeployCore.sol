@@ -284,8 +284,8 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 4250);
         assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(),    0);
         assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(),    0);
-        assertEq(IZivoeTranches(_ZVT).lowerRatioIncentive(), 1000);
-        assertEq(IZivoeTranches(_ZVT).upperRatioIncentive(), 2000);
+        assertEq(IZivoeTranches(_ZVT).lowerRatioIncentiveBIPS(), 1000);
+        assertEq(IZivoeTranches(_ZVT).upperRatioIncentiveBIPS(), 2000);
 
         assert(!IZivoeTranches(_ZVT).tranchesUnlocked());
         assert(IZivoeTranches(_ZVT).canPush());

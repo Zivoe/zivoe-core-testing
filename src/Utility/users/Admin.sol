@@ -138,13 +138,13 @@ contract Admin {
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, tokenIds, data));
     }
 
-    function try_pushERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pushERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pushERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pushERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
-    function try_pullERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pullERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pullERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pullERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
@@ -218,13 +218,13 @@ contract Admin {
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateLowerRatioIncentive(address gbl, uint256 amount) external returns (bool ok) {
-        string memory sig = "updateLowerRatioIncentive(uint256)";
+    function try_updateLowerRatioIncentiveBIPS(address gbl, uint256 amount) external returns (bool ok) {
+        string memory sig = "updateLowerRatioIncentiveBIPS(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateUpperRatioIncentive(address gbl, uint256 amount) external returns (bool ok) {
-        string memory sig = "updateUpperRatioIncentive(uint256)";
+    function try_updateUpperRatioIncentiveBIPS(address gbl, uint256 amount) external returns (bool ok) {
+        string memory sig = "updateUpperRatioIncentiveBIPS(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
