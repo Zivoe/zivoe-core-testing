@@ -3628,7 +3628,7 @@ contract Test_OCC_Modular is Utility {
 
         // applyConversionAmortization()
         hevm.startPrank(address(tim));
-        hevm.expectRevert("OCC_Modular::applyConversionAmortization() !conversionAmortization[id]");
+        hevm.expectRevert("OCC_Modular::applyConversionAmortization() !conversionToAmortization[id]");
         OCC_Modular_DAI.applyConversionAmortization(0);
         hevm.stopPrank();
         
@@ -3701,7 +3701,7 @@ contract Test_OCC_Modular is Utility {
 
         // applyConversionBullet()
         hevm.startPrank(address(tim));
-        hevm.expectRevert("OCC_Modular::applyConversionBullet() !conversionBullet[id]");
+        hevm.expectRevert("OCC_Modular::applyConversionBullet() !conversionToBullet[id]");
         OCC_Modular_DAI.applyConversionBullet(0);
         hevm.stopPrank();
 
@@ -4056,7 +4056,7 @@ contract Test_OCC_Modular is Utility {
     function test_OCC_Modular_approveConversionAmortization_state(uint id) public {
 
         // Pre-state.
-        assert(!OCC_Modular_DAI.conversionAmortization(id));
+        assert(!OCC_Modular_DAI.conversionToAmortization(id));
 
         // Approve conversion.
         hevm.startPrank(address(roy));
@@ -4066,7 +4066,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
 
         // Post-state.
-        assert(OCC_Modular_DAI.conversionAmortization(id));
+        assert(OCC_Modular_DAI.conversionToAmortization(id));
 
     }
 
@@ -4087,7 +4087,7 @@ contract Test_OCC_Modular is Utility {
     function test_OCC_Modular_approveConversionBullet_state(uint id) public {
 
         // Pre-state.
-        assert(!OCC_Modular_DAI.conversionBullet(id));
+        assert(!OCC_Modular_DAI.conversionToBullet(id));
 
         // Approve conversion.
         hevm.startPrank(address(roy));
@@ -4097,7 +4097,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
 
         // Post-state.
-        assert(OCC_Modular_DAI.conversionBullet(id));
+        assert(OCC_Modular_DAI.conversionToBullet(id));
     }
 
     // Validate approveExtension() state changes.
@@ -4251,7 +4251,7 @@ contract Test_OCC_Modular is Utility {
     function test_OCC_Modular_unapproveConversionAmortization_state(uint id) public {
         
         // Pre-state.
-        assert(!OCC_Modular_DAI.conversionAmortization(id));
+        assert(!OCC_Modular_DAI.conversionToAmortization(id));
 
         // Approve conversion.
         hevm.startPrank(address(roy));
@@ -4261,7 +4261,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
 
         // Post-state.
-        assert(OCC_Modular_DAI.conversionAmortization(id));
+        assert(OCC_Modular_DAI.conversionToAmortization(id));
 
         // Unapprove conversion.
         hevm.startPrank(address(roy));
@@ -4271,7 +4271,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
 
         // Post-state.
-        assert(!OCC_Modular_DAI.conversionAmortization(id));
+        assert(!OCC_Modular_DAI.conversionToAmortization(id));
     }
 
     // Validate unapproveConversionBullet() state changes.
@@ -4292,7 +4292,7 @@ contract Test_OCC_Modular is Utility {
         
         
         // Pre-state.
-        assert(!OCC_Modular_DAI.conversionBullet(id));
+        assert(!OCC_Modular_DAI.conversionToBullet(id));
 
         // Approve conversion.
         hevm.startPrank(address(roy));
@@ -4302,7 +4302,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
 
         // Post-state.
-        assert(OCC_Modular_DAI.conversionBullet(id));
+        assert(OCC_Modular_DAI.conversionToBullet(id));
 
         // Unapprove conversion.
         hevm.startPrank(address(roy));
@@ -4312,7 +4312,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
 
         // Post-state.
-        assert(!OCC_Modular_DAI.conversionBullet(id));
+        assert(!OCC_Modular_DAI.conversionToBullet(id));
     }
 
     // Validate unapproveExtension() state changes.
