@@ -3524,6 +3524,8 @@ contract Test_OCC_Modular is Utility {
         (,, uint256[10] memory postInfo_1) = OCC_Modular_DAI.loanInfo(1);
         (,, uint256[10] memory postInfo_2) = OCC_Modular_DAI.loanInfo(2);
         (,, uint256[10] memory postInfo_3) = OCC_Modular_DAI.loanInfo(3);
+
+        // NOTE: borrower and paymentSchedule marked as "unused" in compiler, but code is commented out below
         (address borrower, int8 paymentSchedule, uint256[10] memory postInfo_4) = OCC_Modular_DAI.loanInfo(4);
 
         assertEq(OCC_Modular_DAI.loanCounter(), 5);
@@ -3589,52 +3591,52 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    // Validate applyConversionAmortization() state changes.
-    // Validate applyConversionAmortization() restrictions.
+    // Validate applyConversionToAmortization() state changes.
+    // Validate applyConversionToAmortization() restrictions.
     // This includes:
     //  - _msgSender() is borrower of loan
     //  - loan has been approved for conversion
 
 
-    function test_OCC_Modular_applyConversionAmortization_restrictions_borrower(uint96 random) public {
+    function test_OCC_Modular_applyConversionToAmortization_restrictions_borrower(uint96 random) public {
         
         simulateITO_and_createOffers(random, true);   // true = Bullet loans
 
         tim_acceptOffer(0, DAI);
 
-        // approveConversionAmortization().
+        // approveConversionToAmortization().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveConversionAmortization(0);
+        OCC_Modular_DAI.approveConversionToAmortization(0);
         hevm.stopPrank();
 
-        // applyConversionAmortization()
+        // applyConversionToAmortization()
         hevm.startPrank(address(sam));
-        hevm.expectRevert("OCC_Modular::applyConversionAmortization() _msgSender() != loans[id].borrower");
-        OCC_Modular_DAI.applyConversionAmortization(0);
+        hevm.expectRevert("OCC_Modular::applyConversionToAmortization() _msgSender() != loans[id].borrower");
+        OCC_Modular_DAI.applyConversionToAmortization(0);
         hevm.stopPrank();
 
     }
 
-    function test_OCC_Modular_applyConversionAmortization_restrictions_approved(uint96 random) public {
+    function test_OCC_Modular_applyConversionToAmortization_restrictions_approved(uint96 random) public {
         
         simulateITO_and_createOffers(random, true);   // true = Bullet loans
 
         tim_acceptOffer(0, DAI);
 
-        // approveConversionAmortization().
+        // approveConversionToAmortization().
         // hevm.startPrank(address(roy));
-        // OCC_Modular_DAI.approveConversionAmortization(0);
+        // OCC_Modular_DAI.approveConversionToAmortization(0);
         // hevm.stopPrank();
 
-        // applyConversionAmortization()
+        // applyConversionToAmortization()
         hevm.startPrank(address(tim));
-        hevm.expectRevert("OCC_Modular::applyConversionAmortization() !conversionToAmortization[id]");
-        OCC_Modular_DAI.applyConversionAmortization(0);
+        hevm.expectRevert("OCC_Modular::applyConversionToAmortization() !conversionToAmortization[id]");
+        OCC_Modular_DAI.applyConversionToAmortization(0);
         hevm.stopPrank();
         
     }
 
-    function test_OCC_Modular_applyConversionAmortization_state(uint96 random) public {
+    function test_OCC_Modular_applyConversionToAmortization_state(uint96 random) public {
         
         simulateITO_and_createOffers(random, true);   // true = Bullet loans
 
@@ -3645,16 +3647,16 @@ contract Test_OCC_Modular is Utility {
         // Pre-state.
         assertEq(paymentStructure, int8(0));
 
-        // approveConversionAmortization().
+        // approveConversionToAmortization().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveConversionAmortization(0);
+        OCC_Modular_DAI.approveConversionToAmortization(0);
         hevm.stopPrank();
 
-        // applyConversionAmortization().
+        // applyConversionToAmortization().
         hevm.startPrank(address(tim));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToAmortizationApplied(0);
-        OCC_Modular_DAI.applyConversionAmortization(0);
+        OCC_Modular_DAI.applyConversionToAmortization(0);
         hevm.stopPrank();
         
         // Post-state.
@@ -3663,59 +3665,59 @@ contract Test_OCC_Modular is Utility {
         assertEq(paymentStructure, int8(1));
     }
 
-    // Validate applyConversionBullet() state changes.
-    // Validate applyConversionBullet() restrictions.
+    // Validate applyConversioToBullet() state changes.
+    // Validate applyConversionToBullet() restrictions.
     // This includes:
     //  - _msgSender() is borrower of loan
     //  - loan has been approved for conversion
 
-    function test_OCC_Modular_applyConversionBullet_restrictions_borrower(uint96 random) public {
+    function test_OCC_Modular_applyConversionToBullet_restrictions_borrower(uint96 random) public {
 
         simulateITO_and_createOffers(random, false);   // false = Amortization loans
 
         tim_acceptOffer(0, DAI);
 
-        // approveConversionBullet().
+        // approveConversionToBullet().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveConversionBullet(0);
+        OCC_Modular_DAI.approveConversionToBullet(0);
         hevm.stopPrank();
 
-        // applyConversionBullet()
+        // applyConversionToBullet()
         hevm.startPrank(address(sam));
-        hevm.expectRevert("OCC_Modular::applyConversionBullet() _msgSender() != loans[id].borrower");
-        OCC_Modular_DAI.applyConversionBullet(0);
+        hevm.expectRevert("OCC_Modular::applyConversionToBullet() _msgSender() != loans[id].borrower");
+        OCC_Modular_DAI.applyConversionToBullet(0);
         hevm.stopPrank();
 
     }
 
-    function test_OCC_Modular_applyConversionBullet_restrictions_approved(uint96 random) public {
+    function test_OCC_Modular_applyConversionToBullet_restrictions_approved(uint96 random) public {
         
         simulateITO_and_createOffers(random, false);   // false = Amortization loans
 
         tim_acceptOffer(0, DAI);
 
-        // approveConversionBullet().
+        // approveConversionToBullet().
         // hevm.startPrank(address(roy));
-        // OCC_Modular_DAI.approveConversionBullet(0);
+        // OCC_Modular_DAI.approveConversionToBullet(0);
         // hevm.stopPrank();
 
-        // applyConversionBullet()
+        // applyConversionToBullet()
         hevm.startPrank(address(tim));
-        hevm.expectRevert("OCC_Modular::applyConversionBullet() !conversionToBullet[id]");
-        OCC_Modular_DAI.applyConversionBullet(0);
+        hevm.expectRevert("OCC_Modular::applyConversionToBullet() !conversionToBullet[id]");
+        OCC_Modular_DAI.applyConversionToBullet(0);
         hevm.stopPrank();
 
     }
 
-    function test_OCC_Modular_applyConversionBullet_state(uint96 random) public {
+    function test_OCC_Modular_applyConversionToBullet_state(uint96 random) public {
         
         simulateITO_and_createOffers(random, false);   // false = Amortization loans
 
         tim_acceptOffer(0, DAI);
 
-        // approveConversionBullet().
+        // approveConversionToBullet().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveConversionBullet(0);
+        OCC_Modular_DAI.approveConversionToBullet(0);
         hevm.stopPrank();
 
         (, int8 paymentStructure, ) = OCC_Modular_DAI.loanInfo(0);
@@ -3723,11 +3725,11 @@ contract Test_OCC_Modular is Utility {
         // Pre-state.
         assertEq(paymentStructure, int8(1));
 
-        // applyConversionBullet().
+        // applyConversionToBullet().
         hevm.startPrank(address(tim));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToBulletApplied(0);
-        OCC_Modular_DAI.applyConversionBullet(0);
+        OCC_Modular_DAI.applyConversionToBullet(0);
         hevm.stopPrank();
         
         // Post-state.
@@ -4039,21 +4041,21 @@ contract Test_OCC_Modular is Utility {
         
     }
 
-    // Validate approveConversionAmortization() state changes.
-    // Validate approveConversionAmortization() restrictions.
+    // Validate approveConversionToAmortization() state changes.
+    // Validate approveConversionToAmortization() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    function test_OCC_Modular_approveConversionAmortization_restrictions_underwriter() public {
+    function test_OCC_Modular_approveConversionToAmortization_restrictions_underwriter() public {
         
         // Can't call if not underwriter
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        OCC_Modular_DAI.approveConversionAmortization(0);
+        OCC_Modular_DAI.approveConversionToAmortization(0);
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveConversionAmortization_state(uint id) public {
+    function test_OCC_Modular_approveConversionToAmortization_state(uint id) public {
 
         // Pre-state.
         assert(!OCC_Modular_DAI.conversionToAmortization(id));
@@ -4062,7 +4064,7 @@ contract Test_OCC_Modular is Utility {
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToAmortizationApproved(id);
-        OCC_Modular_DAI.approveConversionAmortization(id);
+        OCC_Modular_DAI.approveConversionToAmortization(id);
         hevm.stopPrank();
 
         // Post-state.
@@ -4070,21 +4072,21 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    // Validate approveConversionBullet() state changes.
-    // Validate approveConversionBullet() restrictions.
+    // Validate approveConversionToBullet() state changes.
+    // Validate approveConversionToBullet() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    function test_OCC_Modular_approveConversionBullet_restrictions_underwriter() public {
+    function test_OCC_Modular_approveConversionToBullet_restrictions_underwriter() public {
         
         // Can't call if not underwriter
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        OCC_Modular_DAI.approveConversionBullet(0);
+        OCC_Modular_DAI.approveConversionToBullet(0);
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveConversionBullet_state(uint id) public {
+    function test_OCC_Modular_approveConversionToBullet_state(uint id) public {
 
         // Pre-state.
         assert(!OCC_Modular_DAI.conversionToBullet(id));
@@ -4093,7 +4095,7 @@ contract Test_OCC_Modular is Utility {
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToBulletApproved(id);
-        OCC_Modular_DAI.approveConversionBullet(id);
+        OCC_Modular_DAI.approveConversionToBullet(id);
         hevm.stopPrank();
 
         // Post-state.
@@ -4234,21 +4236,21 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    // Validate unapproveConversionAmortization() state changes.
-    // Validate unapproveConversionAmortization() restrictions.
+    // Validate unapproveConversionToAmortization() state changes.
+    // Validate unapproveConversionToAmortization() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    function test_OCC_Modular_unapproveConversionAmortization_restrictions_underwriter() public {
+    function test_OCC_Modular_unapproveConversionToAmortization_restrictions_underwriter() public {
         
         // Can't call if not underwriter
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        OCC_Modular_DAI.unapproveConversionAmortization(0);
+        OCC_Modular_DAI.unapproveConversionToAmortization(0);
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveConversionAmortization_state(uint id) public {
+    function test_OCC_Modular_unapproveConversionToAmortization_state(uint id) public {
         
         // Pre-state.
         assert(!OCC_Modular_DAI.conversionToAmortization(id));
@@ -4257,7 +4259,7 @@ contract Test_OCC_Modular is Utility {
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToAmortizationApproved(id);
-        OCC_Modular_DAI.approveConversionAmortization(id);
+        OCC_Modular_DAI.approveConversionToAmortization(id);
         hevm.stopPrank();
 
         // Post-state.
@@ -4267,28 +4269,28 @@ contract Test_OCC_Modular is Utility {
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToAmortizationUnapproved(id);
-        OCC_Modular_DAI.unapproveConversionAmortization(id);
+        OCC_Modular_DAI.unapproveConversionToAmortization(id);
         hevm.stopPrank();
 
         // Post-state.
         assert(!OCC_Modular_DAI.conversionToAmortization(id));
     }
 
-    // Validate unapproveConversionBullet() state changes.
-    // Validate unapproveConversionBullet() restrictions.
+    // Validate unapproveConversionToBullet() state changes.
+    // Validate unapproveConversionToBullet() restrictions.
     // This includes:
     //  - _msgSender() is underwriter
 
-    function test_OCC_Modular_unapproveConversionBullet_restrictions_underwriter() public {
+    function test_OCC_Modular_unapproveConversionToBullet_restrictions_underwriter() public {
         
         // Can't call if not underwriter
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        OCC_Modular_DAI.unapproveConversionBullet(0);
+        OCC_Modular_DAI.unapproveConversionToBullet(0);
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveConversionBullet_state(uint id) public {
+    function test_OCC_Modular_unapproveConversionToBullet_state(uint id) public {
         
         
         // Pre-state.
@@ -4298,7 +4300,7 @@ contract Test_OCC_Modular is Utility {
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToBulletApproved(id);
-        OCC_Modular_DAI.approveConversionBullet(id);
+        OCC_Modular_DAI.approveConversionToBullet(id);
         hevm.stopPrank();
 
         // Post-state.
@@ -4308,7 +4310,7 @@ contract Test_OCC_Modular is Utility {
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
         emit ConversionToBulletUnapproved(id);
-        OCC_Modular_DAI.unapproveConversionBullet(id);
+        OCC_Modular_DAI.unapproveConversionToBullet(id);
         hevm.stopPrank();
 
         // Post-state.

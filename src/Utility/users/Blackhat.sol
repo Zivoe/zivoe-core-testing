@@ -433,13 +433,13 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, ids, paymentInterval));
     }
 
-    function try_applyConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "applyConversionAmortization(uint256)";
+    function try_applyConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_applyConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "applyConversionBullet(uint256)";
+    function try_applyConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -453,13 +453,13 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "approveConversionAmortization(uint256)";
+    function try_approveConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "approveConversionBullet(uint256)";
+    function try_approveConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -468,9 +468,9 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
     }
 
-    function try_approveRefinance(address occ, uint id, uint APR) external returns (bool ok) {
+    function try_approveRefinance(address occ, uint id, uint apr) external returns (bool ok) {
         string memory sig = "approveRefinance(uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, APR));
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, apr));
     }
 
     function try_unapproveCombine(address occ, address borrower) external returns (bool ok) {
@@ -478,13 +478,13 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower));
     }
 
-    function try_unapproveConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "unapproveConversionAmortization(uint256)";
+    function try_unapproveConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_unapproveConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "unapproveConversionBullet(uint256)";
+    function try_unapproveConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
