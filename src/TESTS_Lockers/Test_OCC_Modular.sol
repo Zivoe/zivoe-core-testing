@@ -115,7 +115,7 @@ contract Test_OCC_Modular is Utility {
     
     event InterestSupplied(uint256 indexed id, uint256 amount, address indexed payee);
     
-    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+    event UpdatedOCTYDL(address indexed newOCT, address indexed oldOCT);
     
     event OfferAccepted(uint256 indexed id, uint256 principal, address indexed borrower, uint256 paymentDueBy);
 
@@ -3066,7 +3066,7 @@ contract Test_OCC_Modular is Utility {
 
         // setOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OCC_Modular_DAI));
-        emit OCTYDLSetZVL(address(fuzzed), address(Treasury));
+        emit UpdatedOCTYDL(address(fuzzed), address(Treasury));
         hevm.startPrank(address(zvl));
         OCC_Modular_DAI.setOCTYDL(address(fuzzed));
         hevm.stopPrank();

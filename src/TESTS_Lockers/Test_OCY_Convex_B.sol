@@ -37,7 +37,7 @@ contract Test_OCY_Convex_B is Utility {
 
     event Logger(address);
     
-    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+    event UpdatedOCTYDL(address indexed newOCT, address indexed oldOCT);
 
     // Helper function.
 
@@ -414,7 +414,7 @@ contract Test_OCY_Convex_B is Utility {
 
         // setOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OCY_CVX_B));
-        emit OCTYDLSetZVL(address(fuzzed), address(TreasuryYDL));
+        emit UpdatedOCTYDL(address(fuzzed), address(TreasuryYDL));
         hevm.startPrank(address(zvl));
         OCY_CVX_B.setOCTYDL(address(fuzzed));
         hevm.stopPrank();

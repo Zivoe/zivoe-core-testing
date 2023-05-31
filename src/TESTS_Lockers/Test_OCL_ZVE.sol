@@ -70,7 +70,7 @@ contract Test_OCL_ZVE is Utility {
 
     event LiquidityTokensMinted(uint256 amountMinted, uint256 depositedZVE, uint256 depositedPairAsset);
 
-    event OCTYDLSetZVL(address indexed newOCT, address indexed oldOCT);
+    event UpdatedOCTYDL(address indexed newOCT, address indexed oldOCT);
 
     event UpdatedCompoundingRateBIPS(uint256 oldValue, uint256 newValue);
 
@@ -2020,7 +2020,7 @@ contract Test_OCL_ZVE is Utility {
 
         // setOCTYDL().
         hevm.expectEmit(true, true, false, false, address(OCL_ZVE_SUSHI_DAI));
-        emit OCTYDLSetZVL(address(fuzzed), address(Treasury));
+        emit UpdatedOCTYDL(address(fuzzed), address(Treasury));
         hevm.startPrank(address(zvl));
         OCL_ZVE_SUSHI_DAI.setOCTYDL(address(fuzzed));
         hevm.stopPrank();
