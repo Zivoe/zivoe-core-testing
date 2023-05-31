@@ -152,7 +152,7 @@ contract Test_OCC_Modular is Utility {
         uint256 APR = uint256(random) % 5000;
         uint256 APRLateFee = uint256(random) % 5000;
         uint256 term = uint256(random) % 25 + 1;
-        uint256 gracePeriod = uint256(random) % 90 days;
+        uint256 gracePeriod = uint256(random) % 90 days + 7 days;
         uint256 option = uint256(random) % 5;
         int8 paymentSchedule = choice ? int8(0) : int8(1);
 
@@ -1155,6 +1155,7 @@ contract Test_OCC_Modular is Utility {
     // Restrictions include:
     //  - term == 0
     //  - Invalid paymentInterval (only 5 valid options)
+    //  - gracePeriod >= 7 days
     //  - paymentSchedule != (0 || 1)
     //  - _msgSender() must be underwriter
     
@@ -1227,6 +1228,31 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
+    function test_OCC_Modular_createOffer_restrictions_gracePeriod(uint96 random, bool choice) public {
+
+        uint256 borrowAmount = uint256(random);
+        uint256 APR;
+        uint256 APRLateFee;
+        uint256 term;
+        uint256 paymentInterval;
+        uint256 gracePeriod = 6 days;
+        int8 paymentSchedule;
+        
+        APR = uint256(random) % 3601;
+        APRLateFee = uint256(random) % 3601;
+        term = uint256(random) % 100 + 1;
+        paymentInterval = options[uint256(random) % 5];
+        
+        // Can't createOffer with gracePeriod less than 7 days.
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::createOffer() gracePeriod < 7 days");
+        OCC_Modular_DAI.createOffer(
+            address(tim), borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
+        );
+        hevm.stopPrank();
+
+    }
+
     function test_OCC_Modular_createOffer_restrictions_paymentSchedule(uint96 random, bool choice) public {
 
         uint256 borrowAmount = uint256(random);
@@ -1241,6 +1267,7 @@ contract Test_OCC_Modular is Utility {
         APRLateFee = uint256(random) % 3601;
         term = uint256(random) % 100 + 1;
         paymentInterval = options[uint256(random) % 5];
+        gracePeriod = uint256(random) % 90 days + 7 days;
         
         // Can't createOffer with invalid paymentSchedule (0 || 1).
         hevm.startPrank(address(roy));
@@ -1250,7 +1277,6 @@ contract Test_OCC_Modular is Utility {
         );
         hevm.stopPrank();
 
-        paymentSchedule = choice ? int8(0) : int8(1);
     }
 
     function test_OCC_Modular_createOffer_state(uint96 random, bool choice, uint8 modularity) public {
@@ -1259,7 +1285,7 @@ contract Test_OCC_Modular is Utility {
         uint256 APR = uint256(random) % 5000;
         uint256 APRLateFee = uint256(random) % 5000;
         uint256 term = uint256(random) % 25 + 1;
-        uint256 gracePeriod = uint256(random) % 90 days;
+        uint256 gracePeriod = uint256(random) % 90 days + 7 days;
         uint256 option = uint256(random) % 5;
         int8 paymentSchedule = choice ? int8(0) : int8(1);
         
