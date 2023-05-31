@@ -68,8 +68,8 @@ contract Admin {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, account, amount));
     }
 
-    function try_vest(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256)";
+    function try_createVestingSchedule(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account, daysUntilVestingBegins, daysToVest, amountToVest));
     }
 
@@ -278,8 +278,8 @@ contract Admin {
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_vest(address stk, address act, uint256 dtc, uint256 dtv, uint256 atv, bool rev) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256,bool)";
+    function try_createVestingSchedule(address stk, address act, uint256 dtc, uint256 dtv, uint256 atv, bool rev) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256,bool)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act, dtc, dtv, atv, rev));
     }
 

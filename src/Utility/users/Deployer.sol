@@ -63,8 +63,8 @@ contract Deployer {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, account, amount));
     }
 
-    function try_vest(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256)";
+    function try_createVestingSchedule(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account, daysUntilVestingBegins, daysToVest, amountToVest));
     }
 
@@ -173,8 +173,8 @@ contract Deployer {
         (ok,) = address(ret).call(abi.encodeWithSignature(sig, asset, amount, multi));
     }
 
-    function try_vest(address mrv, address account, uint256 daysToCliff, uint256 daysToVest, uint256 amountToVest, bool revokable) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256,bool)";
+    function try_createVestingSchedule(address mrv, address account, uint256 daysToCliff, uint256 daysToVest, uint256 amountToVest, bool revokable) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256,bool)";
         (ok,) = address(mrv).call(abi.encodeWithSignature(sig, account, daysToCliff, daysToVest, amountToVest, revokable));
     }
 

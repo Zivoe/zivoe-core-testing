@@ -250,7 +250,7 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
 
         // Assign vesting schedule to "bob".
-        assert(zvl.try_vest(address(vestZVE), address(bob), 30, 90, 100 ether, false));
+        assert(zvl.try_createVestingSchedule(address(vestZVE), address(bob), 30, 90, 100 ether, false));
 
         // Should throw with: "ZivoeITO::depositJunior() ~ has vesting schedule ~"
         hevm.startPrank(address(bob));
@@ -350,7 +350,7 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
 
         // Assign vesting schedule to "bob".
-        assert(zvl.try_vest(address(vestZVE), address(bob), 30, 90, 100 ether, false));
+        assert(zvl.try_createVestingSchedule(address(vestZVE), address(bob), 30, 90, 100 ether, false));
 
         // Should throw with: "ZivoeITO::depositSenior() ~ has vesting schedule ~"
         hevm.startPrank(address(bob));
@@ -642,8 +642,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -651,8 +651,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
     }
@@ -688,8 +688,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -697,8 +697,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
     }
@@ -734,8 +734,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -743,8 +743,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
     }
@@ -780,8 +780,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -789,8 +789,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
     }
@@ -832,8 +832,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -841,8 +841,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -876,8 +876,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -885,8 +885,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -920,8 +920,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -929,8 +929,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -964,8 +964,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -973,8 +973,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -1035,8 +1035,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -1044,8 +1044,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -1098,8 +1098,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -1107,8 +1107,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -1161,8 +1161,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -1170,8 +1170,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }
@@ -1224,8 +1224,8 @@ contract Test_ZivoeITO is Utility {
 
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             , 
             ,
@@ -1233,8 +1233,8 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + 90 days);
-        assertEq(endingUnix, block.timestamp + 360 days);
+        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
     }

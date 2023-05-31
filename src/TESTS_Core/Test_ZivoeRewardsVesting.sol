@@ -39,9 +39,9 @@ contract Test_ZivoeRewardsVesting is Utility {
 
     event RewardDistributed(address indexed account, address indexed rewardsToken, uint256 reward);
 
-    event VestingScheduleAdded(address indexed account, uint256 start, uint256 cliffUnix, uint256 endingUnix, uint256 totalVesting, uint256 vestingPerSecond, bool revokable);
+    event VestingScheduleCreated(address indexed account, uint256 start, uint256 cliff, uint256 end, uint256 totalVesting, uint256 vestingPerSecond, bool revokable);
 
-    event VestingScheduleRevoked(address indexed account, uint256 amountRevoked, uint256 cliffUnix, uint256 endingUnix, uint256 totalVesting, bool revokable);
+    event VestingScheduleRevoked(address indexed account, uint256 amountRevoked, uint256 cliff, uint256 end, uint256 totalVesting, bool revokable);
 
 
     // ----------------
@@ -255,53 +255,53 @@ contract Test_ZivoeRewardsVesting is Utility {
 
     }
 
-    // Validate vest() state changes.
-    // Validate vest() restrictions.
+    // Validate createVestingSchedule() state changes.
+    // Validate createVestingSchedule() restrictions.
     // This includes:
     //  - Account must not be assigned vesting schedule (!vestingScheduleSet[account]).
     //  - Must be enough $ZVE present to vest out.
     //  - Cliff timeline must be appropriate (daysToCliff <= daysToVest).
     //  - Restricting vest if account has deposited to ITO.
 
-    function test_ZivoeRewardsVesting_vest_restrictions_maxVest() public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_restrictions_maxVest() public {
 
         uint256 zveBalanceOverflow = ZVE.balanceOf(address(vestZVE)) + 1;
         // Can't vest more ZVE than is present.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() amountToVest > vestingToken.balanceOf(address(this)) - vestingTokenAllocated");
-        vestZVE.vest(address(poe), 30, 90, zveBalanceOverflow, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() amountToVest > vestingToken.balanceOf(address(this)) - vestingTokenAllocated");
+        vestZVE.createVestingSchedule(address(poe), 30, 90, zveBalanceOverflow, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewardsVesting_vest_restrictions_maxCliff() public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_restrictions_maxCliff() public {
 
         // Can't vest if cliff days > vesting days.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() daysToCliff > daysToVest");
-        vestZVE.vest(address(poe), 91, 90, 100 ether, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() daysToCliff > daysToVest");
+        vestZVE.createVestingSchedule(address(poe), 91, 90, 100 ether, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewardsVesting_vest_restrictions_amount0() public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_restrictions_amount0() public {
 
         // Can't vest if amount == 0.
         hevm.startPrank(address(zvl));
         hevm.expectRevert("ZivoeRewardsVesting::_stake() amount == 0");
-        vestZVE.vest(address(poe), 30, 90, 0, false);
+        vestZVE.createVestingSchedule(address(poe), 30, 90, 0, false);
         hevm.stopPrank();       
     }
 
-    function test_ZivoeRewardsVesting_vest_restrictions_scheduleSet() public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_restrictions_scheduleSet() public {
         
         // Can't call vest if schedule already set.
-        assert(zvl.try_vest(address(vestZVE), address(poe), 30, 90, 100 ether, false));
+        assert(zvl.try_createVestingSchedule(address(vestZVE), address(poe), 30, 90, 100 ether, false));
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() vestingScheduleSet[account]");
-        vestZVE.vest(address(poe), 30, 90, 100 ether, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() vestingScheduleSet[account]");
+        vestZVE.createVestingSchedule(address(poe), 30, 90, 100 ether, false);
         hevm.stopPrank();  
     }
 
-    function test_ZivoeRewardsVesting_vest_restrictions_depositedITO_senior() public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_restrictions_depositedITO_senior() public {
 
         // Mint 100 DAI for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
@@ -309,12 +309,12 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Deposit to ITO
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
-        vestZVE.vest(address(sam), 30, 90, 100 ether, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
+        vestZVE.createVestingSchedule(address(sam), 30, 90, 100 ether, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewardsVesting_vest_restrictions_depositedITO_junior() public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_restrictions_depositedITO_junior() public {
 
         // Mint 100 DAI for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
@@ -322,20 +322,20 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Deposit to ITO
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
-        vestZVE.vest(address(jim), 30, 90, 100 ether, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
+        vestZVE.createVestingSchedule(address(jim), 30, 90, 100 ether, false);
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewardsVesting_vest_state(uint96 random, bool choice) public {
+    function test_ZivoeRewardsVesting_createVestingSchedule_state(uint96 random, bool choice) public {
 
         uint256 amount = uint256(random);
 
         // Pre-state.
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             uint256 totalWithdrawn, 
             uint256 vestingPerSecond, 
@@ -345,8 +345,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         assertEq(vestZVE.vestingTokenAllocated(), 0);
 
         assertEq(start, 0);
-        assertEq(cliffUnix, 0);
-        assertEq(endingUnix, 0);
+        assertEq(cliff, 0);
+        assertEq(end, 0);
         assertEq(totalVesting, 0);
         assertEq(totalWithdrawn, 0);
         assertEq(vestingPerSecond, 0);
@@ -357,7 +357,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         assert(!revokable);
 
         hevm.expectEmit(true, false, false, true, address(vestZVE));
-        emit VestingScheduleAdded(
+        emit VestingScheduleCreated(
             address(tia),
             block.timestamp,
             block.timestamp + (amount % 360 + 1) * 1 days,
@@ -367,7 +367,7 @@ contract Test_ZivoeRewardsVesting is Utility {
             choice
         );
 
-        assert(zvl.try_vest(
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(tia), 
             amount % 360 + 1, 
@@ -379,8 +379,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         // Post-state.
         (
             start, 
-            cliffUnix, 
-            endingUnix, 
+            cliff, 
+            end, 
             totalVesting, 
             totalWithdrawn, 
             vestingPerSecond, 
@@ -390,8 +390,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         assertEq(vestZVE.vestingTokenAllocated(), amount % 12_500_000 ether + 1);
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + (amount % 360 + 1) * 1 days);
-        assertEq(endingUnix, block.timestamp + (amount % 360 * 5 + 1) * 1 days);
+        assertEq(cliff, block.timestamp + (amount % 360 + 1) * 1 days);
+        assertEq(end, block.timestamp + (amount % 360 * 5 + 1) * 1 days);
         assertEq(totalVesting, amount % 12_500_000 ether + 1);
         assertEq(totalWithdrawn, 0);
         assertEq(vestingPerSecond, (amount % 12_500_000 ether + 1) / ((amount % 360 * 5 + 1) * 1 days));
@@ -412,8 +412,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         //  - 30 day cliff period.
         //  - 120 day vesting period (of which 30 days is the cliff).
 
-        // emitted events in vest() already tested above.
-        assert(zvl.try_vest(
+        // emitted events in createVestingSchedule() already tested above.
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(qcp), 
             30, 
@@ -468,8 +468,8 @@ contract Test_ZivoeRewardsVesting is Utility {
     function test_ZivoeRewardsVesting_revoke_restrictions_notRevokable(uint96 random) public {
         uint256 amount = uint256(random);
 
-        // vest().
-        assert(zvl.try_vest(
+        // createVestingSchedule().
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(moe), 
             amount % 360 + 1, 
@@ -489,8 +489,8 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         uint256 amount = uint256(random);
 
-        // emitted events in vest() already tested above.
-        assert(zvl.try_vest(
+        // emitted events in createVestingSchedule() already tested above.
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(moe), 
             amount % 360 + 1, 
@@ -502,16 +502,16 @@ contract Test_ZivoeRewardsVesting is Utility {
         // Pre-state.
         (
             uint256 start, 
-            uint256 cliffUnix, 
-            uint256 endingUnix, 
+            uint256 cliff, 
+            uint256 end, 
             uint256 totalVesting, 
             uint256 totalWithdrawn, 
             uint256 vestingPerSecond,
         ) = vestZVE.viewSchedule(address(moe));
 
         assertEq(start, block.timestamp);
-        assertEq(cliffUnix, block.timestamp + (amount % 360 + 1) * 1 days);
-        assertEq(endingUnix, block.timestamp + (amount % 360 * 5 + 1) * 1 days);
+        assertEq(cliff, block.timestamp + (amount % 360 + 1) * 1 days);
+        assertEq(end, block.timestamp + (amount % 360 * 5 + 1) * 1 days);
         assertEq(totalVesting, amount % 12_500_000 ether + 1);
         assertEq(totalWithdrawn, 0);
         assertEq(vestingPerSecond, (amount % 12_500_000 ether + 1) / ((amount % 360 * 5 + 1) * 1 days));
@@ -519,8 +519,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         assertEq(vestZVE.totalSupply(), amount % 12_500_000 ether + 1);
         assertEq(ZVE.balanceOf(address(moe)), 0);
 
-        // warp some random amount of time from now to endingUnix.
-        hevm.warp(block.timestamp + amount % (endingUnix - start));
+        // warp some random amount of time from now to end.
+        hevm.warp(block.timestamp + amount % (end - start));
 
         uint256 amountWithdrawable = vestZVE.amountWithdrawable(address(moe));
 
@@ -540,8 +540,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         bool revokable;
         (
             , 
-            cliffUnix, 
-            endingUnix, 
+            cliff, 
+            end, 
             totalVesting, 
             totalWithdrawn, 
             vestingPerSecond,
@@ -550,8 +550,8 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         assertEq(totalVesting, amountWithdrawable);
         assertEq(totalWithdrawn, amountWithdrawable);
-        assertEq(cliffUnix, block.timestamp - 1);
-        assertEq(endingUnix, block.timestamp);
+        assertEq(cliff, block.timestamp - 1);
+        assertEq(end, block.timestamp);
         assertEq(vestZVE.totalSupply(), 0);
         assertEq(vestZVE.balanceOf(address(moe)), 0);
         assertEq(ZVE.balanceOf(address(moe)), amountWithdrawable);
@@ -567,8 +567,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         uint256 amount = uint256(random);
         uint256 deposit = uint256(random) + 100 ether; // Minimum 100 DAI deposit.
 
-        // emitted events in vest() already tested above.
-        assert(zvl.try_vest(
+        // emitted events in createVestingSchedule() already tested above.
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(pam), 
             amount % 360 + 1, 
@@ -639,8 +639,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         uint256 amount = uint256(random);
         uint256 deposit = uint256(random) + 100 ether; // Minimum 100 DAI deposit.
 
-        // emitted events in vest() already tested above.
-        assert(zvl.try_vest(
+        // emitted events in createVestingSchedule() already tested above.
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(pam), 
             amount % 360 + 1, 
@@ -688,8 +688,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         uint256 amount = uint256(random);
         uint256 deposit = uint256(random) + 100 ether; // Minimum 100 DAI deposit.
 
-        // emitted events in vest() already tested above.
-        assert(zvl.try_vest(
+        // emitted events in createVestingSchedule() already tested above.
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(pam), 
             amount % 360 + 1, 
@@ -718,8 +718,8 @@ contract Test_ZivoeRewardsVesting is Utility {
         uint256 amount = uint256(random);
         uint256 deposit = uint256(random) + 100 ether; // Minimum 100 DAI deposit.
 
-        // emitted events in vest() already tested above.
-        assert(zvl.try_vest(
+        // emitted events in createVestingSchedule() already tested above.
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(pam), 
             amount % 360 + 1, 
