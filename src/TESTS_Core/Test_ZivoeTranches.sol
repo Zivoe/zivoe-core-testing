@@ -153,7 +153,7 @@ contract Test_ZivoeTranches is Utility {
         // Calculate maximum amount depositable in junior tranche.
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
 
-        uint256 maximumAmount = (seniorSupp * ZVT.maxTrancheRatioBIPS() / BIPS).zSub(juniorSupp);
+        uint256 maximumAmount = (seniorSupp * ZVT.maxTrancheRatioBIPS() / BIPS).floorSub(juniorSupp);
 
         if (maximumAmount == 0) { return; } // Can't deposit anything in given state.
 
