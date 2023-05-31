@@ -4004,7 +4004,7 @@ contract Test_OCC_Modular is Utility {
             hevm.startPrank(address(roy));
             hevm.expectEmit(false, false, false, true, address(OCC_Modular_DAI));
             emit CombineApproved(
-                OCC_Modular_DAI.combineID(), 
+                OCC_Modular_DAI.combineCounter(), 
                 loanIDs, 
                 termOffer,
                 options[option],
@@ -4018,7 +4018,7 @@ contract Test_OCC_Modular is Utility {
 
         {
             // Post-state.
-            assertEq(OCC_Modular_DAI.combineID(), 1);
+            assertEq(OCC_Modular_DAI.combineCounter(), 1);
 
             (
                 uint term,
