@@ -283,8 +283,8 @@ contract Admin {
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act, dtc, dtv, atv, rev));
     }
 
-    function try_revoke(address stk, address act) external returns (bool ok) {
-        string memory sig = "revoke(address)";
+    function try_revokeVestingSchedule(address stk, address act) external returns (bool ok) {
+        string memory sig = "revokeVestingSchedule(address)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act));
     }
 

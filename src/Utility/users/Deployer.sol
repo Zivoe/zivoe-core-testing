@@ -178,8 +178,8 @@ contract Deployer {
         (ok,) = address(mrv).call(abi.encodeWithSignature(sig, account, daysToCliff, daysToVest, amountToVest, revokable));
     }
 
-    function try_revoke(address mrv, address account) external returns (bool ok) {
-        string memory sig = "revoke(address)";
+    function try_revokeVestingSchedule(address mrv, address account) external returns (bool ok) {
+        string memory sig = "revokeVestingSchedule(address)";
         (ok,) = address(mrv).call(abi.encodeWithSignature(sig, account));
     }
     

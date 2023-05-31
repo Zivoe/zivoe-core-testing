@@ -451,21 +451,21 @@ contract Test_ZivoeRewardsVesting is Utility {
     }
 
 
-    // Validate revoke() state changes.
-    // Validate revoke() restrictions.
+    // Validate revokeVestingSchedule() state changes.
+    // Validate revokeVestingSchedule() restrictions.
     // This includes:
     //  - Account must be assigned vesting schedule (vestingScheduleSet[account]).
     //  - Account must be revokable (vestingScheduleSet[account]).
 
-    function test_ZivoeRewardsVesting_revoke_restrictions_noVestingSchedule() public {
-        // Can't revoke an account that doesn't exist.
+    function test_ZivoeRewardsVesting_revokeVestingSchedule_restrictions_noVestingSchedule() public {
+        // Can't revokeVestingSchedule an account that doesn't exist.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::revoke() !vestingScheduleSet[account]");
-        vestZVE.revoke(address(moe));
+        hevm.expectRevert("ZivoeRewardsVesting::revokeVestingSchedule() !vestingScheduleSet[account]");
+        vestZVE.revokeVestingSchedule(address(moe));
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewardsVesting_revoke_restrictions_notRevokable(uint96 random) public {
+    function test_ZivoeRewardsVesting_revokeVestingSchedule_restrictions_notRevokable(uint96 random) public {
         uint256 amount = uint256(random);
 
         // createVestingSchedule().
@@ -478,14 +478,14 @@ contract Test_ZivoeRewardsVesting is Utility {
             false
         ));
 
-        // Can't revoke an account that doesn't exist.
+        // Can't revokeVestingSchedule an account that doesn't exist.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::revoke() !vestingScheduleOf[account].revokable");
-        vestZVE.revoke(address(moe));
+        hevm.expectRevert("ZivoeRewardsVesting::revokeVestingSchedule() !vestingScheduleOf[account].revokable");
+        vestZVE.revokeVestingSchedule(address(moe));
         hevm.stopPrank();
     }
 
-    function test_ZivoeRewardsVesting_revoke_state(uint96 random) public {
+    function test_ZivoeRewardsVesting_revokeVestingSchedule_state(uint96 random) public {
 
         uint256 amount = uint256(random);
 
@@ -534,7 +534,7 @@ contract Test_ZivoeRewardsVesting is Utility {
             false
         );
 
-        assert(zvl.try_revoke(address(vestZVE), address(moe)));
+        assert(zvl.try_revokeVestingSchedule(address(vestZVE), address(moe)));
 
         // Post-state.
         bool revokable;
