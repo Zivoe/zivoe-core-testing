@@ -453,11 +453,6 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveCombine(address occ, address borrower, uint paymentInterval, uint term) external returns (bool ok) {
-        string memory sig = "approveCombine(address,uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower, paymentInterval, term));
-    }
-
     function try_approveConversionAmortization(address occ, uint id) external returns (bool ok) {
         string memory sig = "approveConversionAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
@@ -473,9 +468,9 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
     }
 
-    function try_approveRefinance(address occ, uint id, uint apr) external returns (bool ok) {
+    function try_approveRefinance(address occ, uint id, uint APR) external returns (bool ok) {
         string memory sig = "approveRefinance(uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, apr));
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, APR));
     }
 
     function try_unapproveCombine(address occ, address borrower) external returns (bool ok) {

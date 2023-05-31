@@ -58,9 +58,10 @@ contract Test_OCC_Modular is Utility {
     event CombineApproved(
         uint256 id, 
         uint256[] loanIDs,
-        uint paymentInterval, 
-        uint term, 
-        uint expires,
+        uint256 paymentInterval, 
+        uint256 term,
+        uint256 gracePeriod,
+        uint256 expires,
         int8 paymentSchedule
     );
     
@@ -69,8 +70,9 @@ contract Test_OCC_Modular is Utility {
     event CombineApplied(
         address indexed borrower, 
         uint256[] loanIDs, 
-        uint paymentInterval,
-        uint term, 
+        uint256 paymentInterval,
+        uint256 term,
+        uint256 gracePeriod,
         int8 paymentSchedule
     );
 
@@ -134,11 +136,11 @@ contract Test_OCC_Modular is Utility {
 
     event PaymentMade(uint256 indexed id, address indexed payee, uint256 amount, uint256 principal, uint256 interest, uint256 lateFee, uint256 nextPaymentDue);
 
-    event RefinanceApproved(uint indexed id, uint apr);
+    event RefinanceApproved(uint indexed id, uint APR);
     
     event RefinanceUnapproved(uint indexed id);
     
-    event RefinanceApplied(uint indexed id, uint aprNew, uint aprPrior);
+    event RefinanceApplied(uint indexed id, uint APRNew, uint APRPrior);
     
     event RepaidMarked(uint256 indexed id);
 
@@ -152,7 +154,7 @@ contract Test_OCC_Modular is Utility {
         uint256 APR = uint256(random) % 5000;
         uint256 APRLateFee = uint256(random) % 5000;
         uint256 term = uint256(random) % 25 + 1;
-        uint256 gracePeriod = uint256(random) % 90 days;
+        uint256 gracePeriod = uint256(random) % 90 days + 7 days;
         uint256 option = uint256(random) % 5;
         int8 paymentSchedule = choice ? int8(0) : int8(1);
 
@@ -551,8 +553,8 @@ contract Test_OCC_Modular is Utility {
         assert(roy.try_cancelOffer(address(OCC_Modular_DAI), _loanID_DAI));
         assert(roy.try_cancelOffer(address(OCC_Modular_USDC), _loanID_USDC));
 
-        // Warp past expiry time (14 days past loan creation).
-        hevm.warp(block.timestamp + 14 days + 1 seconds);
+        // Warp past expiry time (3 days past loan creation).
+        hevm.warp(block.timestamp + 3 days + 1 seconds);
 
         // Can't accept loan offer loan if block.timestamp > loans[id].offerExpiry.
         hevm.startPrank(address(roy));
@@ -1155,6 +1157,7 @@ contract Test_OCC_Modular is Utility {
     // Restrictions include:
     //  - term == 0
     //  - Invalid paymentInterval (only 5 valid options)
+    //  - gracePeriod >= 7 days
     //  - paymentSchedule != (0 || 1)
     //  - _msgSender() must be underwriter
     
@@ -1227,6 +1230,31 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
+    function test_OCC_Modular_createOffer_restrictions_gracePeriod(uint96 random, bool choice) public {
+
+        uint256 borrowAmount = uint256(random);
+        uint256 APR;
+        uint256 APRLateFee;
+        uint256 term;
+        uint256 paymentInterval;
+        uint256 gracePeriod = 6 days;
+        int8 paymentSchedule;
+        
+        APR = uint256(random) % 3601;
+        APRLateFee = uint256(random) % 3601;
+        term = uint256(random) % 100 + 1;
+        paymentInterval = options[uint256(random) % 5];
+        
+        // Can't createOffer with gracePeriod less than 7 days.
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::createOffer() gracePeriod < 7 days");
+        OCC_Modular_DAI.createOffer(
+            address(tim), borrowAmount, APR, APRLateFee, term, paymentInterval, gracePeriod, paymentSchedule
+        );
+        hevm.stopPrank();
+
+    }
+
     function test_OCC_Modular_createOffer_restrictions_paymentSchedule(uint96 random, bool choice) public {
 
         uint256 borrowAmount = uint256(random);
@@ -1241,6 +1269,7 @@ contract Test_OCC_Modular is Utility {
         APRLateFee = uint256(random) % 3601;
         term = uint256(random) % 100 + 1;
         paymentInterval = options[uint256(random) % 5];
+        gracePeriod = uint256(random) % 90 days + 7 days;
         
         // Can't createOffer with invalid paymentSchedule (0 || 1).
         hevm.startPrank(address(roy));
@@ -1250,7 +1279,6 @@ contract Test_OCC_Modular is Utility {
         );
         hevm.stopPrank();
 
-        paymentSchedule = choice ? int8(0) : int8(1);
     }
 
     function test_OCC_Modular_createOffer_state(uint96 random, bool choice, uint8 modularity) public {
@@ -1259,7 +1287,7 @@ contract Test_OCC_Modular is Utility {
         uint256 APR = uint256(random) % 5000;
         uint256 APRLateFee = uint256(random) % 5000;
         uint256 term = uint256(random) % 25 + 1;
-        uint256 gracePeriod = uint256(random) % 90 days;
+        uint256 gracePeriod = uint256(random) % 90 days + 7 days;
         uint256 option = uint256(random) % 5;
         int8 paymentSchedule = choice ? int8(0) : int8(1);
         
@@ -1275,7 +1303,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_DAI.createOffer(
                 address(this),
@@ -1303,7 +1331,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -1320,7 +1348,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_FRAX.createOffer(
                 address(this),
@@ -1348,7 +1376,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -1364,7 +1392,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_USDC.createOffer(
                 address(this),
@@ -1392,7 +1420,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -1408,7 +1436,7 @@ contract Test_OCC_Modular is Utility {
             emit OfferCreated(
                 address(this), loanID,
                 borrowAmount, APR, APRLateFee, term, uint256(options[option]),
-                block.timestamp + 2 weeks, gracePeriod, paymentSchedule
+                block.timestamp + 3 days, gracePeriod, paymentSchedule
             );
             OCC_Modular_USDT.createOffer(
                 address(this),
@@ -1436,7 +1464,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(_details[4], term);
             assertEq(_details[5], term);
             assertEq(_details[6], uint256(options[option]));
-            assertEq(_details[7], block.timestamp + 14 days);
+            assertEq(_details[7], block.timestamp + 3 days);
             assertEq(_details[8], gracePeriod);
             assertEq(_details[9], 1);
 
@@ -2223,8 +2251,29 @@ contract Test_OCC_Modular is Utility {
     // Validate processPayment() state changes.
     // Validate processPayment() restrictions.
     // This includes:
+    //  - Can't call unless _msgSender() is underwriter or keeper
     //  - Can't call processPayment() unless state == LoanState.Active
     //  - Can't call processPayment() unless block.timestamp > nextPaymentDue
+
+    function test_OCC_Modular_processPayment_restrictions_msgSender(uint96 random, bool choice) public {
+        
+        (
+            uint256 _loanID_DAI,
+            uint256 _loanID_FRAX,
+            uint256 _loanID_USDC,
+            uint256 _loanID_USDT
+        ) = simulateITO_and_createOffers(random, choice);
+
+        // Can't call processPayment() unless state == LoanState.Active.
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCC_Modular::processPayment() _msgSender() != underwriter && !IZivoeGlobals_OCC(GBL).isKeeper(_msgSender())");
+        OCC_Modular_DAI.processPayment(_loanID_DAI);
+        hevm.stopPrank();
+
+        assert(!bob.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!bob.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!bob.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
+    }
 
     function test_OCC_Modular_processPayment_restrictions_loanState(uint96 random, bool choice) public {
         
@@ -2236,14 +2285,14 @@ contract Test_OCC_Modular is Utility {
         ) = simulateITO_and_createOffers(random, choice);
 
         // Can't call processPayment() unless state == LoanState.Active.
-        hevm.startPrank(address(bob));
+        hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::processPayment() loans[id].state != LoanState.Active");
         OCC_Modular_DAI.processPayment(_loanID_DAI);
         hevm.stopPrank();
 
-        assert(!bob.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
     function test_OCC_Modular_processPayment_restrictions_nextPaymentDue(uint96 random, bool choice) public {
@@ -2263,14 +2312,14 @@ contract Test_OCC_Modular is Utility {
         ) = createOffers_and_acceptOffers(random, choice);
 
         // Can't call processPayment() unless block.timestamp > nextPaymentDue.
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::processPayment() block.timestamp <= loans[id].paymentDueBy - 3 days");
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::processPayment() block.timestamp <= loans[id].paymentDueBy - 12 hours");
         OCC_Modular_DAI.processPayment(_loanID_DAI);
         hevm.stopPrank();
 
-        assert(!bob.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
-        assert(!bob.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
+        assert(!roy.try_processPayment(address(OCC_Modular_FRAX), _loanID_FRAX));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDC), _loanID_USDC));
+        assert(!roy.try_processPayment(address(OCC_Modular_USDT), _loanID_USDT));
     }
 
     function test_OCC_Modular_processPayment_state_DAI(uint96 random, bool choice) public {
@@ -2347,9 +2396,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_DAI));
             emit PaymentMade(_loanID_DAI, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_DAI.processPayment(_loanID_DAI);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
@@ -2467,9 +2518,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_FRAX));
             emit PaymentMade(_loanID_FRAX, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_FRAX.processPayment(_loanID_FRAX);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
@@ -2586,9 +2639,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_USDC));
             emit PaymentMade(_loanID_USDC, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_USDC.processPayment(_loanID_USDC);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDC.loanInfo(_loanID_USDC);
@@ -2705,9 +2760,11 @@ contract Test_OCC_Modular is Utility {
             }
 
             // Make payment.
+            hevm.startPrank(address(roy));
             hevm.expectEmit(true, true, false, true, address(OCC_Modular_USDT));
             emit PaymentMade(_loanID_USDT, address(tim), principalOwed + interestOwed + lateFeeOwed, principalOwed, interestOwed, lateFeeOwed, _preDetails[3] + _preDetails[6]);
             OCC_Modular_USDT.processPayment(_loanID_USDT);
+            hevm.stopPrank();
 
             // Post-state.
             (,, _postDetails) = OCC_Modular_USDT.loanInfo(_loanID_USDT);
@@ -3149,9 +3206,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_expires(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3166,7 +3224,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         hevm.warp(block.timestamp + 72 hours);
@@ -3179,9 +3237,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_borrower(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3199,7 +3258,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         // applyCombine().
@@ -3210,9 +3269,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_loanState(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3230,7 +3290,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         // applyCombine().
@@ -3242,9 +3302,10 @@ contract Test_OCC_Modular is Utility {
 
 
     function test_OCC_Modular_applyCombine_twoLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3262,7 +3323,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
@@ -3309,7 +3370,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postDetails_2[5], termOffer); // term
             assertEq(postDetails_2[6], options[option]); // paymentInterval
             assertEq(postDetails_2[7], block.timestamp - 1 days); // offerExpiry
-            assertEq(postDetails_2[8], options[option]); // gracePeriod
+            assertEq(postDetails_2[8], gracePeriodOffer); // gracePeriod
             assertEq(postDetails_2[9], 2); // loanState (2 => active)
 
             assertEq(borrower, address(tim));
@@ -3318,9 +3379,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_threeLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3341,7 +3403,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
@@ -3407,7 +3469,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postDetails_3[5], termOffer); // term
             assertEq(postDetails_3[6], options[option]); // paymentInterval
             assertEq(postDetails_3[7], block.timestamp - 1 days); // offerExpiry
-            assertEq(postDetails_3[8], options[option]); // gracePeriod
+            assertEq(postDetails_3[8], gracePeriodOffer); // gracePeriod
             assertEq(postDetails_3[9], 2); // loanState (2 => active)
 
             assertEq(borrower, address(tim));
@@ -3417,9 +3479,10 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_fourLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer
+        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
-        
+
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         simulateITO_and_createOffers(random, choice);
@@ -3443,7 +3506,7 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         (,, uint256[10] memory preDetails_0) = OCC_Modular_DAI.loanInfo(0);
@@ -3517,7 +3580,7 @@ contract Test_OCC_Modular is Utility {
             // assertEq(postDetails_4[5], termOffer); // term
             // assertEq(postDetails_4[6], options[option]); // paymentInterval
             // assertEq(postDetails_4[7], block.timestamp - 1 days); // offerExpiry
-            // assertEq(postDetails_4[8], options[option]); // gracePeriod
+            // assertEq(postDetails_4[8], gracePeriodOffer); // gracePeriod
             // assertEq(postDetails_4[9], 2); // loanState (2 => active)
 
             // assertEq(borrower, address(tim));
@@ -3744,7 +3807,8 @@ contract Test_OCC_Modular is Utility {
         // Post-state.
         (,, uint256[10] memory postDetails_0) = OCC_Modular_DAI.loanInfo(0);
 
-        assertEq(postDetails_0[4], preDetails_0[4] + intervals);
+        assertEq(postDetails_0[4], preDetails_0[4] + intervals);    // paymentsRemaining
+        assertEq(postDetails_0[5], preDetails_0[5] + intervals);    // term
         assertEq(OCC_Modular_DAI.extensions(0), 0);
 
     }
@@ -3756,13 +3820,13 @@ contract Test_OCC_Modular is Utility {
     //  - loan is approved for refinancing
     //  - state of loan is LoanState.Active
 
-    function test_OCC_Modular_applyRefinance_restrictions_borrower(uint96 random, bool choice, uint apr) public {
+    function test_OCC_Modular_applyRefinance_restrictions_borrower(uint96 random, bool choice, uint APR) public {
         
         simulateITO_and_createOffers(random, choice);
 
         // Approve refinance.
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveRefinance(0, apr);
+        OCC_Modular_DAI.approveRefinance(0, APR);
         hevm.stopPrank();
 
         // Can't apply refinance if not borrower.
@@ -3780,7 +3844,7 @@ contract Test_OCC_Modular is Utility {
 
         // Approve refinance.
         // hevm.startPrank(address(roy));
-        // OCC_Modular_DAI.approveRefinance(0, apr);
+        // OCC_Modular_DAI.approveRefinance(0, APR);
         // hevm.stopPrank();
 
         // Can't apply refinance if not approved.
@@ -3791,9 +3855,9 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    function test_OCC_Modular_applyRefinance_restrictions_loanState(uint96 random, bool choice, uint apr) public {
+    function test_OCC_Modular_applyRefinance_restrictions_loanState(uint96 random, bool choice, uint APR) public {
 
-        hevm.assume(apr > 0);
+        hevm.assume(APR > 0);
 
         simulateITO_and_createOffers(random, choice);
         
@@ -3801,7 +3865,7 @@ contract Test_OCC_Modular is Utility {
 
         // Approve refinance.
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveRefinance(0, apr);
+        OCC_Modular_DAI.approveRefinance(0, APR);
         hevm.stopPrank();
 
         // Can't apply refinance if LoanState not Active
@@ -3812,9 +3876,9 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    function test_OCC_Modular_applyRefinance_state(uint96 random, bool choice, uint apr) public {
+    function test_OCC_Modular_applyRefinance_state(uint96 random, bool choice, uint APR) public {
 
-        hevm.assume(apr > 0);
+        hevm.assume(APR > 0);
 
         simulateITO_and_createOffers(random, choice);
         
@@ -3822,23 +3886,23 @@ contract Test_OCC_Modular is Utility {
 
         // Approve refinance.
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveRefinance(0, apr);
+        OCC_Modular_DAI.approveRefinance(0, APR);
         hevm.stopPrank();
 
-        assertEq(OCC_Modular_DAI.refinancing(0), apr);
+        assertEq(OCC_Modular_DAI.refinancing(0), APR);
         
         (,, uint256[10] memory details) = OCC_Modular_DAI.loanInfo(0);
 
         // applyRefinance().
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit RefinanceApplied(0, apr, details[1]);
+        emit RefinanceApplied(0, APR, details[1]);
         hevm.startPrank(address(tim));
         OCC_Modular_DAI.applyRefinance(0);
 
         (,, details) = OCC_Modular_DAI.loanInfo(0);
 
         // Post-state.
-        assertEq(details[1], apr);
+        assertEq(details[1], APR);
         assertEq(OCC_Modular_DAI.refinancing(0), 0);
 
     }
@@ -3850,6 +3914,7 @@ contract Test_OCC_Modular is Utility {
     //  - paymentInterval is one of 7 | 14 | 28 | 91 | 364 options ( * seconds in days)
     //  - length must be greater than 1
     //  - term must be greater than 0
+    //  - gracePeriod must be 7 days or more
     //  - paymentSchedule must be less than or equal to 1
 
     function test_OCC_Modular_approveCombine_restrictions_underwriter() public {
@@ -3859,7 +3924,7 @@ contract Test_OCC_Modular is Utility {
         // Can't call if not underwriter
         hevm.startPrank(address(bob));
         hevm.expectRevert("OCC_Modular::isUnderwriter() _msgSender() != underwriter");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 24, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 7, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
 
@@ -3870,7 +3935,7 @@ contract Test_OCC_Modular is Utility {
         // Can't call if paymentInterval isn't proper
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() invalid paymentInterval value, try: 86400 * (7 || 14 || 28 || 91 || 364)");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 8, 24, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 8, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
 
@@ -3881,7 +3946,7 @@ contract Test_OCC_Modular is Utility {
         // Can't call if idsLength == 1 or == 0
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() loanIDs.length <= 1");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 24, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 7, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
 
@@ -3892,7 +3957,18 @@ contract Test_OCC_Modular is Utility {
         // Can't call if idsLength == 1 or == 0
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() term == 0");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 0, int8(0));
+        OCC_Modular_DAI.approveCombine(loanIDs, 0, 86400 * 7, 86400 * 7, int8(0));
+        hevm.stopPrank();
+    }
+
+    function test_OCC_Modular_approveCombine_restrictions_gracePeriod() public {
+        
+        uint256[] memory loanIDs = new uint256[](2);
+
+        // Can't call if gracePeriod < 7 days
+        hevm.startPrank(address(roy));
+        hevm.expectRevert("OCC_Modular::approveCombine() gracePeriod < 7 days");
+        OCC_Modular_DAI.approveCombine(loanIDs, 6, 86400 * 7, 86400 * 6, int8(2));
         hevm.stopPrank();
     }
 
@@ -3900,15 +3976,18 @@ contract Test_OCC_Modular is Utility {
         
         uint256[] memory loanIDs = new uint256[](2);
 
-        // Can't call if idsLength == 1 or == 0
+        // Can't call if paymentSchedule > 1
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() paymentSchedule > 1");
-        OCC_Modular_DAI.approveCombine(loanIDs, 86400 * 7, 6, int8(2));
+        OCC_Modular_DAI.approveCombine(loanIDs, 6, 86400 * 7, 86400 * 7, int8(2));
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveCombine_state(address account, uint8 select, uint termOffer, bool choice) public {
+    function test_OCC_Modular_approveCombine_state(
+        address account, uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
+    ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         uint256[] memory loanIDs = new uint256[](2);
@@ -3920,52 +3999,44 @@ contract Test_OCC_Modular is Utility {
         
         int8 paymentScheduleOffer = choice ? int8(0) : int8(1);
 
-        // Pre-state.
-        (
-            uint256 paymentInterval,
-            uint256 term,
-            uint256 expires,
-            int8 paymentSchedule,
-            bool valid
-        ) = OCC_Modular_DAI.combinations(0);
+        {
+            // approveCombine().
+            hevm.startPrank(address(roy));
+            hevm.expectEmit(false, false, false, true, address(OCC_Modular_DAI));
+            emit CombineApproved(
+                OCC_Modular_DAI.combineID(), 
+                loanIDs, 
+                termOffer,
+                options[option],
+                gracePeriodOffer,
+                block.timestamp + 72 hours, 
+                paymentScheduleOffer
+            );
+            OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
+            hevm.stopPrank();
+        }
 
-        assertEq(paymentInterval, 0);
-        assertEq(term, 0);
-        assertEq(expires, 0);
-        assertEq(paymentSchedule, 0);
-        assert(!valid);
+        {
+            // Post-state.
+            assertEq(OCC_Modular_DAI.combineID(), 1);
 
-        assertEq(OCC_Modular_DAI.combineID(), 0);
+            (
+                uint term,
+                uint paymentInterval,
+                uint gracePeriod,
+                uint expires,
+                int8 paymentSchedule,
+                bool valid
+            ) = OCC_Modular_DAI.combinations(0);
 
-        // approveCombine().
-        hevm.startPrank(address(roy));
-        hevm.expectEmit(false, false, false, true, address(OCC_Modular_DAI));
-        emit CombineApproved(
-            OCC_Modular_DAI.combineID(), 
-            loanIDs, 
-            options[option], 
-            termOffer, 
-            block.timestamp + 72 hours, 
-            paymentScheduleOffer
-        );
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
-        hevm.stopPrank();
-
-        // Post-state.
-        assertEq(OCC_Modular_DAI.combineID(), 1);
-
-        (
-            paymentInterval,
-            term,
-            expires,
-            paymentSchedule,
-            valid
-        ) = OCC_Modular_DAI.combinations(0);
-
-        assertEq(paymentInterval, options[option]);
-        assertEq(term, termOffer);
-        assertEq(expires, block.timestamp + 72 hours);
-        assertEq(paymentSchedule, paymentScheduleOffer);
+            assertEq(paymentInterval, options[option]);
+            assertEq(term, termOffer);
+            assertEq(gracePeriod, gracePeriodOffer);
+            assertEq(expires, block.timestamp + 72 hours);
+            assertEq(paymentSchedule, paymentScheduleOffer);
+            assert(valid);
+        }
+        
     }
 
     // Validate approveConversionAmortization() state changes.
@@ -4075,7 +4146,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_approveRefinance_state(uint id, uint apr) public {
+    function test_OCC_Modular_approveRefinance_state(uint id, uint APR) public {
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.refinancing(id), 0);
@@ -4083,12 +4154,12 @@ contract Test_OCC_Modular is Utility {
         // approveRefinance().
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit RefinanceApproved(id, apr);
-        OCC_Modular_DAI.approveRefinance(id, apr);
+        emit RefinanceApproved(id, APR);
+        OCC_Modular_DAI.approveRefinance(id, APR);
         hevm.stopPrank();
 
         // Post-state.
-        assertEq(OCC_Modular_DAI.refinancing(id), apr);
+        assertEq(OCC_Modular_DAI.refinancing(id), APR);
     }
 
     // Validate unapproveCombine() state changes.
@@ -4105,8 +4176,11 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveCombine_state(address account, uint8 select, uint termOffer, bool choice) public {
+    function test_OCC_Modular_unapproveCombine_state(
+        address account, uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
+    ) public {
         
+        hevm.assume(gracePeriodOffer >= 7 days);
         hevm.assume(termOffer > 0 && termOffer < 100);
 
         uint256[] memory loanIDs = new uint256[](2);
@@ -4120,13 +4194,14 @@ contract Test_OCC_Modular is Utility {
 
         // approveCombine().
         hevm.startPrank(address(roy));
-        OCC_Modular_DAI.approveCombine(loanIDs, options[option], termOffer, paymentScheduleOffer);
+        OCC_Modular_DAI.approveCombine(loanIDs, termOffer, options[option], gracePeriodOffer, paymentScheduleOffer);
         hevm.stopPrank();
 
         // Pre-state.
         (
-            uint256 paymentInterval,
             uint256 term,
+            uint256 paymentInterval,
+            uint256 gracePeriod,
             uint256 expires,
             int8 paymentSchedule,
             bool valid
@@ -4147,8 +4222,9 @@ contract Test_OCC_Modular is Utility {
 
         // Post-state.
         (
-            paymentInterval,
             term,
+            paymentInterval,
+            gracePeriod,
             expires,
             paymentSchedule,
             valid
@@ -4294,7 +4370,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_unapproveRefinance_state(uint id, uint apr) public {
+    function test_OCC_Modular_unapproveRefinance_state(uint id, uint APR) public {
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.refinancing(id), 0);
@@ -4302,12 +4378,12 @@ contract Test_OCC_Modular is Utility {
         // approveRefinance().
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, true, address(OCC_Modular_DAI));
-        emit RefinanceApproved(id, apr);
-        OCC_Modular_DAI.approveRefinance(id, apr);
+        emit RefinanceApproved(id, APR);
+        OCC_Modular_DAI.approveRefinance(id, APR);
         hevm.stopPrank();
 
         // Post-state.
-        assertEq(OCC_Modular_DAI.refinancing(id), apr);
+        assertEq(OCC_Modular_DAI.refinancing(id), APR);
 
         // unapproveRefinance().
         hevm.startPrank(address(roy));
