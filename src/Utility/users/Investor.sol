@@ -21,7 +21,7 @@ contract Investor {
     }
 
     function claimAirdrop(address ito, address depositor) external returns (uint256, uint256, uint256) {
-        return IZivoeITO(ito).claim(depositor);
+        return IZivoeITO(ito).claimAirdrop(depositor);
     }
 
     /*********************/
@@ -53,8 +53,8 @@ contract Investor {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, amount, asset));
     }
     
-    function try_claim(address vesting, address account) external returns (bool ok) {
-        string memory sig = "claim(address)";
+    function try_claimAirdrop(address vesting, address account) external returns (bool ok) {
+        string memory sig = "claimAirdrop(address)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account));
     }
 
