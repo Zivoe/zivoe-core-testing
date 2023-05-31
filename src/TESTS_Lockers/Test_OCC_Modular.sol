@@ -89,17 +89,17 @@ contract Test_OCC_Modular is Utility {
         int8 indexed paymentSchedule
     );
 
-    event ConversionAmortizationApplied(uint indexed id);
+    event ConversionToAmortizationApplied(uint indexed id);
     
-    event ConversionAmortizationApproved(uint indexed id);
+    event ConversionToAmortizationApproved(uint indexed id);
     
-    event ConversionAmortizationUnapproved(uint indexed id);
+    event ConversionToAmortizationUnapproved(uint indexed id);
     
-    event ConversionBulletApplied(uint indexed id);
+    event ConversionToBulletApplied(uint indexed id);
     
-    event ConversionBulletApproved(uint indexed id);
+    event ConversionToBulletApproved(uint indexed id);
     
-    event ConversionBulletUnapproved(uint indexed id);
+    event ConversionToBulletUnapproved(uint indexed id);
     
     event DefaultMarked(uint256 indexed id, uint256 principalDefaulted, uint256 priorNetDefaults, uint256 currentNetDefaults);
 
@@ -1230,7 +1230,7 @@ contract Test_OCC_Modular is Utility {
         hevm.stopPrank();
     }
 
-    function test_OCC_Modular_createOffer_restrictions_gracePeriod(uint96 random, bool choice) public {
+    function test_OCC_Modular_createOffer_restrictions_gracePeriod(uint96 random) public {
 
         uint256 borrowAmount = uint256(random);
         uint256 APR;
@@ -1255,7 +1255,7 @@ contract Test_OCC_Modular is Utility {
 
     }
 
-    function test_OCC_Modular_createOffer_restrictions_paymentSchedule(uint96 random, bool choice) public {
+    function test_OCC_Modular_createOffer_restrictions_paymentSchedule(uint96 random) public {
 
         uint256 borrowAmount = uint256(random);
         uint256 APR;
@@ -3206,7 +3206,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_expires(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
+        uint96 random, bool choice, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -3237,7 +3237,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_borrower(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
+        uint96 random, bool choice, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -3269,7 +3269,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_restrictions_loanState(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
+        uint96 random, bool choice, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
         
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -3302,7 +3302,7 @@ contract Test_OCC_Modular is Utility {
 
 
     function test_OCC_Modular_applyCombine_twoLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
+        uint96 random, bool choice, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -3379,7 +3379,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_threeLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
+        uint96 random, bool choice, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -3479,7 +3479,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_applyCombine_fourLoans_state(
-        uint96 random, bool choice, address account, uint8 select, uint termOffer, uint gracePeriodOffer
+        uint96 random, bool choice, uint8 select, uint termOffer, uint gracePeriodOffer
     ) public {
 
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -3653,7 +3653,7 @@ contract Test_OCC_Modular is Utility {
         // applyConversionAmortization().
         hevm.startPrank(address(tim));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionAmortizationApplied(0);
+        emit ConversionToAmortizationApplied(0);
         OCC_Modular_DAI.applyConversionAmortization(0);
         hevm.stopPrank();
         
@@ -3726,7 +3726,7 @@ contract Test_OCC_Modular is Utility {
         // applyConversionBullet().
         hevm.startPrank(address(tim));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionBulletApplied(0);
+        emit ConversionToBulletApplied(0);
         OCC_Modular_DAI.applyConversionBullet(0);
         hevm.stopPrank();
         
@@ -3984,7 +3984,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_approveCombine_state(
-        address account, uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
+        uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
     ) public {
         
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -4061,7 +4061,7 @@ contract Test_OCC_Modular is Utility {
         // Approve conversion.
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionAmortizationApproved(id);
+        emit ConversionToAmortizationApproved(id);
         OCC_Modular_DAI.approveConversionAmortization(id);
         hevm.stopPrank();
 
@@ -4092,7 +4092,7 @@ contract Test_OCC_Modular is Utility {
         // Approve conversion.
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionBulletApproved(id);
+        emit ConversionToBulletApproved(id);
         OCC_Modular_DAI.approveConversionBullet(id);
         hevm.stopPrank();
 
@@ -4177,7 +4177,7 @@ contract Test_OCC_Modular is Utility {
     }
 
     function test_OCC_Modular_unapproveCombine_state(
-        address account, uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
+        uint8 select, uint termOffer, uint gracePeriodOffer, bool choice
     ) public {
         
         hevm.assume(gracePeriodOffer >= 7 days);
@@ -4256,7 +4256,7 @@ contract Test_OCC_Modular is Utility {
         // Approve conversion.
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionAmortizationApproved(id);
+        emit ConversionToAmortizationApproved(id);
         OCC_Modular_DAI.approveConversionAmortization(id);
         hevm.stopPrank();
 
@@ -4266,7 +4266,7 @@ contract Test_OCC_Modular is Utility {
         // Unapprove conversion.
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionAmortizationUnapproved(id);
+        emit ConversionToAmortizationUnapproved(id);
         OCC_Modular_DAI.unapproveConversionAmortization(id);
         hevm.stopPrank();
 
@@ -4297,7 +4297,7 @@ contract Test_OCC_Modular is Utility {
         // Approve conversion.
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionBulletApproved(id);
+        emit ConversionToBulletApproved(id);
         OCC_Modular_DAI.approveConversionBullet(id);
         hevm.stopPrank();
 
@@ -4307,7 +4307,7 @@ contract Test_OCC_Modular is Utility {
         // Unapprove conversion.
         hevm.startPrank(address(roy));
         hevm.expectEmit(true, false, false, false, address(OCC_Modular_DAI));
-        emit ConversionBulletUnapproved(id);
+        emit ConversionToBulletUnapproved(id);
         OCC_Modular_DAI.unapproveConversionBullet(id);
         hevm.stopPrank();
 
