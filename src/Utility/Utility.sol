@@ -277,8 +277,8 @@ contract Utility is DSTest, Test {
         
         ITO.migrateDeposits();
     
-        assert(sam.try_claim(address(ITO), address(sam)));
-        assert(jim.try_claim(address(ITO), address(jim)));
+        assert(sam.try_claimAirdrop(address(ITO), address(sam)));
+        assert(jim.try_claimAirdrop(address(ITO), address(jim)));
 
         // assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
         // assert(jim.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(jim))));
@@ -495,14 +495,14 @@ contract Utility is DSTest, Test {
 
         require(ITO.migrated());
 
-        assert(sam.try_claim(address(ITO), address(sam)));
-        assert(sue.try_claim(address(ITO), address(sue)));
-        assert(sal.try_claim(address(ITO), address(sal)));
-        assert(sid.try_claim(address(ITO), address(sid)));
-        assert(jim.try_claim(address(ITO), address(jim)));
-        assert(joe.try_claim(address(ITO), address(joe)));
-        assert(jon.try_claim(address(ITO), address(jon)));
-        assert(jen.try_claim(address(ITO), address(jen)));
+        assert(sam.try_claimAirdrop(address(ITO), address(sam)));
+        assert(sue.try_claimAirdrop(address(ITO), address(sue)));
+        assert(sal.try_claimAirdrop(address(ITO), address(sal)));
+        assert(sid.try_claimAirdrop(address(ITO), address(sid)));
+        assert(jim.try_claimAirdrop(address(ITO), address(jim)));
+        assert(joe.try_claimAirdrop(address(ITO), address(joe)));
+        assert(jon.try_claimAirdrop(address(ITO), address(jon)));
+        assert(jen.try_claimAirdrop(address(ITO), address(jen)));
 
         assert(sam.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sam))));
         assert(sue.try_approveToken(address(ZVE), address(stZVE), IERC20(address(ZVE)).balanceOf(address(sue))));
@@ -860,8 +860,8 @@ contract Utility is DSTest, Test {
         ITO.migrateDeposits();
 
         // Have "jim" and "sam" claim their tokens from the contract.
-        jim.try_claim(address(ITO), address(jim));
-        sam.try_claim(address(ITO), address(sam));
+        jim.try_claimAirdrop(address(ITO), address(jim));
+        sam.try_claimAirdrop(address(ITO), address(sam));
     }
 
     // Manipulate mainnet ERC20 balance

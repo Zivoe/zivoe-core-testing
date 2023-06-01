@@ -68,13 +68,13 @@ contract Manager {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, ids, paymentInterval));
     }
 
-    function try_applyConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "applyConversionAmortization(uint256)";
+    function try_applyConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_applyConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "applyConversionBullet(uint256)";
+    function try_applyConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -88,13 +88,13 @@ contract Manager {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "approveConversionAmortization(uint256)";
+    function try_approveConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "approveConversionBullet(uint256)";
+    function try_approveConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -113,13 +113,13 @@ contract Manager {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower));
     }
 
-    function try_unapproveConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "unapproveConversionAmortization(uint256)";
+    function try_unapproveConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_unapproveConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "unapproveConversionBullet(uint256)";
+    function try_unapproveConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 

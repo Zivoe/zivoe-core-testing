@@ -17,24 +17,15 @@ contract Test_ZivoeGlobals is Utility {
     //    Helper Functions
     // ----------------------
 
-    function updatedDefaults(
-        uint256 increaseBy,
-        uint256 decreaseBy
-    ) 
-    public
-    view
-    returns (uint256 updated)
-    {
-        
-        return updated = decreaseBy > increaseBy ? 0: increaseBy - decreaseBy;
-
+    function updatedDefaults(uint256 increaseBy, uint256 decreaseBy) public view returns (uint256 updated) { 
+        updated = decreaseBy > increaseBy ? 0 : increaseBy - decreaseBy;
     }
 
     // ------------
     //    Events
     // ------------
 
-    event AccessControlSetZVL(address indexed controller);
+    event TransferredZVL(address indexed controller);
 
     event DefaultsDecreased(address indexed locker, uint256 amount, uint256 updatedDefaults);
 
@@ -42,7 +33,7 @@ contract Test_ZivoeGlobals is Utility {
 
     event UpdatedKeeperStatus(address indexed account, bool status);
 
-    event UpdatedLockerStatus(address indexed locker, bool allowed);
+    event UpdatedLockerStatus(address indexed locker, bool status);
 
     event UpdatedStablecoinWhitelist(address indexed asset, bool allowed);    
 
@@ -122,10 +113,9 @@ contract Test_ZivoeGlobals is Utility {
         assertEq(GBL.defaults(), increaseBy);
 
         // decreaseDefaults().
-
-        uint256 updatedDefaults = updatedDefaults(increaseBy, decreaseBy);
+        uint256 updated = updatedDefaults(increaseBy, decreaseBy);
         hevm.expectEmit(true, false, false, true, address(GBL));
-        emit DefaultsDecreased(address(GenericDefaultsLocker), decreaseBy, updatedDefaults);
+        emit DefaultsDecreased(address(GenericDefaultsLocker), decreaseBy, updated);
         assert(god.try_decreaseDefaults(address(GenericDefaultsLocker), decreaseBy));
 
         // Post-state, decreaseDefaults().
@@ -162,7 +152,7 @@ contract Test_ZivoeGlobals is Utility {
 
         // transferZVL()
         hevm.expectEmit(true, false, false, false, address(GBL));
-        emit AccessControlSetZVL(random);
+        emit TransferredZVL(random);
         assert(zvl.try_transferZVL(address(GBL), random));
 
         // Post-state.

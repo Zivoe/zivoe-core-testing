@@ -125,7 +125,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(_ITO, address(ITO));
         assertEq(_ZVE, address(ZVE));
 
-        assertEq(ITO.operationAllocation(), 1000);
+        assertEq(ITO.operationAllocationBIPS(), 1000);
         
         assertEq(IZivoeITO(_ITO).stables(0), DAI);
         assertEq(IZivoeITO(_ITO).stables(1), FRAX);
@@ -284,8 +284,8 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 4250);
         assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(),    0);
         assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(),    0);
-        assertEq(IZivoeTranches(_ZVT).lowerRatioIncentive(), 1000);
-        assertEq(IZivoeTranches(_ZVT).upperRatioIncentive(), 2000);
+        assertEq(IZivoeTranches(_ZVT).lowerRatioIncentiveBIPS(), 1000);
+        assertEq(IZivoeTranches(_ZVT).upperRatioIncentiveBIPS(), 2000);
 
         assert(!IZivoeTranches(_ZVT).tranchesUnlocked());
         assert(IZivoeTranches(_ZVT).canPush());
@@ -346,7 +346,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeYDL(_YDL).distributedAsset(), DAI);
         assertEq(IZivoeYDL(_YDL).emaSTT(), 0);
         assertEq(IZivoeYDL(_YDL).emaJTT(), 0);
-        assertEq(IZivoeYDL(_YDL).numDistributions(), 0);
+        assertEq(IZivoeYDL(_YDL).distributionCounter(), 0);
         assertEq(IZivoeYDL(_YDL).lastDistribution(), 0);
         assertEq(IZivoeYDL(_YDL).targetAPYBIPS(), 800);
         assertEq(IZivoeYDL(_YDL).targetRatioBIPS(), 16250);

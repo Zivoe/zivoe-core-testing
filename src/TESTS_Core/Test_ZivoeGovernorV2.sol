@@ -28,8 +28,8 @@ contract Test_ZivoeGovernorV2 is Utility {
 
     function giveTiaProposalRights(uint256 amount) public {
 
-        // vest() 1mm $ZVE to the address "tia".
-        assert(zvl.try_vest(
+        // createVestingSchedule() 1mm $ZVE to the address "tia".
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(tia), 
             1,  // 1 Day Cliff
@@ -63,8 +63,8 @@ contract Test_ZivoeGovernorV2 is Utility {
         // Pre-state.
         assertEq(GOV.getVotes(address(tia), block.number - 1), 0);
 
-        // vest() $ZVE to the address "tia".
-        assert(zvl.try_vest(
+        // createVestingSchedule() $ZVE to the address "tia".
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(tia), 
             amount % 360 + 1,
@@ -82,8 +82,8 @@ contract Test_ZivoeGovernorV2 is Utility {
 
         uint256 amount = uint256(random);
 
-        // vest() $ZVE to the address "tia".
-        assert(zvl.try_vest(
+        // createVestingSchedule() $ZVE to the address "tia".
+        assert(zvl.try_createVestingSchedule(
             address(vestZVE), 
             address(tia), 
             amount % 360 + 1,

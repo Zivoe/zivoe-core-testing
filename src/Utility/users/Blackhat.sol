@@ -58,8 +58,8 @@ contract Blackhat {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, account, amount));
     }
 
-    function try_vest(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256)";
+    function try_createVestingSchedule(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account, daysUntilVestingBegins, daysToVest, amountToVest));
     }
 
@@ -93,8 +93,8 @@ contract Blackhat {
         (ok,) = address(ito).call(abi.encodeWithSignature(sig, amount, asset));
     }
 
-    function try_claim(address ito, address depositor) external returns (bool ok) {
-        string memory sig = "claim(address)";
+    function try_claimAirdrop(address ito, address depositor) external returns (bool ok) {
+        string memory sig = "claimAirdrop(address)";
         (ok,) = address(ito).call(abi.encodeWithSignature(sig, depositor));
     }
 
@@ -178,13 +178,13 @@ contract Blackhat {
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, tokenIds, data));
     }
 
-    function try_pushERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pushERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pushERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pushERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
-    function try_pullERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pullERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pullERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pullERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
@@ -293,13 +293,13 @@ contract Blackhat {
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateLowerRatioIncentive(address gbl, uint256 amount) external returns (bool ok){
-        string memory sig = "updateLowerRatioIncentive(uint256)";
+    function try_updateLowerRatioIncentiveBIPS(address gbl, uint256 amount) external returns (bool ok){
+        string memory sig = "updateLowerRatioIncentiveBIPS(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateUpperRatioIncentives(address gbl, uint256 amount) external returns (bool ok){
-        string memory sig = "updateUpperRatioIncentives(uint256)";
+    function try_updateUpperRatioIncentive(address gbl, uint256 amount) external returns (bool ok){
+        string memory sig = "updateUpperRatioIncentive(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
@@ -333,8 +333,8 @@ contract Blackhat {
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, dist));
     }
 
-    function try_setExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
-        string memory sig = "setExponentialDecayPerSecond(uint256)";
+    function try_updateExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
+        string memory sig = "updateExponentialDecayPerSecond(uint256)";
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, val));
     }
 
@@ -383,13 +383,13 @@ contract Blackhat {
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_vest(address stk, address act, uint256 dtc, uint256 dtv, uint256 atv, bool rev) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256,bool)";
+    function try_createVestingSchedule(address stk, address act, uint256 dtc, uint256 dtv, uint256 atv, bool rev) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256,bool)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act, dtc, dtv, atv, rev));
     }
 
-    function try_revoke(address stk, address act) external returns (bool ok) {
-        string memory sig = "revoke(address)";
+    function try_revokeVestingSchedule(address stk, address act) external returns (bool ok) {
+        string memory sig = "revokeVestingSchedule(address)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act));
     }
 
@@ -403,23 +403,23 @@ contract Blackhat {
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, recipients, proportions, protocol));
     }
 
-    function try_setTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setTargetAPYBIPS(uint256)";
+    function try_updateTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateTargetAPYBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setTargetRatioBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setTargetRatioBIPS(uint256)";
+    function try_updateTargetRatioBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateTargetRatioBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setProtocolEarningsRateBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setProtocolEarningsRateBIPS(uint256)";
+    function try_updateProtocolEarningsRateBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateProtocolEarningsRateBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setDistributedAsset(address ydl, address asset) external returns (bool ok) {
-        string memory sig = "setDistributedAsset(address)";
+    function try_updateDistributedAsset(address ydl, address asset) external returns (bool ok) {
+        string memory sig = "updateDistributedAsset(address)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, asset));
     }
 
@@ -433,13 +433,13 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, ids, paymentInterval));
     }
 
-    function try_applyConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "applyConversionAmortization(uint256)";
+    function try_applyConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_applyConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "applyConversionBullet(uint256)";
+    function try_applyConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "applyConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -453,13 +453,13 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "approveConversionAmortization(uint256)";
+    function try_approveConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_approveConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "approveConversionBullet(uint256)";
+    function try_approveConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "approveConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
@@ -468,9 +468,9 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, intervals));
     }
 
-    function try_approveRefinance(address occ, uint id, uint APR) external returns (bool ok) {
+    function try_approveRefinance(address occ, uint id, uint apr) external returns (bool ok) {
         string memory sig = "approveRefinance(uint256,uint256)";
-        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, APR));
+        (ok,) = address(occ).call(abi.encodeWithSignature(sig, id, apr));
     }
 
     function try_unapproveCombine(address occ, address borrower) external returns (bool ok) {
@@ -478,13 +478,13 @@ contract Blackhat {
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, borrower));
     }
 
-    function try_unapproveConversionAmortization(address occ, uint id) external returns (bool ok) {
-        string memory sig = "unapproveConversionAmortization(uint256)";
+    function try_unapproveConversionToAmortization(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionToAmortization(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 
-    function try_unapproveConversionBullet(address occ, uint id) external returns (bool ok) {
-        string memory sig = "unapproveConversionBullet(uint256)";
+    function try_unapproveConversionToBullet(address occ, uint id) external returns (bool ok) {
+        string memory sig = "unapproveConversionToBullet(uint256)";
         (ok,) = address(occ).call(abi.encodeWithSignature(sig, id));
     }
 

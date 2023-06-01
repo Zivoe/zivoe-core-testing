@@ -151,155 +151,156 @@ contract Test_ZivoeYDL is Utility {
 
     }
 
-    // Validate setTargetAPYBIPS() state changes.
-    // Validate setTargetAPYBIPS() restrictions.
+    // Validate updateTargetAPYBIPS() state changes.
+    // Validate updateTargetAPYBIPS() restrictions.
     // This includes:
     //  - Caller must be TLC
 
-    function test_ZivoeYDL_setTargetAPYBIPS_restrictions(uint96 random) public {
+    function test_ZivoeYDL_updateTargetAPYBIPS_restrictions(uint96 random) public {
 
         uint256 amount = uint256(random);
 
         // Can't call if _msgSender() != TLC.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::setTargetAPYBIPS() _msgSender() != TLC()");
-        YDL.setTargetAPYBIPS(amount);
+        hevm.expectRevert("ZivoeYDL::updateTargetAPYBIPS() _msgSender() != TLC()");
+        YDL.updateTargetAPYBIPS(amount);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_setTargetAPYBIPS_state(uint96 random) public {
+    function test_ZivoeYDL_updateTargetAPYBIPS_state(uint96 random) public {
 
         uint256 amount = uint256(random);
 
         // Pre-state.
         assertEq(YDL.targetAPYBIPS(), 800);
         
-        // setTargetAPYBIPS().
+        // updateTargetAPYBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
         emit UpdatedTargetAPYBIPS(YDL.targetAPYBIPS(), amount);
-        assert(god.try_setTargetAPYBIPS(address(YDL), amount));
+        assert(god.try_updateTargetAPYBIPS(address(YDL), amount));
 
         // Post-state.
         assertEq(YDL.targetAPYBIPS(), amount);
 
     }
 
-    // Validate setTargetRatioBIPS() state changes.
-    // Validate setTargetRatioBIPS() restrictions.
+    // Validate updateTargetRatioBIPS() state changes.
+    // Validate updateTargetRatioBIPS() restrictions.
     // This includes:
     //  - Caller must be TLC
 
-    function test_ZivoeYDL_setTargetRatioBIPS_restrictions(uint96 random) public {
+    function test_ZivoeYDL_updateTargetRatioBIPS_restrictions(uint96 random) public {
         
         uint256 amount = uint256(random);
         
         // Can't call if _msgSender() != TLC.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::setTargetRatioBIPS() _msgSender() != TLC()");
-        YDL.setTargetRatioBIPS(amount);
+        hevm.expectRevert("ZivoeYDL::updateTargetRatioBIPS() _msgSender() != TLC()");
+        YDL.updateTargetRatioBIPS(amount);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_setTargetRatioBIPS_state(uint96 random) public {
+    function test_ZivoeYDL_updateTargetRatioBIPS_state(uint96 random) public {
 
         uint256 amount = uint256(random);
 
         // Pre-state.
         assertEq(YDL.targetRatioBIPS(), 16250);
         
-        // setTargetRatioBIPS().
+        // updateTargetRatioBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
         emit UpdatedTargetRatioBIPS(YDL.targetRatioBIPS(), amount);
-        assert(god.try_setTargetRatioBIPS(address(YDL), amount));
+        assert(god.try_updateTargetRatioBIPS(address(YDL), amount));
 
         // Post-state.
         assertEq(YDL.targetRatioBIPS(), amount);
 
     }
 
-    // Validate setProtocolEarningsRateBIPS() state changes.
-    // Validate setProtocolEarningsRateBIPS() restrictions.
+    // Validate updateProtocolEarningsRateBIPS() state changes.
+    // Validate updateProtocolEarningsRateBIPS() restrictions.
     // This includes:
     //  - Caller must be TLC
     //  - Amount must be <= 3000.
 
-    function test_ZivoeYDL_setProtocolEarningsRateBIPS_restrictions_msgSender(uint96 random) public {
+    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_restrictions_msgSender(uint96 random) public {
         
         uint256 amount = uint256(random);
         
         // Can't call if _msgSender() != TLC.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::setProtocolEarningsRateBIPS() _msgSender() != TLC()");
-        YDL.setProtocolEarningsRateBIPS(amount);
+        hevm.expectRevert("ZivoeYDL::updateProtocolEarningsRateBIPS() _msgSender() != TLC()");
+        YDL.updateProtocolEarningsRateBIPS(amount);
         hevm.stopPrank();
 
         // Example success.
-        assert(god.try_setProtocolEarningsRateBIPS(address(YDL), 1200));
+        assert(god.try_updateProtocolEarningsRateBIPS(address(YDL), 1200));
     }
 
-    function test_ZivoeYDL_setProtocolEarningsRateBIPS_restrictions_max3000() public {
+    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_restrictions_max3000() public {
         
         // Can't call if > 3000.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::setProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 3000");
-        YDL.setProtocolEarningsRateBIPS(3001);
+        hevm.expectRevert("ZivoeYDL::updateProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 3000");
+        YDL.updateProtocolEarningsRateBIPS(3001);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_setProtocolEarningsRateBIPS_state(uint96 random) public {
+    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_state(uint96 random) public {
 
         uint256 amount = uint256(random) % 3000;
 
         // Pre-state.
         assertEq(YDL.protocolEarningsRateBIPS(), 2000);
         
-        // setProtocolEarningsRateBIPS().
+        // updateProtocolEarningsRateBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
         emit UpdatedProtocolEarningsRateBIPS(YDL.protocolEarningsRateBIPS(), amount);
-        assert(god.try_setProtocolEarningsRateBIPS(address(YDL), amount));
+        assert(god.try_updateProtocolEarningsRateBIPS(address(YDL), amount));
 
         // Post-state.
         assertEq(YDL.protocolEarningsRateBIPS(), amount);
     }
 
-    // Validate setDistributedAsset() state changes.
-    // Validate setDistributedAsset() restrictions.
+    // Validate updateDistributedAsset() state changes.
+    // Validate updateDistributedAsset() restrictions.
     // This includes:
+    //  - _distributedAsset must not be current asset
     //  - _distributedAsset must be on stablecoinWhitelist
     //  - Caller must be TLC
 
-    function test_ZivoeYDL_setDistributedAsset_restrictions_distributedAsset() public {
+    function test_ZivoeYDL_updateDistributedAsset_restrictions_distributedAsset() public {
         
         // Can't call distributedAsset == _distributedAsset.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::setDistributedAsset() _distributedAsset == distributedAsset");
-        YDL.setDistributedAsset(DAI);
+        hevm.expectRevert("ZivoeYDL::updateDistributedAsset() _distributedAsset == distributedAsset");
+        YDL.updateDistributedAsset(DAI);
         hevm.stopPrank();
 
         // Example success call.
-        assert(god.try_setDistributedAsset(address(YDL), USDC));
+        assert(god.try_updateDistributedAsset(address(YDL), USDC));
 
     }
 
-    function test_ZivoeYDL_setDistributedAsset_restrictions_msgSender() public {
+    function test_ZivoeYDL_updateDistributedAsset_restrictions_msgSender() public {
         
         // Can't call if _msgSender() != TLC.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeYDL::setDistributedAsset() _msgSender() != TLC()");
-        YDL.setDistributedAsset(USDC);
+        hevm.expectRevert("ZivoeYDL::updateDistributedAsset() _msgSender() != TLC()");
+        YDL.updateDistributedAsset(USDC);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_setDistributedAsset_restrictions_notWhitelisted() public {
+    function test_ZivoeYDL_updateDistributedAsset_restrictions_notWhitelisted() public {
 
         // Can't call if asset not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::setDistributedAsset() !IZivoeGlobals_YDL(GBL).stablecoinWhitelist(_distributedAsset)");
-        YDL.setDistributedAsset(WETH);
+        hevm.expectRevert("ZivoeYDL::updateDistributedAsset() !IZivoeGlobals_YDL(GBL).stablecoinWhitelist(_distributedAsset)");
+        YDL.updateDistributedAsset(WETH);
         hevm.stopPrank();
     }
 
-    function test_ZivoeYDL_setDistributedAsset_state() public {
+    function test_ZivoeYDL_updateDistributedAsset_state() public {
 
         // Pre-state.
         assertEq(YDL.distributedAsset(), DAI);
@@ -307,7 +308,7 @@ contract Test_ZivoeYDL is Utility {
         // Example success call.
         hevm.expectEmit(true, true, false, false, address(YDL));
         emit UpdatedDistributedAsset(YDL.distributedAsset(), USDC);
-        assert(god.try_setDistributedAsset(address(YDL), USDC));
+        assert(god.try_updateDistributedAsset(address(YDL), USDC));
 
         // Post-state.
         assertEq(YDL.distributedAsset(), USDC);
@@ -757,7 +758,7 @@ contract Test_ZivoeYDL is Utility {
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
 
         // Pre-state.
-        assertEq(YDL.numDistributions(), 0);
+        assertEq(YDL.distributionCounter(), 0);
         assertEq(YDL.lastDistribution(), block.timestamp - YDL.daysBetweenDistributions() * 86400);
 
         assertEq(YDL.emaSTT(), zSTT.totalSupply());
@@ -797,7 +798,7 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.emaSTT(), zSTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
         assertEq(YDL.emaJTT(), zJTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
 
-        assertEq(YDL.numDistributions(), 1);
+        assertEq(YDL.distributionCounter(), 1);
         assertEq(YDL.lastDistribution(), block.timestamp);
 
         emit log_named_uint("protocol[0] - stZVE", protocol[0]);
@@ -912,7 +913,7 @@ contract Test_ZivoeYDL is Utility {
             mint("DAI", address(YDL), uint256(random));
 
             // Pre-state.
-            if (YDL.numDistributions() == 0 || YDL.numDistributions() == 1) {
+            if (YDL.distributionCounter() == 0 || YDL.distributionCounter() == 1) {
                 assertEq(YDL.emaSTT(), zSTT.totalSupply());
                 assertEq(YDL.emaJTT(), zJTT.totalSupply());
             }
@@ -932,13 +933,13 @@ contract Test_ZivoeYDL is Utility {
             // distributeYield().
             YDL.distributeYield();
 
-            // emaJTT = MATH.ema(emaJTT, aJTT, retrospectiveDistributions.min(numDistributions));
-            // emaSTT = MATH.ema(emaSTT, aSTT, retrospectiveDistributions.min(numDistributions));
+            // emaJTT = MATH.ema(emaJTT, aJTT, retrospectiveDistributions.min(distributionCounter));
+            // emaSTT = MATH.ema(emaSTT, aSTT, retrospectiveDistributions.min(distributionCounter));
 
             // Post-state.
             (uint256 aSTT, uint256 aJTT) = GBL.adjustedSupplies();
-            assertEq(YDL.emaSTT(), MATH.ema(pre_emaSTT, aSTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
-            assertEq(YDL.emaJTT(), MATH.ema(pre_emaJTT, aJTT, YDL.retrospectiveDistributions().min(YDL.numDistributions())));
+            assertEq(YDL.emaSTT(), MATH.ema(pre_emaSTT, aSTT, YDL.retrospectiveDistributions().min(YDL.distributionCounter())));
+            assertEq(YDL.emaJTT(), MATH.ema(pre_emaJTT, aJTT, YDL.retrospectiveDistributions().min(YDL.distributionCounter())));
 
         }
 

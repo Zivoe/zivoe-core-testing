@@ -68,7 +68,7 @@ contract Test_OCR_Modular is Utility {
         bool indexed seniorElseJunior
     );
 
-    event UpdatedRedemptionsFee(uint256 oldFee, uint256 newFee);
+    event UpdatedRedemptionsFeeBIPS(uint256 oldFee, uint256 newFee);
 
 
     // ----------------------
@@ -123,18 +123,18 @@ contract Test_OCR_Modular is Utility {
     function test_OCR_init_state() public {
 
         // OCR_DAI
-        assertEq(OCR_DAI.owner(),           address(DAO));
-        assertEq(OCR_DAI.stablecoin(),      DAI);
-        assertEq(OCR_DAI.GBL(),             address(GBL));
-        assertEq(OCR_DAI.redemptionsFee(),  1000);
-        assertEq(OCR_DAI.epoch(),           block.timestamp);
+        assertEq(OCR_DAI.owner(),               address(DAO));
+        assertEq(OCR_DAI.stablecoin(),          DAI);
+        assertEq(OCR_DAI.GBL(),                 address(GBL));
+        assertEq(OCR_DAI.redemptionsFeeBIPS(),  1000);
+        assertEq(OCR_DAI.epoch(),               block.timestamp);
 
         // OCR_USDC
-        assertEq(OCR_USDC.owner(),          address(DAO));
-        assertEq(OCR_USDC.stablecoin(),     USDC);
-        assertEq(OCR_USDC.GBL(),            address(GBL));
-        assertEq(OCR_USDC.redemptionsFee(), 1000);
-        assertEq(OCR_USDC.epoch(),          block.timestamp);
+        assertEq(OCR_USDC.owner(),              address(DAO));
+        assertEq(OCR_USDC.stablecoin(),         USDC);
+        assertEq(OCR_USDC.GBL(),                address(GBL));
+        assertEq(OCR_USDC.redemptionsFeeBIPS(), 1000);
+        assertEq(OCR_USDC.epoch(),              block.timestamp);
 
     }
 
@@ -583,8 +583,8 @@ contract Test_OCR_Modular is Utility {
             emit RequestProcessed(id_senior, address(sam), burnAmount, redeemAmount, true);
             OCR_DAI.processRequest(id_senior);
 
-            assertEq(IERC20(DAI).balanceOf(address(sam)), preDAI_sam + redeemAmount * OCR_DAI.redemptionsFee() / BIPS);
-            assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFee()) / BIPS);
+            assertEq(IERC20(DAI).balanceOf(address(sam)), preDAI_sam + redeemAmount * OCR_DAI.redemptionsFeeBIPS() / BIPS);
+            assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFeeBIPS()) / BIPS);
 
             (, uint256 amountPost, uint256 unlocksPost,) = OCR_DAI.requests(id_senior);
             
@@ -621,8 +621,8 @@ contract Test_OCR_Modular is Utility {
             emit RequestProcessed(id_junior, address(jim), burnAmount, redeemAmount, false);
             OCR_DAI.processRequest(id_junior);
 
-            assertEq(IERC20(DAI).balanceOf(address(jim)), preDAI_jim + redeemAmount * OCR_DAI.redemptionsFee() / BIPS);
-            assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFee()) / BIPS);
+            assertEq(IERC20(DAI).balanceOf(address(jim)), preDAI_jim + redeemAmount * OCR_DAI.redemptionsFeeBIPS() / BIPS);
+            assertEq(IERC20(DAI).balanceOf(address(DAO)), preDAI_DAO + redeemAmount * (BIPS - OCR_DAI.redemptionsFeeBIPS()) / BIPS);
 
             (, uint256 amountPost, uint256 unlocksPost,) = OCR_DAI.requests(id_junior);
 
@@ -687,8 +687,8 @@ contract Test_OCR_Modular is Utility {
             emit RequestProcessed(id_senior, address(sam), burnAmount, redeemAmount, true);
             OCR_USDC.processRequest(id_senior);
 
-            assertEq(IERC20(USDC).balanceOf(address(sam)), preUSDC_sam + redeemAmount * OCR_USDC.redemptionsFee() / BIPS);
-            assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFee()) / BIPS);
+            assertEq(IERC20(USDC).balanceOf(address(sam)), preUSDC_sam + redeemAmount * OCR_USDC.redemptionsFeeBIPS() / BIPS);
+            assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFeeBIPS()) / BIPS);
 
             (, uint256 amountPost, uint256 unlocksPost,) = OCR_USDC.requests(id_senior);
             
@@ -725,8 +725,8 @@ contract Test_OCR_Modular is Utility {
             emit RequestProcessed(id_junior, address(jim), burnAmount, redeemAmount, false);
             OCR_USDC.processRequest(id_junior);
 
-            assertEq(IERC20(USDC).balanceOf(address(jim)), preUSDC_jim + redeemAmount * OCR_USDC.redemptionsFee() / BIPS);
-            assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFee()) / BIPS);
+            assertEq(IERC20(USDC).balanceOf(address(jim)), preUSDC_jim + redeemAmount * OCR_USDC.redemptionsFeeBIPS() / BIPS);
+            assertEq(IERC20(USDC).balanceOf(address(DAO)), preUSDC_DAO + redeemAmount * (BIPS - OCR_USDC.redemptionsFeeBIPS()) / BIPS);
 
             (, uint256 amountPost, uint256 unlocksPost,) = OCR_USDC.requests(id_junior);
 
@@ -878,48 +878,48 @@ contract Test_OCR_Modular is Utility {
 
     }
 
-    // Validate updateRedemptionsFee() state changes.
-    // Validate updateRedemptionsFee() restrictions.
+    // Validate updateRedemptionsFeeBIPS() state changes.
+    // Validate updateRedemptionsFeeBIPS() restrictions.
     // This includes:
     //  - _msgSender() must be TLC
-    //  - _redemptionsFee must be in range [250, 2000]
+    //  - _redemptionsFeeBIPS must be in range [250, 2000]
 
-    function test_OCR_updateRedemptionsFee_restrictions_msgSender() public {
+    function test_OCR_updateRedemptionsFeeBIPS_restrictions_msgSender() public {
         
         // Can't call if _msgSender() != TLC
         hevm.startPrank(address(tim));
-        hevm.expectRevert("OCR_Modular::updateRedemptionsFee() _msgSender() != TLC()");
-        OCR_DAI.updateRedemptionsFee(500);
+        hevm.expectRevert("OCR_Modular::updateRedemptionsFeeBIPS() _msgSender() != TLC()");
+        OCR_DAI.updateRedemptionsFeeBIPS(500);
         hevm.stopPrank();
     }
 
-    function test_OCR_updateRedemptionsFee_restrictions_range(uint16 fee) public {
+    function test_OCR_updateRedemptionsFeeBIPS_restrictions_range(uint16 fee) public {
         
         // Can't update if fee > 2000
         hevm.startPrank(address(god));
         if (fee > 2000) {
-            hevm.expectRevert("OCR_Modular::updateRedemptionsFee() _redemptionsFee > 2000");
+            hevm.expectRevert("OCR_Modular::updateRedemptionsFeeBIPS() _redemptionsFeeBIPS > 2000");
         }
-        OCR_DAI.updateRedemptionsFee(fee);
+        OCR_DAI.updateRedemptionsFeeBIPS(fee);
         hevm.stopPrank();
     }
 
-    function test_OCR_updateRedemptionsFee_state(uint16 fee) public {
+    function test_OCR_updateRedemptionsFeeBIPS_state(uint16 fee) public {
 
         hevm.assume(fee >= 250 && fee <= 2000);
 
         // Pre-state.
-        assertEq(OCR_DAI.redemptionsFee(), 1000);
+        assertEq(OCR_DAI.redemptionsFeeBIPS(), 1000);
 
-        // updateRedemptionsFee().
+        // updateRedemptionsFeeBIPS().
         hevm.startPrank(address(god));
         hevm.expectEmit(false, false, false, true, address(OCR_DAI));
-        emit UpdatedRedemptionsFee(1000, fee);
-        OCR_DAI.updateRedemptionsFee(fee);
+        emit UpdatedRedemptionsFeeBIPS(1000, fee);
+        OCR_DAI.updateRedemptionsFeeBIPS(fee);
         hevm.stopPrank();
 
         // Post-state.
-        assertEq(OCR_DAI.redemptionsFee(), fee);   
+        assertEq(OCR_DAI.redemptionsFeeBIPS(), fee);   
     }
 
 }

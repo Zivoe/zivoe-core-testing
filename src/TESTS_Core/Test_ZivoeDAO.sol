@@ -81,8 +81,7 @@ contract Test_ZivoeDAO is Utility {
         address[] memory _assets_bad,
         address[] memory _assets_good,
         uint256[] memory _amounts
-    ) 
-    {
+    ) {
         uint256 amt_DAI = uint256(random) % IERC20(DAI).balanceOf(address(DAO));
         uint256 amt_FRAX = uint256(random) % IERC20(FRAX).balanceOf(address(DAO));
         uint256 amt_USDC = uint256(random) % IERC20(USDC).balanceOf(address(DAO));
@@ -116,8 +115,7 @@ contract Test_ZivoeDAO is Utility {
         uint256[] memory good_tokenIds,
         bytes[] memory bad_data,
         bytes[] memory good_data
-    )
-    {
+    ) {
         // mint().
         launchERC721();
 
@@ -160,8 +158,7 @@ contract Test_ZivoeDAO is Utility {
         uint256[] memory good_tokenIds,
         bytes[] memory bad_data,
         bytes[] memory good_data
-    )
-    {
+    ) {
         // mint().
         launchERC721();
 
@@ -197,12 +194,11 @@ contract Test_ZivoeDAO is Utility {
         good_data[3] = '';
     }
 
-    function pushERC1155BatchRestrictions() public returns (
+    function pushERC1155Restrictions() public returns (
         uint256[] memory bad_ids,
         uint256[] memory good_ids,
         uint256[] memory amounts
-    ) 
-    {
+    ) {
         bad_ids = new uint256[](4);
         good_ids = new uint256[](5);
         amounts = new uint256[](5);
@@ -228,12 +224,11 @@ contract Test_ZivoeDAO is Utility {
         launchERC1155();
     }
 
-    function pullERC1155BatchRestrictions() public returns (
+    function pullERC1155Restrictions() public returns (
         uint256[] memory bad_ids,
         uint256[] memory good_ids,
         uint256[] memory amounts
-    ) 
-    {
+    ) {
         bad_ids = new uint256[](4);
         good_ids = new uint256[](5);
         amounts = new uint256[](5);
@@ -1508,61 +1503,62 @@ contract Test_ZivoeDAO is Utility {
         
     }
 
-    // Validate pushERC1155Batch() state changes.
-    // Validate pushERC1155Batch() restrictions.
+    // Validate pushERC1155() state changes.
+    // Validate pushERC1155() restrictions.
     // This includes:
     //   - "locker" must be whitelisted
     //   - ids.length == amounts.length (length of input arrays must equal)
     //   - "locker" must have canPushERC1155() exposed as true value.
 
-    function test_ZivoeDAO_pushERC1155Batch_restrictions_whitelist() public {
+    function test_ZivoeDAO_pushERC1155_restrictions_whitelist() public {
 
-        (,
-        uint256[] memory good_ids,
-        uint256[] memory amounts
-        ) = pushERC1155BatchRestrictions();
+        (
+            ,
+            uint256[] memory good_ids,
+            uint256[] memory amounts
+        ) = pushERC1155Restrictions();
 
-        // Can't pushERC1155Batch() if locker not whitelisted.
+        // Can't pushERC1155() if locker not whitelisted.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
-        DAO.pushERC1155Batch(address(0), address(ZivoeERC1155), good_ids, amounts, '');
+        hevm.expectRevert("ZivoeDAO::pushERC1155() !IZivoeGlobals_DAO(GBL).isLocker(locker)");
+        DAO.pushERC1155(address(0), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
 
         // Example success.
-        assert(god.try_pushERC1155Batch(
+        assert(god.try_pushERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), good_ids, amounts, ''
         ));  
     }
 
-    function test_ZivoeDAO_pushERC1155Batch_restrictions_IdsLength() public {
+    function test_ZivoeDAO_ppushERC1155_restrictions_IdsLength() public {
 
         (uint256[] memory bad_ids,
         ,
         uint256[] memory amounts
-        ) = pushERC1155BatchRestrictions();
+        ) = pushERC1155Restrictions();
 
-        // Can't pushERC1155Batch() if ids.length != amounts.length.
+        // Can't pushERC1155() if ids.length != amounts.length.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() ids.length != amounts.length");
-        DAO.pushERC1155Batch(address(OCG_ERC1155Locker), address(ZivoeERC1155), bad_ids, amounts, '');
+        hevm.expectRevert("ZivoeDAO::pushERC1155() ids.length != amounts.length");
+        DAO.pushERC1155(address(OCG_ERC1155Locker), address(ZivoeERC1155), bad_ids, amounts, '');
         hevm.stopPrank();  
     }
 
-    function test_ZivoeDAO_pushERC1155Batch_restrictions_canPushERC1155() public {
+    function test_ZivoeDAO_pushERC1155_restrictions_canPushERC1155() public {
 
         (,
         uint256[] memory good_ids,
         uint256[] memory amounts
-        ) = pushERC1155BatchRestrictions();
+        ) = pushERC1155Restrictions();
 
-        // Can't pushERC1155Batch() if canPushERC1155() not exposed as true.
+        // Can't pushERC1155() if canPushERC1155() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pushERC1155Batch() !ILocker_DAO(locker).canPushERC1155()");
-        DAO.pushERC1155Batch(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
+        hevm.expectRevert("ZivoeDAO::pushERC1155() !ILocker_DAO(locker).canPushERC1155()");
+        DAO.pushERC1155(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
     }
 
-    function test_ZivoeDAO_pushERC1155Batch_state() public {
+    function test_ZivoeDAO_pushERC1155B_state() public {
         
         uint256[] memory ids = new uint256[](5);
         uint256[] memory amounts = new uint256[](5);
@@ -1597,10 +1593,10 @@ contract Test_ZivoeDAO is Utility {
 
         assert(!ZivoeERC1155.isApprovedForAll(address(ZivoeERC1155), address(DAO)));
 
-        // pushERC1155Batch().
+        // pushERC1155().
         hevm.expectEmit(true, true, false, true, address(DAO));
         emit PushedERC1155(address(OCG_ERC1155Locker), address(ZivoeERC1155), ids, amounts, "");
-        assert(god.try_pushERC1155Batch(
+        assert(god.try_pushERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), ids, amounts, ''
         ));
 
@@ -1621,52 +1617,52 @@ contract Test_ZivoeDAO is Utility {
         
     }
 
-    // Validate pullERC1155Batch() state changes.
-    // Validate pullERC1155Batch() restrictions.
+    // Validate pullERC1155() state changes.
+    // Validate pullERC1155() restrictions.
     // This includes:
     //   - "locker" must have canPullERC1155() exposed as true value.
     //   - ids.length == amounts.length (length of input arrays must equal)
 
-    function test_ZivoeDAO_pullERC1155Batch_restrictions_canPullERC1155() public {
+    function test_ZivoeDAO_pullERC1155_restrictions_canPullERC1155() public {
        (,
         uint256[] memory good_ids,
         uint256[] memory amounts
-        ) = pullERC1155BatchRestrictions();
+        ) = pullERC1155Restrictions();
 
-        assert(god.try_pushERC1155Batch(
+        assert(god.try_pushERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), good_ids, amounts, ''
         ));
 
-        // Can't pullERC1155Batch() if canPullERC1155() not exposed as true.
+        // Can't pullERC1155() if canPullERC1155() not exposed as true.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullERC1155Batch() !ILocker_DAO(locker).canPullERC1155()");
-        DAO.pullERC1155Batch(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
+        hevm.expectRevert("ZivoeDAO::pullERC1155() !ILocker_DAO(locker).canPullERC1155()");
+        DAO.pullERC1155(address(OCG_ERC721Locker), address(ZivoeERC1155), good_ids, amounts, '');
         hevm.stopPrank();  
 
         // Example success.
-        assert(god.try_pullERC1155Batch(
+        assert(god.try_pullERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), good_ids, amounts, ''
         ));
     }
 
-    function test_ZivoeDAO_pullERC1155Batch_restrictions_IdsLength() public {
+    function test_ZivoeDAO_pullERC1155_restrictions_IdsLength() public {
         (uint256[] memory bad_ids,
         uint256[] memory good_ids,
         uint256[] memory amounts
-        ) = pullERC1155BatchRestrictions();
+        ) = pullERC1155Restrictions();
 
-        assert(god.try_pushERC1155Batch(
+        assert(god.try_pushERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), good_ids, amounts, ''
         ));
 
-        // Can't pullERC1155Batch() if ids.length != amounts.length.
+        // Can't pullERC1155() if ids.length != amounts.length.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeDAO::pullERC1155Batch() ids.length != amounts.length");
-        DAO.pullERC1155Batch(address(OCG_ERC1155Locker), address(ZivoeERC1155), bad_ids, amounts, '');
+        hevm.expectRevert("ZivoeDAO::pullERC1155() ids.length != amounts.length");
+        DAO.pullERC1155(address(OCG_ERC1155Locker), address(ZivoeERC1155), bad_ids, amounts, '');
         hevm.stopPrank();  
     }
 
-    function test_ZivoeDAO_pullERC1155Batch_state() public {
+    function test_ZivoeDAO_pullERC1155_state() public {
         
         uint256[] memory ids = new uint256[](5);
         uint256[] memory amounts = new uint256[](5);
@@ -1684,9 +1680,9 @@ contract Test_ZivoeDAO is Utility {
         amounts[4] = 1;
 
         // mint()
-        // pushERC1155Batch().
+        // pushERC1155().
         launchERC1155();
-        assert(god.try_pushERC1155Batch(
+        assert(god.try_pushERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), ids, amounts, ''
         ));
 
@@ -1705,10 +1701,10 @@ contract Test_ZivoeDAO is Utility {
         
         assert(!ZivoeERC1155.isApprovedForAll(address(ZivoeERC1155), address(DAO)));
 
-        // pullERC1155Batch().
+        // pullERC1155().
         hevm.expectEmit(true, true, false, true, address(DAO));
         emit PulledERC1155(address(OCG_ERC1155Locker), address(ZivoeERC1155), ids, amounts, '');
-        assert(god.try_pullERC1155Batch(
+        assert(god.try_pullERC1155(
             address(DAO), address(OCG_ERC1155Locker), address(ZivoeERC1155), ids, amounts, ''
         ));
 

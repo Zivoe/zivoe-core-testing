@@ -9,7 +9,7 @@ contract Test_ZivoeRewardsVesting is Utility {
         deployCore(false);
     }
 
-    // Validate vest() restrictions.
+    // Validate createVestingSchedule() restrictions.
     //  - Restricting vest if account has deposited to ITO.
 
     function test_ZivoeRewardsVesting_vest_restrictions_itoDepositSenior() public {
@@ -22,8 +22,8 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Can't call vest if deposited to ITO.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
-        vestZVE.vest(address(sam), 30, 90, 100 ether, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
+        vestZVE.createVestingSchedule(address(sam), 30, 90, 100 ether, false);
         hevm.stopPrank();
     }
 
@@ -37,8 +37,8 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         // Can't call vest if deposited to ITO.
         hevm.startPrank(address(zvl));
-        hevm.expectRevert("ZivoeRewardsVesting::vest() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
-        vestZVE.vest(address(jim), 30, 90, 100 ether, false);
+        hevm.expectRevert("ZivoeRewardsVesting::createVestingSchedule() seniorCredits(_msgSender) > 0 || juniorCredits(_msgSender) > 0");
+        vestZVE.createVestingSchedule(address(jim), 30, 90, 100 ether, false);
         hevm.stopPrank();
     }    
     

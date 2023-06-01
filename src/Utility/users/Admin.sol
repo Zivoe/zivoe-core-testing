@@ -68,8 +68,8 @@ contract Admin {
         (ok,) = address(token).call(abi.encodeWithSignature(sig, account, amount));
     }
 
-    function try_vest(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256)";
+    function try_createVestingSchedule(address vesting, address account, uint256 daysUntilVestingBegins, uint256 daysToVest, uint256 amountToVest) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256)";
         (ok,) = address(vesting).call(abi.encodeWithSignature(sig, account, daysUntilVestingBegins, daysToVest, amountToVest));
     }
 
@@ -138,13 +138,13 @@ contract Admin {
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, assets, tokenIds, data));
     }
 
-    function try_pushERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pushERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pushERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pushERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
-    function try_pullERC1155Batch(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
-        string memory sig = "pullERC1155Batch(address,address,uint256[],uint256[],bytes)";
+    function try_pullERC1155(address dao, address locker, address asset, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external returns (bool ok) {
+        string memory sig = "pullERC1155(address,address,uint256[],uint256[],bytes)";
         (ok,) = address(dao).call(abi.encodeWithSignature(sig, locker, asset, ids, amounts, data));
     }
 
@@ -218,13 +218,13 @@ contract Admin {
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateLowerRatioIncentive(address gbl, uint256 amount) external returns (bool ok) {
-        string memory sig = "updateLowerRatioIncentive(uint256)";
+    function try_updateLowerRatioIncentiveBIPS(address gbl, uint256 amount) external returns (bool ok) {
+        string memory sig = "updateLowerRatioIncentiveBIPS(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_updateUpperRatioIncentives(address gbl, uint256 amount) external returns (bool ok) {
-        string memory sig = "updateUpperRatioIncentives(uint256)";
+    function try_updateUpperRatioIncentiveBIPS(address gbl, uint256 amount) external returns (bool ok) {
+        string memory sig = "updateUpperRatioIncentiveBIPS(uint256)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, amount));
     }
 
@@ -233,8 +233,8 @@ contract Admin {
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, dist));
     }
 
-    function try_setExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
-        string memory sig = "setExponentialDecayPerSecond(uint256)";
+    function try_updateExponentialDecayPerSecond(address oce, uint256 val) external returns (bool ok) {
+        string memory sig = "updateExponentialDecayPerSecond(uint256)";
         (ok,) = address(oce).call(abi.encodeWithSignature(sig, val));
     }
 
@@ -278,13 +278,13 @@ contract Admin {
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount));
     }
 
-    function try_vest(address stk, address act, uint256 dtc, uint256 dtv, uint256 atv, bool rev) external returns (bool ok) {
-        string memory sig = "vest(address,uint256,uint256,uint256,bool)";
+    function try_createVestingSchedule(address stk, address act, uint256 dtc, uint256 dtv, uint256 atv, bool rev) external returns (bool ok) {
+        string memory sig = "createVestingSchedule(address,uint256,uint256,uint256,bool)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act, dtc, dtv, atv, rev));
     }
 
-    function try_revoke(address stk, address act) external returns (bool ok) {
-        string memory sig = "revoke(address)";
+    function try_revokeVestingSchedule(address stk, address act) external returns (bool ok) {
+        string memory sig = "revokeVestingSchedule(address)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, act));
     }
 
@@ -293,23 +293,23 @@ contract Admin {
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, recipients, proportions, protocol));
     }
 
-    function try_setTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setTargetAPYBIPS(uint256)";
+    function try_updateTargetAPYBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateTargetAPYBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setTargetRatioBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setTargetRatioBIPS(uint256)";
+    function try_updateTargetRatioBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateTargetRatioBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setProtocolEarningsRateBIPS(address ydl, uint256 val) external returns (bool ok) {
-        string memory sig = "setProtocolEarningsRateBIPS(uint256)";
+    function try_updateProtocolEarningsRateBIPS(address ydl, uint256 val) external returns (bool ok) {
+        string memory sig = "updateProtocolEarningsRateBIPS(uint256)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, val));
     }
 
-    function try_setDistributedAsset(address ydl, address asset) external returns (bool ok) {
-        string memory sig = "setDistributedAsset(address)";
+    function try_updateDistributedAsset(address ydl, address asset) external returns (bool ok) {
+        string memory sig = "updateDistributedAsset(address)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, asset));
     }
     
