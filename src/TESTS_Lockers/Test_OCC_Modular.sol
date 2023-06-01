@@ -3947,7 +3947,7 @@ contract Test_OCC_Modular is Utility {
 
         // Can't call if idsLength == 1 or == 0
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::approveCombine() loanIDs.length <= 1");
+        hevm.expectRevert("OCC_Modular::approveCombine() loanIDs.length <= 1 || paymentSchedule > 1 || gracePeriod < 7 days");
         OCC_Modular_DAI.approveCombine(loanIDs, 24, 86400 * 7, 86400 * 7, int8(0));
         hevm.stopPrank();
     }
@@ -3956,7 +3956,7 @@ contract Test_OCC_Modular is Utility {
         
         uint256[] memory loanIDs = new uint256[](2);
 
-        // Can't call if idsLength == 1 or == 0
+        // Can't call if term == 0
         hevm.startPrank(address(roy));
         hevm.expectRevert("OCC_Modular::approveCombine() term == 0");
         OCC_Modular_DAI.approveCombine(loanIDs, 0, 86400 * 7, 86400 * 7, int8(0));
@@ -3969,7 +3969,7 @@ contract Test_OCC_Modular is Utility {
 
         // Can't call if gracePeriod < 7 days
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::approveCombine() gracePeriod < 7 days");
+        hevm.expectRevert("OCC_Modular::approveCombine() loanIDs.length <= 1 || paymentSchedule > 1 || gracePeriod < 7 days");
         OCC_Modular_DAI.approveCombine(loanIDs, 6, 86400 * 7, 86400 * 6, int8(2));
         hevm.stopPrank();
     }
@@ -3980,7 +3980,7 @@ contract Test_OCC_Modular is Utility {
 
         // Can't call if paymentSchedule > 1
         hevm.startPrank(address(roy));
-        hevm.expectRevert("OCC_Modular::approveCombine() paymentSchedule > 1");
+        hevm.expectRevert("OCC_Modular::approveCombine() loanIDs.length <= 1 || paymentSchedule > 1 || gracePeriod < 7 days");
         OCC_Modular_DAI.approveCombine(loanIDs, 6, 86400 * 7, 86400 * 7, int8(2));
         hevm.stopPrank();
     }
