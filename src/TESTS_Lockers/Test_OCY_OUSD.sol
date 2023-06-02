@@ -335,16 +335,24 @@ contract Test_OCY_OUSD is Utility {
         // Simulate OUSD protocol generating yield and rebasing it's overall protocol token (OUSD).
 
         hevm.warp(block.timestamp + 1 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
+        uint snapshotA = IERC20(OUSD).balanceOf(address(OUSDLocker));
         deal(DAI, address(OUSD_VAULT), randomIncrease);
         deal(FRAX, address(OUSD_VAULT), randomIncrease);
         IVault(OUSD_VAULT).rebase();
         hevm.warp(block.timestamp + 1 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
+        uint snapshotB = IERC20(OUSD).balanceOf(address(OUSDLocker));
         deal(DAI, address(OUSD_VAULT), randomIncrease);
         deal(FRAX, address(OUSD_VAULT), randomIncrease);
         IVault(OUSD_VAULT).rebase();
         hevm.warp(block.timestamp + 14 days);
+        uint snapshotC = IERC20(OUSD).balanceOf(address(OUSDLocker));
+
+        hevm.warp(block.timestamp + 14 days);
+        IVault(OUSD_VAULT).rebase();
+
+        emit log_named_uint("OUSD snapshotA:", snapshotA);
+        emit log_named_uint("OUSD snapshotB:", snapshotB);
+        emit log_named_uint("OUSD snapshotC:", snapshotC);
         emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
 
         // Pre-state.
@@ -352,7 +360,7 @@ contract Test_OCY_OUSD is Utility {
         uint256 preBasis = OUSDLocker.basis();
         uint256 amountOUSD_OCT_YDL = IERC20(OUSD).balanceOf(address(TreasuryYDL));
 
-        assert(amountOUSD > preBasis);  // Assuming this.
+        assert(amountOUSD > preBasis);  // Assuming this, but initiating capital injection into OUSD fails in this test
 
         hevm.expectEmit(false, false, false, true, address(OUSDLocker));
         emit YieldForwarded(amountOUSD - preBasis, preBasis);
