@@ -651,7 +651,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -697,7 +697,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -743,7 +743,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -789,7 +789,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -841,7 +841,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -885,7 +885,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -929,7 +929,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -973,7 +973,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1044,7 +1044,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1107,7 +1107,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1170,7 +1170,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1233,7 +1233,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
