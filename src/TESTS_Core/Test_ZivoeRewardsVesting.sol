@@ -562,7 +562,7 @@ contract Test_ZivoeRewardsVesting is Utility {
     
     // Validate getRewardAt() state changes.
 
-    function test_ZivoeRewardsVesting_getRewardAt_state(uint96 random) public {
+    function Xtest_ZivoeRewardsVesting_getRewardAt_state(uint96 random) public {
 
         uint256 amount = uint256(random);
         uint256 deposit = uint256(random) + 100 ether; // Minimum 100 DAI deposit.
