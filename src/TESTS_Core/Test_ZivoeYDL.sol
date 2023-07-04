@@ -237,18 +237,18 @@ contract Test_ZivoeYDL is Utility {
         assert(god.try_updateProtocolEarningsRateBIPS(address(YDL), 1200));
     }
 
-    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_restrictions_max3000() public {
+    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_restrictions_max9000() public {
         
         // Can't call if > 3000.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 3000");
-        YDL.updateProtocolEarningsRateBIPS(3001);
+        hevm.expectRevert("ZivoeYDL::updateProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 9000");
+        YDL.updateProtocolEarningsRateBIPS(9001);
         hevm.stopPrank();
     }
 
     function test_ZivoeYDL_updateProtocolEarningsRateBIPS_state(uint96 random) public {
 
-        uint256 amount = uint256(random) % 3000;
+        uint256 amount = uint256(random) % 9000;
 
         // Pre-state.
         assertEq(YDL.protocolEarningsRateBIPS(), 2000);
