@@ -124,8 +124,6 @@ contract Test_DeployCore_Modular is Utility {
 
         assertEq(_ITO, address(ITO));
         assertEq(_ZVE, address(ZVE));
-
-        assertEq(ITO.operationAllocationBIPS(), 1000);
         
         assertEq(IZivoeITO(_ITO).stables(0), DAI);
         assertEq(IZivoeITO(_ITO).stables(1), FRAX);

@@ -651,7 +651,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -697,7 +697,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -743,7 +743,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -789,7 +789,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(sam));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_SAM);
         assert(!revokable);
@@ -841,7 +841,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -885,7 +885,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -929,7 +929,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -973,7 +973,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1044,7 +1044,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1107,7 +1107,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1170,7 +1170,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1233,7 +1233,7 @@ contract Test_ZivoeITO is Utility {
         ) = vestZVE.viewSchedule(address(jim));
 
         assertEq(start, block.timestamp);
-        assertEq(cliff, block.timestamp + 90 days);
+        assertEq(cliff, block.timestamp);
         assertEq(end, block.timestamp + 360 days);
         assertEq(totalVesting, _ZVE_Vested_JIM);
         assert(!revokable);
@@ -1317,11 +1317,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _preBalance_FRAX_DAO = IERC20(FRAX).balanceOf(address(DAO));
         uint256 _preBalance_USDC_DAO = IERC20(USDC).balanceOf(address(DAO));
         uint256 _preBalance_USDT_DAO = IERC20(USDT).balanceOf(address(DAO));
-
-        uint256 _preBalance_DAI_ZVL = IERC20(DAI).balanceOf(address(zvl));
-        uint256 _preBalance_FRAX_ZVL = IERC20(FRAX).balanceOf(address(zvl));
-        uint256 _preBalance_USDC_ZVL = IERC20(USDC).balanceOf(address(zvl));
-        uint256 _preBalance_USDT_ZVL = IERC20(USDT).balanceOf(address(zvl));
         
         assert(!ITO.migrated());
         assert(!YDL.unlocked());
@@ -1338,16 +1333,10 @@ contract Test_ZivoeITO is Utility {
         ITO.migrateDeposits();
 
         // Post-state.
-        withinDiff(IERC20(DAI).balanceOf(address(DAO)) - _preBalance_DAI_DAO, (amount_A + amount_B) * 9000 / 10000, 1);
-        withinDiff(IERC20(FRAX).balanceOf(address(DAO)) - _preBalance_FRAX_DAO, (amount_A + amount_B) * 9000 / 10000, 1);
-        withinDiff(IERC20(USDC).balanceOf(address(DAO)) - _preBalance_USDC_DAO, (amount_A + amount_B) * 9000 / 10000, 1);
-        withinDiff(IERC20(USDT).balanceOf(address(DAO)) - _preBalance_USDT_DAO, (amount_A + amount_B) * 9000 / 10000, 1);
-
-        // Post-state.
-        withinDiff(IERC20(DAI).balanceOf(address(zvl)) - _preBalance_DAI_ZVL, (amount_A + amount_B) * 1000 / 10000, 1);
-        withinDiff(IERC20(FRAX).balanceOf(address(zvl)) - _preBalance_FRAX_ZVL, (amount_A + amount_B) * 1000 / 10000, 1);
-        withinDiff(IERC20(USDC).balanceOf(address(zvl)) - _preBalance_USDC_ZVL, (amount_A + amount_B) * 1000 / 10000, 1);
-        withinDiff(IERC20(USDT).balanceOf(address(zvl)) - _preBalance_USDT_ZVL, (amount_A + amount_B) * 1000 / 10000, 1);
+        withinDiff(IERC20(DAI).balanceOf(address(DAO)) - _preBalance_DAI_DAO, amount_A + amount_B, 1);
+        withinDiff(IERC20(FRAX).balanceOf(address(DAO)) - _preBalance_FRAX_DAO, amount_A + amount_B, 1);
+        withinDiff(IERC20(USDC).balanceOf(address(DAO)) - _preBalance_USDC_DAO, amount_A + amount_B, 1);
+        withinDiff(IERC20(USDT).balanceOf(address(DAO)) - _preBalance_USDT_DAO, amount_A + amount_B, 1);
 
         assert(ITO.migrated());
         assert(YDL.unlocked());

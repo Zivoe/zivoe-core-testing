@@ -36,19 +36,19 @@ contract Test_ZivoeYDL is Utility {
         goodRecipients = new address[](4);
         goodProportions = new uint256[](4);
         
-        badRecipients[0] = address(0);
-        badRecipients[1] = address(1);
-        badRecipients[2] = address(2);
+        badRecipients[0] = address(1);
+        badRecipients[1] = address(2);
+        badRecipients[2] = address(3);
         
         badProportions[0] = 2500;
         badProportions[1] = 2500;
         badProportions[2] = 2500;
         badProportions[3] = 2501;
 
-        goodRecipients[0] = address(0);
-        goodRecipients[1] = address(1);
-        goodRecipients[2] = address(2);
-        goodRecipients[3] = address(3);
+        goodRecipients[0] = address(1);
+        goodRecipients[1] = address(2);
+        goodRecipients[2] = address(3);
+        goodRecipients[3] = address(4);
         
         goodProportions[0] = 2500;
         goodProportions[1] = 2500;
@@ -237,18 +237,18 @@ contract Test_ZivoeYDL is Utility {
         assert(god.try_updateProtocolEarningsRateBIPS(address(YDL), 1200));
     }
 
-    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_restrictions_max3000() public {
+    function test_ZivoeYDL_updateProtocolEarningsRateBIPS_restrictions_max9000() public {
         
         // Can't call if > 3000.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeYDL::updateProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 3000");
-        YDL.updateProtocolEarningsRateBIPS(3001);
+        hevm.expectRevert("ZivoeYDL::updateProtocolEarningsRateBIPS() _protocolEarningsRateBIPS > 9000");
+        YDL.updateProtocolEarningsRateBIPS(9001);
         hevm.stopPrank();
     }
 
     function test_ZivoeYDL_updateProtocolEarningsRateBIPS_state(uint96 random) public {
 
-        uint256 amount = uint256(random) % 3000;
+        uint256 amount = uint256(random) % 9000;
 
         // Pre-state.
         assertEq(YDL.protocolEarningsRateBIPS(), 2000);
