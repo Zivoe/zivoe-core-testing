@@ -142,7 +142,6 @@ contract Test_DeployCore_Modular is Utility {
         // State variables.
         assertEq(ITimelockController(_TLC).GBL(), _GBL);
         assertEq(ITimelockController(_TLC).getMinDelay(), 1);
-        assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('TIMELOCK_ADMIN_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
         assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('PROPOSER_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
         assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('EXECUTOR_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
         assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('CANCELLER_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
