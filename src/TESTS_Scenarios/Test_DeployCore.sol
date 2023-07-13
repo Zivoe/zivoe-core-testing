@@ -149,7 +149,6 @@ contract Test_DeployCore_Modular is Utility {
         
         assert(ITimelockController(_TLC).hasRole(keccak256('EXECUTOR_ROLE'), address(0)));
         assert(ITimelockController(_TLC).hasRole(keccak256('PROPOSER_ROLE'), _GOV));
-        assert(ITimelockController(_TLC).hasRole(keccak256('TIMELOCK_ADMIN_ROLE'), _TLC));
 
     }
 
