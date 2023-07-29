@@ -98,7 +98,7 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(IZivoeGovernor(_GOV).votingDelay(), 1);
-        assertEq(IZivoeGovernor(_GOV).votingPeriod(), 45818);
+        assertEq(IZivoeGovernor(_GOV).votingPeriod(), 3600);
         assertEq(IZivoeGovernor(_GOV).quorum(0), 0);
         assertEq(IZivoeGovernor(_GOV).proposalThreshold(), 125000 ether);
         assertEq(IZivoeGovernor(_GOV).name(), 'ZivoeGovernorV2');

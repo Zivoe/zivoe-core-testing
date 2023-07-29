@@ -613,6 +613,9 @@ contract Utility is DSTest, Test {
         // TLC.owner() MUST grant "PROPOSE_ROLE" to GOV for handling pass-through of proposals.
         TLC.grantRole(TLC.PROPOSER_ROLE(), address(GOV));
 
+        // TLC.owner() MUST grant "CANCELLER_ROLE" to ZVL for handling cancellation.
+        TLC.grantRole(TLC.CANCELLER_ROLE(), address(ZVL));
+
         // TLC.owner() MUST revoke role as "TIMELOCK_ADMIN_ROLE" after completing both grantRole() commands above.
         TLC.revokeRole(TLC.TIMELOCK_ADMIN_ROLE(), address(this));
 
