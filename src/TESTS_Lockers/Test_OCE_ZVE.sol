@@ -255,10 +255,10 @@ contract Test_OCE_ZVE is Utility {
 
     function test_OCE_ZVE_Live_updateExponentialDecayPerSecond_state(uint256 random) public {
         
-        hevm.assume(random >= RAY * 99999997 / 100000000);
+        hevm.assume(random >= RAY * 99999999 / 100000000);
 
         // Pre-state.
-        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999998 / 100000000);
+        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999999 / 100000000);
 
         assert(god.try_updateExponentialDecayPerSecond(address(OCE_ZVE_Live), random));
         
