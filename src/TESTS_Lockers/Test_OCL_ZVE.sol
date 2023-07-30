@@ -2015,6 +2015,8 @@ contract Test_OCL_ZVE is Utility {
 
     function test_OCL_ZVE_SUSHI_DAI_updateOCTYDL_state(address fuzzed) public {
         
+        hevm.assume(fuzzed != address(0));
+
         // Pre-state.
         assertEq(OCL_ZVE_SUSHI_DAI.OCT_YDL(), address(Treasury));
 

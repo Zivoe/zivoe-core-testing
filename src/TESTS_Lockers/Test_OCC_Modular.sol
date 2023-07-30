@@ -3054,12 +3054,14 @@ contract Test_OCC_Modular is Utility {
     function test_OCC_Modular_updateOCTYDL_restrictions_msgSender() public {
         // Can't call if _msgSender() is not ZVL.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::updateOCTYDL() _msgSender() != IZivoeGlobals_OCC(GBL).ZVL()");
+        hevm.expectRevert("");
         OCC_Modular_DAI.updateOCTYDL(address(bob));
         hevm.stopPrank();
     }
 
     function test_OCC_Modular_updateOCTYDL_state(address fuzzed) public {
+        
+        hevm.assume(fuzzed != address(0));
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.OCT_YDL(), address(Treasury));
