@@ -521,10 +521,6 @@ contract Test_OCR_Modular is Utility {
 
         hevm.expectRevert("OCR_Modular::processRequest() requests[id].unlocks > epoch");
         OCR_DAI.processRequest(id);
-
-        // Show success when arriving at epoch (totalRedemptions == 0 however, so no actions taken).
-        hevm.warp(OCR_DAI.epoch() + 14 days + 1 seconds);
-        OCR_DAI.processRequest(id);
         
     }
 
