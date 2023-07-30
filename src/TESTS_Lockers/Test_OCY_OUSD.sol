@@ -318,7 +318,8 @@ contract Test_OCY_OUSD is Utility {
         hevm.warp(block.timestamp + 14 days);
         uint snapshotC = IERC20(OUSD).balanceOf(address(OUSDLocker));
 
-        hevm.warp(block.timestamp + 14 days);
+        hevm.warp(block.timestamp + 30 days);
+        hevm.roll(block.number + 1);
         IVault(OUSD_VAULT).rebase();
 
         emit log_named_uint("OUSD snapshotA:", snapshotA);
