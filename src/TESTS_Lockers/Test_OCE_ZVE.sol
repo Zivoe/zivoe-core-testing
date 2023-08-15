@@ -174,8 +174,8 @@ contract Test_OCE_ZVE is Utility {
         uint256 amountDecayed = 0;
         uint256 i = 0;
 
-        uint256 interval = 1 days;
-        uint256 intervals = 360;
+        uint256 interval = 7 days;
+        uint256 intervals = 52;
 
         uint256[6] memory balanceData = [
             IERC20(address(ZVE)).balanceOf(address(stZVE)),
