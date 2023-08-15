@@ -98,7 +98,7 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(IZivoeGovernor(_GOV).votingDelay(), 1);
-        assertEq(IZivoeGovernor(_GOV).votingPeriod(), 45818);
+        assertEq(IZivoeGovernor(_GOV).votingPeriod(), 3600);
         assertEq(IZivoeGovernor(_GOV).quorum(0), 0);
         assertEq(IZivoeGovernor(_GOV).proposalThreshold(), 125000 ether);
         assertEq(IZivoeGovernor(_GOV).name(), 'ZivoeGovernorV2');
@@ -141,7 +141,7 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(ITimelockController(_TLC).GBL(), _GBL);
-        assertEq(ITimelockController(_TLC).getMinDelay(), 1);
+        assertEq(ITimelockController(_TLC).getMinDelay(), 12 hours);
         assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('TIMELOCK_ADMIN_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
         assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('PROPOSER_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
         assertEq(ITimelockController(_TLC).getRoleAdmin(keccak256('EXECUTOR_ROLE')), keccak256('TIMELOCK_ADMIN_ROLE'));
@@ -149,6 +149,7 @@ contract Test_DeployCore_Modular is Utility {
         
         assert(ITimelockController(_TLC).hasRole(keccak256('EXECUTOR_ROLE'), address(0)));
         assert(ITimelockController(_TLC).hasRole(keccak256('PROPOSER_ROLE'), _GOV));
+        assert(ITimelockController(_TLC).hasRole(keccak256('CANCELLER_ROLE'), address(zvl)));
 
     }
 

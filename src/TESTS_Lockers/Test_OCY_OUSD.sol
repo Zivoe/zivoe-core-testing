@@ -96,9 +96,7 @@ contract Test_OCY_OUSD is Utility {
 
         assertEq(OUSDLocker.OUSD(), 0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86);
         assertEq(OUSDLocker.GBL(), address(GBL));
-        assertEq(OUSDLocker.distributionLast(), block.timestamp);
         assertEq(OUSDLocker.basis(), 0);
-        assertEq(OUSDLocker.INTERVAL(), 14 days);
 
     }
 
@@ -295,34 +293,6 @@ contract Test_OCY_OUSD is Utility {
 
     // Validate forwardYield() state changes.
     // Validate forwardYield() restrictions.
-    // This includes:
-    //   - Must be past the INTERVAL
-
-    function test_OCY_OUSD_forwardYield_restrictions_interval(uint96 random) public {
-
-        uint256 randomIncrease = uint256(random) + 100_000 ether;
-
-        // NOTE: Must ensure rebase() is called in OUSDLocker.
-        OUSDLocker.rebase();
-        helper_getAndDepositOUSD();
-
-        // Simulate OUSD protocol generating yield and rebasing it's overall protocol token (OUSD).
-
-        hevm.warp(block.timestamp + 1 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), randomIncrease);
-        deal(FRAX, address(OUSD_VAULT), randomIncrease);
-        IVault(OUSD_VAULT).rebase();
-        hevm.warp(block.timestamp + 1 days);
-        emit log_named_uint("OUSD balance:", IERC20(OUSD).balanceOf(address(OUSDLocker)));
-        deal(DAI, address(OUSD_VAULT), randomIncrease);
-        deal(FRAX, address(OUSD_VAULT), randomIncrease);
-        IVault(OUSD_VAULT).rebase();
-
-        // Can't call if not past the INTERVAL
-        hevm.expectRevert("OCY_OUSD::forwardYield() block.timestamp <= distributionLast + INTERVAL");
-        OUSDLocker.forwardYield();
-    }
 
     function test_OCY_OUSD_forwardYield_state(uint96 random) public {
 
@@ -347,7 +317,8 @@ contract Test_OCY_OUSD is Utility {
         hevm.warp(block.timestamp + 14 days);
         uint snapshotC = IERC20(OUSD).balanceOf(address(OUSDLocker));
 
-        hevm.warp(block.timestamp + 14 days);
+        hevm.warp(block.timestamp + 30 days);
+        hevm.roll(block.number + 1);
         IVault(OUSD_VAULT).rebase();
 
         emit log_named_uint("OUSD snapshotA:", snapshotA);
@@ -368,7 +339,6 @@ contract Test_OCY_OUSD is Utility {
 
         // Post-state.
         assertEq(OUSDLocker.basis(), preBasis);
-        assertEq(OUSDLocker.distributionLast(), block.timestamp);
     }
 
     // Validate updateOCTYDL() state changes.

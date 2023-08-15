@@ -58,7 +58,7 @@ contract Test_OCE_ZVE is Utility {
         // State variables.
         assertEq(OCE_ZVE_Live.GBL(), address(GBL));
         assertEq(OCE_ZVE_Live.lastDistribution(), block.timestamp);
-        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999998 / 100000000);
+        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999999 / 100000000);
 
         uint256[3] memory _preDistribution;
         _preDistribution[0] = OCE_ZVE_Live.distributionRatioBIPS(0);
@@ -255,8 +255,10 @@ contract Test_OCE_ZVE is Utility {
 
     function test_OCE_ZVE_Live_updateExponentialDecayPerSecond_state(uint256 random) public {
         
+        hevm.assume(random >= RAY * 99999999 / 100000000);
+
         // Pre-state.
-        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999998 / 100000000);
+        assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999999 / 100000000);
 
         assert(god.try_updateExponentialDecayPerSecond(address(OCE_ZVE_Live), random));
         

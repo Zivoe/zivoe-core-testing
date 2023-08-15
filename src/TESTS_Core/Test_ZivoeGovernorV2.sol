@@ -163,7 +163,7 @@ contract Test_ZivoeGovernorV2 is Utility {
         GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
 
         // Warp past delay period for execute().
-        hevm.warp(block.timestamp + TLC.getMinDelay() - 6 hours - 1);
+        hevm.warp(block.timestamp + TLC.getMinDelay() - 12 hours - 1);
         hevm.roll(block.number + 1);
 
         // Assert "tia" can't call executeBatch() as non-keeper.
@@ -172,10 +172,10 @@ contract Test_ZivoeGovernorV2 is Utility {
         // Add keeper to whitelist
         assert(zvl.try_updateIsKeeper(address(GBL), address(tia), true));
 
-        // Assert "tia" can't call executeBatch() as keeper more than 6 hours in advance.
+        // Assert "tia" can't call executeBatch() as keeper more than 12 hours in advance.
         assert(!tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
 
-        // Tick past 6 hour threshold.
+        // Tick past 12 hour threshold.
         hevm.warp(block.timestamp + 1);
 
         // Assert "tia" can call executeBatch() as keeper.
@@ -231,7 +231,7 @@ contract Test_ZivoeGovernorV2 is Utility {
         GOV.queue(targets, values, calldatas, keccak256(bytes(description)));
 
         // Warp past delay period for execute(), right before non-keeper's can call.
-        hevm.warp(block.timestamp + TLC.getMinDelay() - 6 hours - 1);
+        hevm.warp(block.timestamp + TLC.getMinDelay() - 12 hours - 1);
         hevm.roll(block.number + 1);
 
         // Assert "tia" can't call executeBatch() as non-keeper.
@@ -240,10 +240,10 @@ contract Test_ZivoeGovernorV2 is Utility {
         // Add keeper to whitelist
         assert(zvl.try_updateIsKeeper(address(GBL), address(tia), true));
 
-        // Assert "tia" can't call executeBatch() as keeper more than 6 hours in advance.
+        // Assert "tia" can't call executeBatch() as keeper more than 12 hours in advance.
         assert(!tia.try_executeBatch(address(TLC), targets, values, calldatas, 0, keccak256(bytes(description))));
 
-        // Tick past 6 hour threshold.
+        // Tick past 12 hour threshold.
         hevm.warp(block.timestamp + 1);
 
         // Assert "tia" can call executeBatch() as keeper.

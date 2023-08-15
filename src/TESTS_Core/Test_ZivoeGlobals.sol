@@ -127,37 +127,6 @@ contract Test_ZivoeGlobals is Utility {
         }
 
     }
-
-
-    // Validate restrictions of transferZVL().
-    // This includes:
-    //  - _msgSender() MUST be "zvl"
-
-    function test_ZivoeGlobals_transferZVL_restrictions() public {
-        
-        hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeGlobals::onlyZVL() _msgSender() != ZVL");
-        GBL.transferZVL(address(this));
-        hevm.stopPrank();
-    }
-
-    // Validate state changes of transferZVL().
-
-    function test_ZivoeGlobals_transferZVL_state(address random) public {
-        
-        if (random == address(zvl)) { random = address(0); }
-        
-        // Pre-state.
-        assertEq(GBL.ZVL(), address(zvl));
-
-        // transferZVL()
-        hevm.expectEmit(true, false, false, false, address(GBL));
-        emit TransferredZVL(random);
-        assert(zvl.try_transferZVL(address(GBL), random));
-
-        // Post-state.
-        assertEq(GBL.ZVL(), random);
-    }
     
     // Validate restrictions updateIsKeeper() / updateIsLocker() / updateStablecoinWhitelist().
     // This includes:

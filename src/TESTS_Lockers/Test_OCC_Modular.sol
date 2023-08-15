@@ -3054,12 +3054,14 @@ contract Test_OCC_Modular is Utility {
     function test_OCC_Modular_updateOCTYDL_restrictions_msgSender() public {
         // Can't call if _msgSender() is not ZVL.
         hevm.startPrank(address(bob));
-        hevm.expectRevert("OCC_Modular::updateOCTYDL() _msgSender() != IZivoeGlobals_OCC(GBL).ZVL()");
+        hevm.expectRevert("");
         OCC_Modular_DAI.updateOCTYDL(address(bob));
         hevm.stopPrank();
     }
 
     function test_OCC_Modular_updateOCTYDL_state(address fuzzed) public {
+        
+        hevm.assume(fuzzed != address(0));
         
         // Pre-state.
         assertEq(OCC_Modular_DAI.OCT_YDL(), address(Treasury));
@@ -3362,7 +3364,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postInfo_2[0], preInfo_0[0] + preInfo_1[0]); // principalOwed
             assertEq(
                 postInfo_2[1], 
-                (preInfo_0[0] * preInfo_0[1] + preInfo_1[0] *  preInfo_1[1]) / (preInfo_0[0] + preInfo_1[0]) % 10000
+                (preInfo_0[0] * preInfo_0[1] + preInfo_1[0] *  preInfo_1[1]) / (preInfo_0[0] + preInfo_1[0])
             ); // APR
             assertEq(postInfo_2[2], postInfo_2[1]); // APRLateFee == APR
             assertEq(postInfo_2[3], block.timestamp - block.timestamp % 7 days + 9 days + postInfo_2[6]); // paymentDueBy
@@ -3457,7 +3459,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postInfo_3[0], preInfo_0[0] + preInfo_1[0] + preInfo_2[0]); // principalOwed
             assertEq(
                 postInfo_3[1], 
-                upper / lower % 10000
+                upper / lower
             ); // APR
             assertEq(postInfo_3[2], postInfo_3[1]); // APRLateFee == APR
             assertEq(postInfo_3[3], block.timestamp - block.timestamp % 7 days + 9 days + postInfo_3[6]); // paymentDueBy
@@ -3570,7 +3572,7 @@ contract Test_OCC_Modular is Utility {
             assertEq(postInfo_4[0], lower); // principalOwed
             assertEq(
                 postInfo_4[1], 
-                upper / lower % 10000
+                upper / lower
             ); // APR
             assertEq(postInfo_4[2], postInfo_4[1]); // APRLateFee == APR
             assertEq(postInfo_4[3], block.timestamp - block.timestamp % 7 days + 9 days + postInfo_4[6]); // paymentDueBy
