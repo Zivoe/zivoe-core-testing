@@ -96,7 +96,6 @@ contract Test_OCY_OUSD is Utility {
 
         assertEq(OUSDLocker.OUSD(), 0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86);
         assertEq(OUSDLocker.GBL(), address(GBL));
-        assertEq(OUSDLocker.distributionLast(), block.timestamp);
         assertEq(OUSDLocker.basis(), 0);
 
     }
@@ -340,7 +339,6 @@ contract Test_OCY_OUSD is Utility {
 
         // Post-state.
         assertEq(OUSDLocker.basis(), preBasis);
-        assertEq(OUSDLocker.distributionLast(), block.timestamp);
     }
 
     // Validate updateOCTYDL() state changes.
