@@ -263,6 +263,7 @@ contract Utility is DSTest, Test {
         mint("DAI", address(jim), amountJunior);
 
         // Warp to start of ITO.
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.start() + 1 seconds);
 
         // approve().
@@ -342,6 +343,7 @@ contract Utility is DSTest, Test {
         mint("USDT", address(jen), amount_USDT);
 
         // Warp to start of ITO.
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.start() + 1 seconds);
 
         // Approve ITO for stablecoins.
@@ -653,8 +655,6 @@ contract Utility is DSTest, Test {
         _stablesITO[3] = USDT;
 
         ITO = new ZivoeITO(
-            block.timestamp + 3 days,
-            block.timestamp + 33 days,
             address(GBL),
             _stablesITO
         );

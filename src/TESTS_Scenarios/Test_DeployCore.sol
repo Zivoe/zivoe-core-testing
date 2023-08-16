@@ -119,9 +119,6 @@ contract Test_DeployCore_Modular is Utility {
         // Note: No ownership for ZivoeITO.sol
         
         // State variables.
-        assertEq(IZivoeITO(_ITO).start(), block.timestamp + 3 days);
-        assertEq(IZivoeITO(_ITO).end(), block.timestamp + 33 days);
-
         assertEq(_ITO, address(ITO));
         assertEq(_ZVE, address(ZVE));
         

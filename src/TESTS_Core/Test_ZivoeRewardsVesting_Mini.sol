@@ -14,6 +14,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
     function test_ZivoeRewardsVesting_vest_restrictions_itoDepositSenior() public {
         
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.start() + 1 seconds);
 
         mint("DAI", address(sam), 100 ether);
@@ -29,6 +30,7 @@ contract Test_ZivoeRewardsVesting is Utility {
 
     function test_ZivoeRewardsVesting_vest_restrictions_itoDepositJunior() public {
         
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.start() + 1 seconds);
 
         mint("DAI", address(jim), 100 ether);

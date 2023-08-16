@@ -307,5 +307,10 @@ contract Admin {
         string memory sig = "updateDistributedAsset(address)";
         (ok,) = address(ydl).call(abi.encodeWithSignature(sig, asset));
     }
+
+    function try_commence(address ito) external returns (bool ok) {
+        string memory sig = "commence()";
+        (ok,) = address(ito).call(abi.encodeWithSignature(sig));
+    }
     
 }
