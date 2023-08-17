@@ -874,6 +874,8 @@ contract Test_OCL_ZVE is Utility {
                 amountB * 99 / 100 * (randomA % 100 + 1) / 100
             );
 
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_DAI.fetchBasis();
             assertGt(_preBasis, 0);
@@ -897,6 +899,8 @@ contract Test_OCL_ZVE is Utility {
                 amountB * 99 / 100 * (randomA % 100 + 1) / 100
             );
 
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_FRAX.fetchBasis();
             assertGt(_preBasis, 0);
@@ -919,6 +923,8 @@ contract Test_OCL_ZVE is Utility {
                 amountB * 99 / 100 * (randomA % 100 + 1) / 100
             );
 
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_USDC.fetchBasis();
             assertGt(_preBasis, 0);
@@ -940,6 +946,8 @@ contract Test_OCL_ZVE is Utility {
                 amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
                 amountB * 99 / 100 * (randomA % 100 + 1) / 100
             );
+
+            emit log_named_bytes('data', data);
 
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_USDT.fetchBasis();
