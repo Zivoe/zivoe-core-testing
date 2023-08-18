@@ -264,7 +264,7 @@ contract Utility is DSTest, Test {
 
         // Warp to start of ITO.
         zvl.try_commence(address(ITO));
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         // approve().
         assert(sam.try_approveToken(DAI, address(ITO), amountSenior));
@@ -344,7 +344,7 @@ contract Utility is DSTest, Test {
 
         // Warp to start of ITO.
         zvl.try_commence(address(ITO));
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         // Approve ITO for stablecoins.
         assert(sam.try_approveToken(DAI, address(ITO), amount_DAI));
@@ -824,7 +824,7 @@ contract Utility is DSTest, Test {
     function simulateDepositsCoreUtility(uint256 seniorDeposit, uint256 juniorDeposit) public {
 
         // Warp to ITO start unix.
-        hevm.warp(ITO.start());
+        hevm.warp(ITO.end() - 30 days);
 
         // ------------------------
         // "sam" => depositSenior()
