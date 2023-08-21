@@ -507,9 +507,9 @@ contract Test_OCL_ZVE is Utility {
         amounts[0] = 0;
         amounts[1] = 0;
 
-        // Can't push if assets[0] != pairAsset and assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE();
+        // Can't push if assets[0] != pairAsset and assets[1] != ZVE;
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCL_ZVE::pushToLockerMulti() assets[0] != pairAsset || assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE()");
+        hevm.expectRevert("OCL_ZVE::pushToLockerMulti() assets[0] != pairAsset || assets[1] != ZVE");
         DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
     }
@@ -524,9 +524,9 @@ contract Test_OCL_ZVE is Utility {
         amounts[0] = 100 * 10**6;
         amounts[1] = 100 * 10**6;
 
-        // Can't push if assets[0] != pairAsset and assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE();
+        // Can't push if assets[0] != pairAsset and assets[1] != ZVE;
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCL_ZVE::pushToLockerMulti() assets[0] != pairAsset || assets[1] != IZivoeGlobals_OCL_ZVE(GBL).ZVE()");
+        hevm.expectRevert("OCL_ZVE::pushToLockerMulti() assets[0] != pairAsset || assets[1] != ZVE");
         DAO.pushMulti(address(OCL_ZVE_SUSHI_DAI), assets, amounts, new bytes[](2));
         hevm.stopPrank();
     }
@@ -742,6 +742,8 @@ contract Test_OCL_ZVE is Utility {
         uint256 modularity = randomA % 4;
 
         pushToLockerInitial_Sushi(amountA, amountB, modularity);
+
+        bytes memory data = abi.encodePacked(amountA * 99 / 100, amountB * 99 / 100);
         
         if (modularity == 0) {
             
@@ -752,7 +754,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_DAI), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_DAI), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_DAI.fetchBasis();
@@ -768,7 +770,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_FRAX), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_FRAX), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_FRAX.fetchBasis();
@@ -783,7 +785,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_USDC), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_USDC), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_USDC.fetchBasis();
@@ -798,7 +800,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_USDT), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_SUSHI_USDT), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_USDT.fetchBasis();
@@ -861,19 +863,25 @@ contract Test_OCL_ZVE is Utility {
         uint256 modularity = randomA % 4;
 
         pushToLockerInitial_Sushi(amountA, amountB, modularity);
-        
 
         if (modularity == 0) {
             address pair = ISushiFactory(OCL_ZVE_SUSHI_DAI.factory()).getPair(DAI, address(ZVE));
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_DAI)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_DAI.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_DAI)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_DAI), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_DAI), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_DAI.fetchBasis();
@@ -886,12 +894,19 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_FRAX)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_FRAX.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_FRAX)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_FRAX), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_FRAX), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_FRAX.fetchBasis();
@@ -903,12 +918,19 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_USDC)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_USDC.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_USDC)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_USDC), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_USDC), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_USDC.fetchBasis();
@@ -920,12 +942,19 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_USDT)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
+            emit log_named_bytes('data', data);
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_SUSHI_USDT.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_SUSHI_USDT)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_USDT), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_SUSHI_USDT), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_SUSHI_USDT.fetchBasis();
@@ -1535,7 +1564,9 @@ contract Test_OCL_ZVE is Utility {
         uint256 modularity = randomA % 4;
 
         pushToLockerInitial_Uni(amountA, amountB, modularity);
-        
+
+        bytes memory data = abi.encodePacked(amountA * 99 / 100, amountB * 99 / 100);
+
         if (modularity == 0) {
             
             address pair = IUniswapV2Factory(OCL_ZVE_UNIV2_DAI.factory()).getPair(DAI, address(ZVE));
@@ -1545,7 +1576,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_DAI), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_DAI), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_DAI.fetchBasis();
@@ -1561,7 +1592,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_FRAX), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_FRAX), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
@@ -1576,7 +1607,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_USDC), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_USDC), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_USDC.fetchBasis();
@@ -1591,7 +1622,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(_preBasis, 0);
             assertGt(_preLPTokens, 0);
             
-            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_USDT), pair, ""));
+            assert(god.try_pull(address(DAO), address(OCL_ZVE_UNIV2_USDT), pair, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_USDT.fetchBasis();
@@ -1649,12 +1680,17 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_DAI)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_UNIV2_DAI.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_DAI)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_DAI), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_DAI), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_DAI.fetchBasis();
@@ -1667,12 +1703,17 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_FRAX)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_FRAX)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_FRAX), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_FRAX), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
@@ -1684,12 +1725,17 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_USDC)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_UNIV2_USDC.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_USDC)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_USDC), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_USDC), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_USDC.fetchBasis();
@@ -1701,12 +1747,17 @@ contract Test_OCL_ZVE is Utility {
 
             uint256 partialAmount = IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_USDT)) * (randomA % 100 + 1) / 100;
 
+            bytes memory data = abi.encodePacked(
+                amountA * 99 / 100 * (randomA % 100 + 1) / 100, 
+                amountB * 99 / 100 * (randomA % 100 + 1) / 100
+            );
+
             // Pre-state.
             (uint256 _preBasis, uint256 _preLPTokens) = OCL_ZVE_UNIV2_USDT.fetchBasis();
             assertGt(_preBasis, 0);
             assertEq(_preLPTokens, IERC20(pair).balanceOf(address(OCL_ZVE_UNIV2_USDT)));
             
-            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_USDT), pair, partialAmount, ""));
+            assert(god.try_pullPartial(address(DAO), address(OCL_ZVE_UNIV2_USDT), pair, partialAmount, data));
 
             // Post-state.
             (uint256 _postBasis, uint256 _postLPTokens) = OCL_ZVE_UNIV2_USDT.fetchBasis();

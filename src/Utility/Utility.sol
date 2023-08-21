@@ -263,7 +263,8 @@ contract Utility is DSTest, Test {
         mint("DAI", address(jim), amountJunior);
 
         // Warp to start of ITO.
-        hevm.warp(ITO.start() + 1 seconds);
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         // approve().
         assert(sam.try_approveToken(DAI, address(ITO), amountSenior));
@@ -342,7 +343,8 @@ contract Utility is DSTest, Test {
         mint("USDT", address(jen), amount_USDT);
 
         // Warp to start of ITO.
-        hevm.warp(ITO.start() + 1 seconds);
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         // Approve ITO for stablecoins.
         assert(sam.try_approveToken(DAI, address(ITO), amount_DAI));
@@ -653,8 +655,6 @@ contract Utility is DSTest, Test {
         _stablesITO[3] = USDT;
 
         ITO = new ZivoeITO(
-            block.timestamp + 3 days,
-            block.timestamp + 33 days,
             address(GBL),
             _stablesITO
         );
@@ -824,7 +824,7 @@ contract Utility is DSTest, Test {
     function simulateDepositsCoreUtility(uint256 seniorDeposit, uint256 juniorDeposit) public {
 
         // Warp to ITO start unix.
-        hevm.warp(ITO.start());
+        hevm.warp(ITO.end() - 30 days);
 
         // ------------------------
         // "sam" => depositSenior()

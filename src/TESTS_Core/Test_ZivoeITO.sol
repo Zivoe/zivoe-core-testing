@@ -30,7 +30,7 @@ contract Test_ZivoeITO is Utility {
         }
         else { revert(); }
 
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(jim.try_approveToken(asset, address(ITO), amount));
         assert(jim.try_depositJunior(address(ITO), amount, asset));
@@ -54,7 +54,7 @@ contract Test_ZivoeITO is Utility {
         }
         else { revert(); }
 
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(sam.try_approveToken(asset, address(ITO), amount));
         assert(sam.try_depositSenior(address(ITO), amount, asset));
@@ -78,7 +78,7 @@ contract Test_ZivoeITO is Utility {
         }
         else { revert(); }
 
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(jim.try_approveToken(asset, address(ITO), amountJunior + amountSenior));
         assert(jim.try_depositJunior(address(ITO), amountJunior, asset));
@@ -102,56 +102,6 @@ contract Test_ZivoeITO is Utility {
     //    Unit Tests
     // ----------------
 
-    // Ensure ZivoeITO.sol constructor() does not permit _start >= _end (input params).
-
-    function testFail_ZivoeITO_constructor_0() public {
-
-        address[] memory _stables = new address[](4);
-        _stables[0] = DAI;
-        _stables[1] = FRAX;
-        _stables[2] = USDC;
-        _stables[3] = USDT;
-
-        ITO = new ZivoeITO(
-            block.timestamp + 5001 seconds,
-            block.timestamp + 5000 seconds,
-            address(GBL),
-            _stables
-        );
-    }
-
-    function testFail_ZivoeITO_constructor_1() public {
-
-        address[] memory _stables = new address[](4);
-        _stables[0] = DAI;
-        _stables[1] = FRAX;
-        _stables[2] = USDC;
-        _stables[3] = USDT;
-
-        ITO = new ZivoeITO(
-            block.timestamp + 5000 seconds,
-            block.timestamp + 5000 seconds,
-            address(GBL),
-            _stables
-        );
-    }
-
-    function test_ZivoeITO_constructor_2() public {
-
-        address[] memory _stables = new address[](4);
-        _stables[0] = DAI;
-        _stables[1] = FRAX;
-        _stables[2] = USDC;
-        _stables[3] = USDT;
-
-        ITO = new ZivoeITO(
-            block.timestamp + 4999 seconds,
-            block.timestamp + 5000 seconds,
-            address(GBL),
-            _stables
-        );
-    }
-
     // Validate depositJunior() and depositSenior() restrictions.
     // For both functions, this includes:
     //   - Restricting deposits until the ITO starts.
@@ -168,14 +118,16 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
         assert(bob.try_approveToken(WETH, address(ITO), 100 ether));
 
-        // Should throw with: "ZivoeITO::depositJunior() block.timestamp < start"
+        // Should throw with: "ZivoeITO::depositJunior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp < start");
+        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end"");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
     }
 
     function test_ZivoeITO_depositJunior_restrictions_ended() public {
+
+        zvl.try_commence(address(ITO));
 
         // Mint 100 DAI and 100 WETH for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
@@ -195,10 +147,12 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_restrictions_migrated(uint96 amountIn_A, uint96 amountIn_B) public {
 
+        zvl.try_commence(address(ITO));
+
         uint256 amount_A = uint256(amountIn_A) + 1;
         uint256 amount_B = uint256(amountIn_B) + 1;
 
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositSenior(FRAX, amount_A);
         depositSenior(DAI, amount_A);
@@ -227,6 +181,8 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_restrictions_notWhitelisted() public {
 
+        zvl.try_commence(address(ITO));
+
         // Mint 100 DAI and 100 WETH for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
         mint("WETH", address(bob), 100 ether);
@@ -234,7 +190,7 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(WETH, address(ITO), 100 ether));
 
         // Warp in time to middle-point of ITO.
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         // Should throw with: "ZivoeITO::depositJunior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
@@ -245,6 +201,8 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_restrictions_vestingSchedule() public {
 
+        zvl.try_commence(address(ITO));
+
         // Mint 100 DAI for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
@@ -254,7 +212,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositJunior() ~ has vesting schedule ~"
         hevm.startPrank(address(bob));
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
         hevm.expectRevert("ZivoeITO::depositJunior() ITO_IZivoeRewardsVesting(vestZVE).vestingScheduleSet(_msgSender())");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
@@ -268,15 +226,17 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
         assert(bob.try_approveToken(WETH, address(ITO), 100 ether));
 
-        // Should throw with: "ZivoeITO::depositSenior() block.timestamp < start"
+        // Should throw with: "ZivoeITO::depositSenior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp < start");
+        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp >= end"");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }
 
     function test_ZivoeITO_depositSenior_restrictions_ended() public {
 
+        zvl.try_commence(address(ITO));
+        
         // Mint 100 DAI and 100 WETH for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
         mint("WETH", address(bob), 100 ether);
@@ -295,10 +255,12 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_restrictions_migrated(uint96 amountIn_A, uint96 amountIn_B) public {
 
+        zvl.try_commence(address(ITO));
+
         uint256 amount_A = uint256(amountIn_A) + 1;
         uint256 amount_B = uint256(amountIn_B) + 1;
 
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositSenior(FRAX, amount_A);
         depositSenior(DAI, amount_A);
@@ -327,6 +289,8 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_restrictions_notWhitelisted() public {
 
+        zvl.try_commence(address(ITO));
+
         // Mint 100 DAI and 100 WETH for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
         mint("WETH", address(bob), 100 ether);
@@ -334,7 +298,7 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(WETH, address(ITO), 100 ether));
 
         // Warp in time to middle-point of ITO.
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         // Should throw with: "ZivoeITO::depositSenior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
@@ -345,6 +309,8 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_restrictions_vestingSchedule() public {
 
+        zvl.try_commence(address(ITO));
+
         // Mint 100 DAI for "bob", approve ITO contract.
         mint("DAI", address(bob), 100 ether);
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
@@ -354,7 +320,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositSenior() ~ has vesting schedule ~"
         hevm.startPrank(address(bob));
-        hevm.warp(ITO.start() + 1 seconds);
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
         hevm.expectRevert("ZivoeITO::depositSenior() ITO_IZivoeRewardsVesting(vestZVE).vestingScheduleSet(_msgSender())");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
@@ -366,6 +332,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_DAI_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
         
         // Pre-state DAI deposit.
@@ -391,6 +360,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_FRAX_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state FRAX deposit.
@@ -414,6 +386,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_USDC_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state USDC deposit.
@@ -437,6 +412,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_USDT_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state USDT deposit.
@@ -460,6 +438,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_DAI_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state DAI deposit.
@@ -484,6 +465,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_FRAX_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state FRAX deposit.
@@ -508,6 +492,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_USDC_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state USDC deposit.
@@ -532,6 +519,9 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositSenior_USDT_state(uint160 amountIn) public {
         
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         uint256 amount = uint256(amountIn);
 
         // Pre-state USDT deposit.
@@ -564,6 +554,7 @@ contract Test_ZivoeITO is Utility {
     function test_ZivoeITO_claimAirdrop_restrictions_notEnded() public {
 
         // Warp to the end unix.
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.end());
 
         // Can't call claim() until block.timestamp > end.
@@ -579,6 +570,7 @@ contract Test_ZivoeITO is Utility {
         uint256 amount = uint256(amountIn) + 1;
 
         // Warp to the end unix.
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.end());
 
         // "sam" will depositSenior() ...
@@ -598,7 +590,9 @@ contract Test_ZivoeITO is Utility {
     }
 
     function test_ZivoeITO_claimAirdrop_restrictions_zeroCredits() public {
+
         // Warp to end.
+        zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() + 1);
 
         // Can't call claimAirdrop() if seniorCredits == 0 && juniorCredits == 0.
@@ -614,6 +608,9 @@ contract Test_ZivoeITO is Utility {
     function test_ZivoeITO_claimAirdrop_state_single_senior_DAI(uint96 amountIn_senior) public {
 
         uint256 amount_senior = uint256(amountIn_senior) + 1;
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositSenior(DAI, amount_senior);
 
@@ -661,6 +658,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount_senior = uint256(amountIn_senior) + 1;
 
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         depositSenior(FRAX, amount_senior);
 
         // Warp to end of ITO.
@@ -706,6 +706,9 @@ contract Test_ZivoeITO is Utility {
     function test_ZivoeITO_claimAirdrop_state_single_senior_USDC(uint96 amountIn_senior) public {
 
         uint256 amount_senior = uint256(amountIn_senior) + 1;
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositSenior(USDC, amount_senior);
 
@@ -753,6 +756,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount_senior = uint256(amountIn_senior) + 1;
 
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         depositSenior(USDT, amount_senior);
 
         // Warp to end of ITO.
@@ -798,6 +804,9 @@ contract Test_ZivoeITO is Utility {
     function test_ZivoeITO_claimAirdrop_state_single_junior_DAI(uint96 amountIn_junior) public {
 
         uint256 amount_junior = uint256(amountIn_junior) + 1;
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositJunior(DAI, amount_junior);
 
@@ -851,6 +860,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount_junior = uint256(amountIn_junior) + 1;
 
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         depositJunior(FRAX, amount_junior);
 
         // Warp to end of ITO.
@@ -894,6 +906,9 @@ contract Test_ZivoeITO is Utility {
     function test_ZivoeITO_claimAirdrop_state_single_junior_USDC(uint96 amountIn_junior) public {
 
         uint256 amount_junior = uint256(amountIn_junior) + 1;
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositJunior(USDC, amount_junior);
 
@@ -939,6 +954,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount_junior = uint256(amountIn_junior) + 1;
 
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         depositJunior(USDT, amount_junior);
 
         // Warp to end of ITO.
@@ -983,6 +1001,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount_junior = uint256(amountIn_junior) + 1;
         uint256 amount_senior = uint256(amountIn_senior) + 1;
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositBoth(DAI, amount_junior, amount_senior);
 
@@ -1055,6 +1076,9 @@ contract Test_ZivoeITO is Utility {
         uint256 amount_junior = uint256(amountIn_junior) + 1;
         uint256 amount_senior = uint256(amountIn_senior) + 1;
 
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         depositBoth(FRAX, amount_junior, amount_senior);
 
         // Warp to end of ITO.
@@ -1118,6 +1142,9 @@ contract Test_ZivoeITO is Utility {
         uint256 amount_junior = uint256(amountIn_junior) + 1;
         uint256 amount_senior = uint256(amountIn_senior) + 1;
 
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
         depositBoth(USDC, amount_junior, amount_senior);
 
         // Warp to end of ITO.
@@ -1180,6 +1207,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount_junior = uint256(amountIn_junior) + 1;
         uint256 amount_senior = uint256(amountIn_senior) + 1;
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositBoth(USDT, amount_junior, amount_senior);
 
@@ -1249,7 +1279,8 @@ contract Test_ZivoeITO is Utility {
         uint256 amount_A = uint256(amountIn_A) + 1;
         uint256 amount_B = uint256(amountIn_B) + 1;
 
-        hevm.warp(ITO.start() + 1 seconds);
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositSenior(FRAX, amount_A);
         depositSenior(DAI, amount_A);
@@ -1272,7 +1303,8 @@ contract Test_ZivoeITO is Utility {
         uint256 amount_A = uint256(amountIn_A) + 1;
         uint256 amount_B = uint256(amountIn_B) + 1;
 
-        hevm.warp(ITO.start() + 1 seconds);
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositSenior(FRAX, amount_A);
         depositSenior(DAI, amount_A);
@@ -1302,7 +1334,8 @@ contract Test_ZivoeITO is Utility {
         uint256 amount_A = uint256(amountIn_A) + 1;
         uint256 amount_B = uint256(amountIn_B) + 1;
 
-        hevm.warp(ITO.start() + 1 seconds);
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         depositBoth(DAI, amount_A, amount_B);
         depositBoth(FRAX, amount_A, amount_B);
