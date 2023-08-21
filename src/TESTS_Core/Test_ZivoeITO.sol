@@ -118,9 +118,9 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
         assert(bob.try_approveToken(WETH, address(ITO), 100 ether));
 
-        // Should throw with: "ZivoeITO::depositJunior() end == 0"
+        // Should throw with: "ZivoeITO::depositJunior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() end == 0");
+        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end"");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
     }
@@ -226,9 +226,9 @@ contract Test_ZivoeITO is Utility {
         assert(bob.try_approveToken(DAI, address(ITO), 100 ether));
         assert(bob.try_approveToken(WETH, address(ITO), 100 ether));
 
-        // Should throw with: "ZivoeITO::depositSenior() end == 0"
+        // Should throw with: "ZivoeITO::depositSenior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() end == 0");
+        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp >= end"");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }
