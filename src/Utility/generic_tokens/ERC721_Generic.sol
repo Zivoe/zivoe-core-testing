@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
 import "lib/zivoe-core-foundry/lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";

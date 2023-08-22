@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
 import "../../lib/zivoe-core-foundry/src/lockers/OCG/OCG_ERC20.sol";
