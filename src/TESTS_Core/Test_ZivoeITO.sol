@@ -120,7 +120,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositJunior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end"");
+        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
     }
@@ -228,7 +228,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositSenior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp >= end"");
+        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp >= end");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }
