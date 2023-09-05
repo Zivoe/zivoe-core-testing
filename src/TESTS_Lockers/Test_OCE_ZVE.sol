@@ -168,75 +168,75 @@ contract Test_OCE_ZVE is Utility {
 
     function test_OCE_ZVE_Live_forwardEmissions_state(uint256 random) public {
         
-        // uint256[3] memory settings = assignRandomDistributionRatio(random);
+        uint256[3] memory settings = assignRandomDistributionRatio(random);
 
-        // uint256 amountDecaying = IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live));
-        // uint256 amountDecayed = 0;
-        // uint256 i = 0;
+        uint256 amountDecaying = IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live));
+        uint256 amountDecayed = 0;
+        uint256 i = 0;
 
-        // uint256 interval = 7 days;
-        // uint256 intervals = 52;
+        uint256 interval = 7 days;
+        uint256 intervals = 52;
 
-        // uint256[6] memory balanceData = [
-        //     IERC20(address(ZVE)).balanceOf(address(stZVE)),
-        //     IERC20(address(ZVE)).balanceOf(address(stZVE)),
-        //     IERC20(address(ZVE)).balanceOf(address(stJTT)),
-        //     IERC20(address(ZVE)).balanceOf(address(stJTT)),
-        //     IERC20(address(ZVE)).balanceOf(address(stSTT)),
-        //     IERC20(address(ZVE)).balanceOf(address(stSTT))
-        // ];
+        uint256[6] memory balanceData = [
+            IERC20(address(ZVE)).balanceOf(address(stZVE)),
+            IERC20(address(ZVE)).balanceOf(address(stZVE)),
+            IERC20(address(ZVE)).balanceOf(address(stJTT)),
+            IERC20(address(ZVE)).balanceOf(address(stJTT)),
+            IERC20(address(ZVE)).balanceOf(address(stSTT)),
+            IERC20(address(ZVE)).balanceOf(address(stSTT))
+        ];
 
-        // while (i < intervals) {
+        while (i < intervals) {
 
-        //     // Warp forward 1 interval.
-        //     hevm.warp(block.timestamp + interval);
+            // Warp forward 1 interval.
+            hevm.warp(block.timestamp + interval);
 
-        //     // Pre-state.
-        //     assertEq(OCE_ZVE_Live.lastDistribution(), block.timestamp - interval);
-        //     assertEq(IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live)), amountDecaying);
-        //     balanceData[0] = IERC20(address(ZVE)).balanceOf(address(stZVE));
-        //     balanceData[2] = IERC20(address(ZVE)).balanceOf(address(stSTT));
-        //     balanceData[4] = IERC20(address(ZVE)).balanceOf(address(stJTT));
+            // Pre-state.
+            assertEq(OCE_ZVE_Live.lastDistribution(), block.timestamp - interval);
+            assertEq(IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live)), amountDecaying);
+            balanceData[0] = IERC20(address(ZVE)).balanceOf(address(stZVE));
+            balanceData[2] = IERC20(address(ZVE)).balanceOf(address(stSTT));
+            balanceData[4] = IERC20(address(ZVE)).balanceOf(address(stJTT));
 
-        //     amountDecayed = amountDecaying - OCE_ZVE_Live.decay(amountDecaying, interval);
+            amountDecayed = amountDecaying - OCE_ZVE_Live.decay(amountDecaying, interval);
 
-        //     OCE_ZVE_Live.forwardEmissions();
+            OCE_ZVE_Live.forwardEmissions();
 
-        //     // Post-state.
-        //     assertEq(ZVE.allowance(address(OCE_ZVE_Live), address(stZVE)), 0);
-        //     assertEq(ZVE.allowance(address(OCE_ZVE_Live), address(stSTT)), 0);
-        //     assertEq(ZVE.allowance(address(OCE_ZVE_Live), address(stJTT)), 0);
+            // Post-state.
+            assertEq(ZVE.allowance(address(OCE_ZVE_Live), address(stZVE)), 0);
+            assertEq(ZVE.allowance(address(OCE_ZVE_Live), address(stSTT)), 0);
+            assertEq(ZVE.allowance(address(OCE_ZVE_Live), address(stJTT)), 0);
 
-        //     balanceData[1] = IERC20(address(ZVE)).balanceOf(address(stZVE));
-        //     balanceData[3] = IERC20(address(ZVE)).balanceOf(address(stSTT));
-        //     balanceData[5] = IERC20(address(ZVE)).balanceOf(address(stJTT));
+            balanceData[1] = IERC20(address(ZVE)).balanceOf(address(stZVE));
+            balanceData[3] = IERC20(address(ZVE)).balanceOf(address(stSTT));
+            balanceData[5] = IERC20(address(ZVE)).balanceOf(address(stJTT));
 
-        //     assertEq(OCE_ZVE_Live.lastDistribution(), block.timestamp);
-        //     withinDiff(
-        //         IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live)), 
-        //         OCE_ZVE_Live.decay(amountDecaying, interval),
-        //         3
-        //     );
-        //     withinDiff(
-        //         balanceData[1] - balanceData[0],
-        //         amountDecayed * settings[0] / 10000,
-        //         3
-        //     );
-        //     withinDiff(
-        //         balanceData[3] - balanceData[2],
-        //         amountDecayed * settings[1] / 10000,
-        //         3
-        //     );
-        //     withinDiff(
-        //         balanceData[5] - balanceData[4],
-        //         amountDecayed * settings[2] / 10000,
-        //         3
-        //     );
+            assertEq(OCE_ZVE_Live.lastDistribution(), block.timestamp);
+            withinDiff(
+                IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live)), 
+                OCE_ZVE_Live.decay(amountDecaying, interval),
+                3
+            );
+            withinDiff(
+                balanceData[1] - balanceData[0],
+                amountDecayed * settings[0] / 10000,
+                3
+            );
+            withinDiff(
+                balanceData[3] - balanceData[2],
+                amountDecayed * settings[1] / 10000,
+                3
+            );
+            withinDiff(
+                balanceData[5] - balanceData[4],
+                amountDecayed * settings[2] / 10000,
+                3
+            );
 
-        //     amountDecaying = IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live));
+            amountDecaying = IERC20(address(ZVE)).balanceOf(address(OCE_ZVE_Live));
 
-        //     i++;
-        // }
+            i++;
+        }
 
     }
     
@@ -271,53 +271,53 @@ contract Test_OCE_ZVE is Utility {
 
     function test_OCE_ZVE_Live_amountDistributable_null(uint96 random) public {
 
-        // uint256 amount = uint256(random);
+        uint256 amount = uint256(random);
 
-        // // This should indicate that if 0 seconds have passed, i.e. a contract
-        // // is atomically calling functions, there will be no decay, such that
-        // // the full value supplied is returned.
-        // assertEq(OCE_ZVE_Live.decay(amount, 0), amount);
+        // This should indicate that if 0 seconds have passed, i.e. a contract
+        // is atomically calling functions, there will be no decay, such that
+        // the full value supplied is returned.
+        assertEq(OCE_ZVE_Live.decay(amount, 0), amount);
     }
 
     function test_OCE_ZVE_Live_amountDistributable_schedule_hourlyEmissions() public {
 
-        // uint256 amountDecaying = 100000 ether;
-        // uint256 amountDecayed = 0;
-        // uint256 i = 0;
+        uint256 amountDecaying = 100000 ether;
+        uint256 amountDecayed = 0;
+        uint256 i = 0;
 
-        // uint256 interval = 1 hours;
-        // uint256 intervals = 360 * 24;
+        uint256 interval = 1 hours;
+        uint256 intervals = 360 * 24;
 
-        // while (i < intervals) {
-        //     amountDecayed = amountDecaying - OCE_ZVE_Live.decay(amountDecaying, interval);
-        //     amountDecaying = OCE_ZVE_Live.decay(amountDecaying, interval);
-        //     emit Debug('a', amountDecaying);
-        //     emit Debug('a', amountDecayed);
-        //     i++;
-        // }
+        while (i < intervals) {
+            amountDecayed = amountDecaying - OCE_ZVE_Live.decay(amountDecaying, interval);
+            amountDecaying = OCE_ZVE_Live.decay(amountDecaying, interval);
+            emit Debug('a', amountDecaying);
+            emit Debug('a', amountDecayed);
+            i++;
+        }
 
-        // // After 360 days ... 53682667269999381549237 remains (53.68k $ZVE).
+        // After 360 days ... 53682667269999381549237 remains (53.68k $ZVE).
 
     }
 
     function test_OCE_ZVE_Live_amountDistributable_schedule_dailyEmissions() public {
 
-        // uint256 amountDecaying = 100000 ether;
-        // uint256 amountDecayed = 0;
-        // uint256 i = 0;
+        uint256 amountDecaying = 100000 ether;
+        uint256 amountDecayed = 0;
+        uint256 i = 0;
 
-        // uint256 interval = 1 days;
-        // uint256 intervals = 360;
+        uint256 interval = 1 days;
+        uint256 intervals = 360;
 
-        // while (i < intervals) {
-        //     amountDecayed = amountDecaying - OCE_ZVE_Live.decay(amountDecaying, interval);
-        //     amountDecaying = OCE_ZVE_Live.decay(amountDecaying, interval);
-        //     emit Debug('a', amountDecaying);
-        //     emit Debug('a', amountDecayed);
-        //     i++;
-        // }
+        while (i < intervals) {
+            amountDecayed = amountDecaying - OCE_ZVE_Live.decay(amountDecaying, interval);
+            amountDecaying = OCE_ZVE_Live.decay(amountDecaying, interval);
+            emit Debug('a', amountDecaying);
+            emit Debug('a', amountDecayed);
+            i++;
+        }
 
-        // // After 360 days ... 53682667269999381552324 (53.68k $ZVE)
+        // After 360 days ... 53682667269999381552324 (53.68k $ZVE)
 
     }
 

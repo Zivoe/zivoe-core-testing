@@ -29,59 +29,59 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
     }
 
     function test_ZivoeMath_seniorProportionShortfall_static() public {
-        // // State 0
-        // uint256 seniorRate = MATH.seniorProportionShortfall(
-        //     eSTT,
-        //     eJTT,
-        //     YDL.targetRatioBIPS()
-        // );
+        // State 0
+        uint256 seniorRate = MATH.seniorProportionShortfall(
+            eSTT,
+            eJTT,
+            YDL.targetRatioBIPS()
+        );
 
-        // withinDiff(seniorRate, 754716981 ether, 100 ether);
-        // emit log_named_uint("seniorRate", seniorRate);
+        withinDiff(seniorRate, 754716981 ether, 100 ether);
+        emit log_named_uint("seniorRate", seniorRate);
 
-        // // state 1
-        // uint256 seniorRate1 = MATH.seniorProportionShortfall(
-        //     (eSTT * 10) / 100,
-        //     eJTT,
-        //     YDL.targetRatioBIPS()
-        // );
+        // state 1
+        uint256 seniorRate1 = MATH.seniorProportionShortfall(
+            (eSTT * 10) / 100,
+            eJTT,
+            YDL.targetRatioBIPS()
+        );
 
-        // assert (seniorRate1 < seniorRate);
-        // withinDiff(seniorRate1, 235294117 ether, 100 ether);
-        // emit log_named_uint("seniorRate1", seniorRate1);
+        assert (seniorRate1 < seniorRate);
+        withinDiff(seniorRate1, 235294117 ether, 100 ether);
+        emit log_named_uint("seniorRate1", seniorRate1);
 
-        // // state 2
-        // uint256 seniorRate2 = MATH.seniorProportionShortfall(
-        //     eSTT,
-        //     (eJTT * 10) / 100,
-        //     YDL.targetRatioBIPS()
-        // );
+        // state 2
+        uint256 seniorRate2 = MATH.seniorProportionShortfall(
+            eSTT,
+            (eJTT * 10) / 100,
+            YDL.targetRatioBIPS()
+        );
 
-        // assert (seniorRate2 > seniorRate);
-        // withinDiff(seniorRate2, 968523002 ether, 100 ether);
-        // emit log_named_uint("seniorRate2", seniorRate2);
+        assert (seniorRate2 > seniorRate);
+        withinDiff(seniorRate2, 968523002 ether, 100 ether);
+        emit log_named_uint("seniorRate2", seniorRate2);
 
-        // // state 3
-        // uint256 seniorRate3 = MATH.seniorProportionShortfall(
-        //     eSTT,
-        //     eJTT,
-        //     5000
-        // );
+        // state 3
+        uint256 seniorRate3 = MATH.seniorProportionShortfall(
+            eSTT,
+            eJTT,
+            5000
+        );
 
-        // assert (seniorRate3 > seniorRate);
-        // withinDiff(seniorRate3, 909090909 ether, 100 ether);
-        // emit log_named_uint("seniorRate3", seniorRate3);
+        assert (seniorRate3 > seniorRate);
+        withinDiff(seniorRate3, 909090909 ether, 100 ether);
+        emit log_named_uint("seniorRate3", seniorRate3);
 
-        // // state 4
-        // uint256 seniorRate4 = MATH.seniorProportionShortfall(
-        //     eSTT,
-        //     eJTT,
-        //     100000
-        // );
+        // state 4
+        uint256 seniorRate4 = MATH.seniorProportionShortfall(
+            eSTT,
+            eJTT,
+            100000
+        );
 
-        // assert (seniorRate4 < seniorRate);
-        // withinDiff(seniorRate4, 333333333 ether, 100 ether);
-        // emit log_named_uint("seniorRate4", seniorRate4);
+        assert (seniorRate4 < seniorRate);
+        withinDiff(seniorRate4, 333333333 ether, 100 ether);
+        emit log_named_uint("seniorRate4", seniorRate4);
 
     }
 
@@ -90,16 +90,16 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
         uint96 eJTT,
         uint32 targetRatioBIPS
     ) public {
-        // hevm.assume(eSTT > 1 ether);
-        // hevm.assume(targetRatioBIPS > 0);
+        hevm.assume(eSTT > 1 ether);
+        hevm.assume(targetRatioBIPS > 0);
 
-        // uint256 seniorRate = MATH.seniorProportionShortfall(
-        //     uint256(eSTT),
-        //     uint256(eJTT),
-        //     uint256(targetRatioBIPS)
-        // );
+        uint256 seniorRate = MATH.seniorProportionShortfall(
+            uint256(eSTT),
+            uint256(eJTT),
+            uint256(targetRatioBIPS)
+        );
 
-        // assert(seniorRate > 0 && seniorRate <= RAY);
+        assert(seniorRate > 0 && seniorRate <= RAY);
     }
 
 }

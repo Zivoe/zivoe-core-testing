@@ -302,7 +302,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeTrancheToken(_zJTT).owner(), address(0));
 
         // State variables.
-        assertEq(IZivoeTrancheToken(_zJTT).name(), "ZivoeJuniorTrancheToken");
+        assertEq(IZivoeTrancheToken(_zJTT).name(), "Zivoe Junior Tranche");
         assertEq(IZivoeTrancheToken(_zJTT).symbol(), "zJTT");
         assertEq(IZivoeTrancheToken(_zJTT).decimals(), 18);
         assertEq(IZivoeTrancheToken(_zJTT).totalSupply(), 0);
@@ -322,7 +322,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeTrancheToken(_zSTT).owner(), address(0));
 
         // State variables.
-        assertEq(IZivoeTrancheToken(_zSTT).name(), "ZivoeSeniorTrancheToken");
+        assertEq(IZivoeTrancheToken(_zSTT).name(), "Zivoe Senior Tranche");
         assertEq(IZivoeTrancheToken(_zSTT).symbol(), "zSTT");
         assertEq(IZivoeTrancheToken(_zSTT).decimals(), 18);
         assertEq(IZivoeTrancheToken(_zSTT).totalSupply(), 0);

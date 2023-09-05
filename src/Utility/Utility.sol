@@ -636,12 +636,12 @@ contract Utility is DSTest, Test {
         // Step #5 --- Deploy Senior/Junior tranche token, through ZivoeTrancheToken.sol.
 
         zSTT = new ZivoeTrancheToken(
-            "ZivoeSeniorTrancheToken",
+            "Zivoe Senior Tranche",
             "zSTT"
         );
 
         zJTT = new ZivoeTrancheToken(
-            "ZivoeJuniorTrancheToken",
+            "Zivoe Junior Tranche",
             "zJTT"
         );
 
