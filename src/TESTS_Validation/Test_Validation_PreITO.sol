@@ -49,6 +49,9 @@ contract Test_Validation_PreITO is Utility {
         }
     */
 
+    // Flags.
+    bool MAINNET = false;
+
     // Goerli stablecoins.
     address gDAI = 0x48C8F62Ccd07Fd876a4e08b520B154a6f1Bbe02F;
     address gFRAX = 0x721d91B3C03663aD72431D9D2c32Efc4Fe75AA9F;
@@ -60,6 +63,19 @@ contract Test_Validation_PreITO is Utility {
     address gCANCEL = 0x6050dE8AAb0f657c7164fa9a751e839FC64aeF5C;
     address gLENDER = 0xce7a64C508bdB47Df1846D1cD4334f865E80b87b;
     address gBORROW = 0xF067D8197BEA22f06662BCb61b231Cd4EEF3F256;
+
+    // Holders.
+    OCC_Modular OCC_DAI;
+    OCC_Modular OCC_FRAX;
+    OCC_Modular OCC_USDC;
+    OCC_Modular OCC_USDT;
+
+    OCE_ZVE OCE;
+    OCL_ZVE OCL;
+    OCR_Modular OCR;
+    OCT_DAO daoOCT;
+    OCT_YDL ydlOCT;
+    OCT_ZVL zvlOCT;
 
     function setUp() public {
         
@@ -83,17 +99,17 @@ contract Test_Validation_PreITO is Utility {
         vestZVE = ZivoeRewardsVesting(0x295816643023e443f0806d75b0B2236051011eDb);
 
         // Lockers
-        OCC_Modular OCC_DAI = OCC_Modular(0xc8Bb3B6Fb84F2FcfC13C8d95C5Ffb476945eb195);
-        OCC_Modular OCC_FRAX = OCC_Modular(0x11CCd86071479457d9E5aA15bDA6b942fD6A0454);
-        OCC_Modular OCC_USDC = OCC_Modular(0xB71222A73D09556f4C86661b3a3d087bBD6A3db2);
-        OCC_Modular OCC_USDT = OCC_Modular(0xfAD0Ba085410412ED58829DA13e32DAD66da898a);
+        OCC_DAI = OCC_Modular(0xc8Bb3B6Fb84F2FcfC13C8d95C5Ffb476945eb195);
+        OCC_FRAX = OCC_Modular(0x11CCd86071479457d9E5aA15bDA6b942fD6A0454);
+        OCC_USDC = OCC_Modular(0xB71222A73D09556f4C86661b3a3d087bBD6A3db2);
+        OCC_USDT = OCC_Modular(0xfAD0Ba085410412ED58829DA13e32DAD66da898a);
 
-        OCE_ZVE OCE = OCE_ZVE(0x8c96FbF9f3c39c9b96B13E54BB84AB9951592644);
-        OCL_ZVE OCL = OCL_ZVE(0xCbC19FA27FfA8D39832481e4AE4a863CF26601f8);
-        OCR_Modular OCR = OCR_Modular(0xf2d9cba90E5D2e38436fC66DB97688bb9dd0a795);
-        OCT_DAO daoOCT = OCT_DAO(0xAC40A789654251d405d4Bd2956F0516Ea044eCFF);
-        OCT_YDL ydlOCT = OCT_YDL(0xE2eF1bfc886BFb37ccF160a691718c3B1d189F9A);
-        OCT_ZVL zvlOCT = OCT_ZVL(0x5A09A3E1c7C8aaE19333E43088eC9FDD9e7c30da);
+        OCE = OCE_ZVE(0x8c96FbF9f3c39c9b96B13E54BB84AB9951592644);
+        OCL = OCL_ZVE(0xCbC19FA27FfA8D39832481e4AE4a863CF26601f8);
+        OCR = OCR_Modular(0xf2d9cba90E5D2e38436fC66DB97688bb9dd0a795);
+        daoOCT = OCT_DAO(0xAC40A789654251d405d4Bd2956F0516Ea044eCFF);
+        ydlOCT = OCT_YDL(0xE2eF1bfc886BFb37ccF160a691718c3B1d189F9A);
+        zvlOCT = OCT_ZVL(0x5A09A3E1c7C8aaE19333E43088eC9FDD9e7c30da);
 
     }
 
@@ -119,22 +135,48 @@ contract Test_Validation_PreITO is Utility {
         // ZivoeYDL - No ownership.
 
         // ZivoeDAO::OwnableLocked , owner == TLC
+        assertEq(DAO.owner(), address(TLC));
 
         // ZivoeGlobals::Ownable , ownership renounced , owner == address(0)
+        assertEq(GBL.owner(), address(0));
 
         // ZivoeTranches::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(ZVT.owner(), address(DAO));
 
-        // ZivoeTrancheToken::Ownable , ownership renounced , owner == address(0) , x2 (zSTT, zJTT)
+        // ZivoeTrancheToken::Ownable , ownership renounced , owner == address(0) , x2 (zJTT, zSTT)
+        assertEq(zJTT.owner(), address(0));
+        assertEq(zSTT.owner(), address(0));
 
         // OCC_Modular::ZivoeLocker::OwnableLocked , owner == DAO , x1 (OCC_USDC)
+        if (MAINNET) {
+            assertEq(OCC_USDC.owner(), address(DAO));
+        }
+        else {
+            assertEq(OCC_DAI.owner(), address(DAO));
+            assertEq(OCC_FRAX.owner(), address(DAO));
+            assertEq(OCC_USDT.owner(), address(DAO));
+            assertEq(OCC_USDC.owner(), address(DAO));
+        }
 
-        // OCC_Modular::ZivoeLocker::OwnableLocked , owner == DAO
         // OCE_ZVE::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(OCE.owner(), address(DAO));
+
         // OCL_ZVE::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(OCL.owner(), address(DAO));
+
         // OCR_Modular::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(OCR.owner(), address(DAO));
+
         // OCT_DAO::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(daoOCT.owner(), address(DAO));
+
         // OCT_YDL::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(ydlOCT.owner(), address(DAO));
+
         // OCT_ZVL::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(zvlOCT.owner(), address(DAO));
+
+        // TODO: Deploy these contracts.
         // OCY_Convex_A::ZivoeLocker::OwnableLocked , owner == DAO
         // OCY_Convex_B::ZivoeLocker::OwnableLocked , owner == DAO
         // OCY_OUSD::ZivoeLocker::OwnableLocked , owner == DAO
