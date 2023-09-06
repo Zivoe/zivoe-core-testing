@@ -64,6 +64,11 @@ contract Test_Validation_PreITO is Utility {
     address gLENDER = 0xce7a64C508bdB47Df1846D1cD4334f865E80b87b;
     address gBORROW = 0xF067D8197BEA22f06662BCb61b231Cd4EEF3F256;
 
+    address mZVL = 0xC7894D17340D2167fF5CF18d1E90f09F2f9e401e;
+    address mCANCEL = 0x6050dE8AAb0f657c7164fa9a751e839FC64aeF5C;
+    address mLENDER = 0xce7a64C508bdB47Df1846D1cD4334f865E80b87b;
+    address mBORROW = 0xF067D8197BEA22f06662BCb61b231Cd4EEF3F256;
+
     // Holders.
     OCC_Modular OCC_DAI;
     OCC_Modular OCC_FRAX;
@@ -76,6 +81,8 @@ contract Test_Validation_PreITO is Utility {
     OCT_DAO daoOCT;
     OCT_YDL ydlOCT;
     OCT_ZVL zvlOCT;
+
+    // TODO: Add OCY instantiations here.
 
     function setUp() public {
         
@@ -159,11 +166,9 @@ contract Test_Validation_PreITO is Utility {
         assertEq(zSTT.owner(), address(0));
 
         // OCC_Modular::ZivoeLocker::OwnableLocked , owner == DAO , x1 (OCC_USDC)
-        if (MAINNET) {
-            assertEq(OCC_USDC.owner(), address(DAO));
-        }
-        else {
-            assertEq(OCC_DAI.owner(), address(DAO));
+        assertEq(OCC_USDC.owner(), address(DAO));
+
+        if (!MAINNET) {
             assertEq(OCC_FRAX.owner(), address(DAO));
             assertEq(OCC_USDT.owner(), address(DAO));
             assertEq(OCC_USDC.owner(), address(DAO));
@@ -210,14 +215,7 @@ contract Test_Validation_PreITO is Utility {
         assertEq(GBL.zJTT(), address(zJTT));
         assertEq(GBL.zSTT(), address(zSTT));
         assertEq(GBL.ZVE(), address(ZVE));
-
-        if (MAINNET) {
-            assertEq(GBL.ZVL(), address(0));
-        }
-        else {
-            assertEq(GBL.ZVL(), address(gZVL));
-        }
-
+        assertEq(GBL.ZVL(), MAINNET ? address(mZVL) : address(gZVL));
         assertEq(GBL.ZVT(), address(ZVT));
         assertEq(GBL.GOV(), address(GOV));
         assertEq(GBL.TLC(), address(TLC));
@@ -236,27 +234,19 @@ contract Test_Validation_PreITO is Utility {
         assert(GBL.isLocker(address(daoOCT)));
         assert(GBL.isLocker(address(ydlOCT)));
         assert(GBL.isLocker(address(zvlOCT)));
+    
+        assert(GBL.isLocker(address(OCC_USDC)));
 
-        if (MAINNET) {
-            assert(GBL.isLocker(address(OCC_USDC)));
-        }
-        else {
+        if (!MAINNET) {
             assert(GBL.isLocker(address(OCC_DAI)));
             assert(GBL.isLocker(address(OCC_FRAX)));
-            assert(GBL.isLocker(address(OCC_USDC)));
             assert(GBL.isLocker(address(OCC_USDT)));
         }
 
         // ZivoeGlobals stablecoin whitelist, via initializeGlobals().
-        if (MAINNET) {
-
-        }
-        else {
-            // NOTE: FRAX not included
-            assert(GBL.stablecoinWhitelist(address(gDAI)));
-            assert(GBL.stablecoinWhitelist(address(gUSDC)));
-            assert(GBL.stablecoinWhitelist(address(gUSDT)));
-        }
+        assert(MAINNET ? GBL.stablecoinWhitelist(address(DAI)) : GBL.stablecoinWhitelist(address(gDAI)));
+        assert(MAINNET ? GBL.stablecoinWhitelist(address(USDC)) : GBL.stablecoinWhitelist(address(gUSDC)));
+        assert(MAINNET ? GBL.stablecoinWhitelist(address(USDT)) : GBL.stablecoinWhitelist(address(gUSDT)));
 
         // ZivoeGovernorV2 initial governance settings.
         // (Governor, GovernorSettings, GovernorVotes, GovernorVotesQuorumFraction, ZivoeGTC)
@@ -264,7 +254,7 @@ contract Test_Validation_PreITO is Utility {
         assertEq(GOV.name(), "ZivoeGovernorV2");
 
         if (MAINNET) {
-
+            // TODO: Determine mainnet settings.
         }
         else {
             assertEq(GOV.votingDelay(), 1);
@@ -276,8 +266,40 @@ contract Test_Validation_PreITO is Utility {
         }
 
         // ZivoeITO state.
+        assertEq(ITO.GBL(), address(GBL));
+        assertEq(ITO.end(), 0);
+        assert(!ITO.migrated());
+
+        assertEq(ITO.stables(0), MAINNET ? address(DAI) : address(gDAI));
+        assertEq(ITO.stables(1), MAINNET ? address(FRAX) : address(gFRAX));
+        assertEq(ITO.stables(2), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(ITO.stables(3), MAINNET ? address(USDT) : address(gUSDT));
         
         // ZivoeRewards state (x3).
+        assertEq(stJTT.GBL(), address(GBL));
+        assertEq(stSTT.GBL(), address(GBL));
+        assertEq(stZVE.GBL(), address(GBL));
+
+        assertEq(stJTT.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stSTT.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stZVE.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+
+        (
+            uint256 rewardsDuration, 
+            uint256 periodFinish, 
+            uint256 rewardRate, 
+            uint256 lastUpdateTime, 
+            uint256 rewardPerTokenStored
+        ) = stJTT.rewardData(MAINNET ? USDC : gUSDC);
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        
+
+        assertEq(address(stJTT.stakingToken()), address(zJTT));
+        assertEq(address(stSTT.stakingToken()), address(zSTT));
+        assertEq(address(stZVE.stakingToken()), address(ZVE));
+
+
         
         // ZivoeRewardsVesting state.
 
