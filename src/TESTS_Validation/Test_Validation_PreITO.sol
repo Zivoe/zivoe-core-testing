@@ -79,46 +79,57 @@ contract Test_Validation_PreITO is Utility {
 
     function setUp() public {
         
-        // Core
-        DAO = ZivoeDAO(0x7eef248670F6D90A5E1798108D48BD7BC147b7aF);
-        GBL = ZivoeGlobals(0xF5C206f8Da970DF1039538d207146302f2047aDA);
-        GOV = ZivoeGovernorV2(payable(0xbd7eB0AE92f7A0224c6958B594DaA4a55D5838e8));
-        ITO = ZivoeITO(0x34712FA2953423006B78df175fafF7cEa42Af407);
-        ZVE = ZivoeToken(0xa7B5d5dF1C9aEA55ee5ccc7b49296bF42e7F439a);
-        ZVT = ZivoeTranches(0xEA607714e5EcA4CD41Ac232266A715e1Fb75cDb6);
-        zJTT = ZivoeTrancheToken(0x92EF59d06C79DbEE32BD9C4F98A010416500ee0A);
-        zSTT = ZivoeTrancheToken(0x80c6092B6A93Bad6b610b2B82d79EBeE2DACDdD8);
-        YDL = ZivoeYDL(0x7b5B414266274Fd2195028ABf65396Bdd9A97218);
-        TLC = ZivoeTLC(payable(0x98314D44AbBa2945Bf75685cA2eC5941897095Db));
+        if (MAINNET) {
 
-        // Periphery
-        MATH = ZivoeMath(address(YDL.MATH()));
-        stJTT = ZivoeRewards(0xe3068d70b71AB87F2f4CFf4acfa528C6c4eDFC86);
-        stSTT = ZivoeRewards(0x8B4845019A99250f2BbfAAAB99F0C543687Bc5b3);
-        stZVE = ZivoeRewards(0x3c992e55AF28362701683B5E4243BdEbc0400a2e);
-        vestZVE = ZivoeRewardsVesting(0x295816643023e443f0806d75b0B2236051011eDb);
+        }
+        else {
+            // Core
+            DAO = ZivoeDAO(0x7eef248670F6D90A5E1798108D48BD7BC147b7aF);
+            GBL = ZivoeGlobals(0xF5C206f8Da970DF1039538d207146302f2047aDA);
+            GOV = ZivoeGovernorV2(payable(0xbd7eB0AE92f7A0224c6958B594DaA4a55D5838e8));
+            ITO = ZivoeITO(0x34712FA2953423006B78df175fafF7cEa42Af407);
+            ZVE = ZivoeToken(0xa7B5d5dF1C9aEA55ee5ccc7b49296bF42e7F439a);
+            ZVT = ZivoeTranches(0xEA607714e5EcA4CD41Ac232266A715e1Fb75cDb6);
+            zJTT = ZivoeTrancheToken(0x92EF59d06C79DbEE32BD9C4F98A010416500ee0A);
+            zSTT = ZivoeTrancheToken(0x80c6092B6A93Bad6b610b2B82d79EBeE2DACDdD8);
+            YDL = ZivoeYDL(0x7b5B414266274Fd2195028ABf65396Bdd9A97218);
+            TLC = ZivoeTLC(payable(0x98314D44AbBa2945Bf75685cA2eC5941897095Db));
 
-        // Lockers
-        OCC_DAI = OCC_Modular(0xc8Bb3B6Fb84F2FcfC13C8d95C5Ffb476945eb195);
-        OCC_FRAX = OCC_Modular(0x11CCd86071479457d9E5aA15bDA6b942fD6A0454);
-        OCC_USDC = OCC_Modular(0xB71222A73D09556f4C86661b3a3d087bBD6A3db2);
-        OCC_USDT = OCC_Modular(0xfAD0Ba085410412ED58829DA13e32DAD66da898a);
+            // Periphery
+            MATH = ZivoeMath(address(YDL.MATH()));
+            stJTT = ZivoeRewards(0xe3068d70b71AB87F2f4CFf4acfa528C6c4eDFC86);
+            stSTT = ZivoeRewards(0x8B4845019A99250f2BbfAAAB99F0C543687Bc5b3);
+            stZVE = ZivoeRewards(0x3c992e55AF28362701683B5E4243BdEbc0400a2e);
+            vestZVE = ZivoeRewardsVesting(0x295816643023e443f0806d75b0B2236051011eDb);
 
-        OCE = OCE_ZVE(0x8c96FbF9f3c39c9b96B13E54BB84AB9951592644);
-        OCL = OCL_ZVE(0xCbC19FA27FfA8D39832481e4AE4a863CF26601f8);
-        OCR = OCR_Modular(0xf2d9cba90E5D2e38436fC66DB97688bb9dd0a795);
-        daoOCT = OCT_DAO(0xAC40A789654251d405d4Bd2956F0516Ea044eCFF);
-        ydlOCT = OCT_YDL(0xE2eF1bfc886BFb37ccF160a691718c3B1d189F9A);
-        zvlOCT = OCT_ZVL(0x5A09A3E1c7C8aaE19333E43088eC9FDD9e7c30da);
+            // Lockers
+            OCC_DAI = OCC_Modular(0xc8Bb3B6Fb84F2FcfC13C8d95C5Ffb476945eb195);
+            OCC_FRAX = OCC_Modular(0x11CCd86071479457d9E5aA15bDA6b942fD6A0454);
+            OCC_USDC = OCC_Modular(0xB71222A73D09556f4C86661b3a3d087bBD6A3db2);
+            OCC_USDT = OCC_Modular(0xfAD0Ba085410412ED58829DA13e32DAD66da898a);
+
+            OCE = OCE_ZVE(0x8c96FbF9f3c39c9b96B13E54BB84AB9951592644);
+            OCL = OCL_ZVE(0xCbC19FA27FfA8D39832481e4AE4a863CF26601f8);
+            OCR = OCR_Modular(0xf2d9cba90E5D2e38436fC66DB97688bb9dd0a795);
+            daoOCT = OCT_DAO(0xAC40A789654251d405d4Bd2956F0516Ea044eCFF);
+            ydlOCT = OCT_YDL(0xE2eF1bfc886BFb37ccF160a691718c3B1d189F9A);
+            zvlOCT = OCT_ZVL(0x5A09A3E1c7C8aaE19333E43088eC9FDD9e7c30da);
+        }
 
     }
 
     function test_Validation_PreITO_Balance() public {
         
         // ZivoeToken - 35% DAO, 65% vestZVE.
+        assertEq(ZVE.totalSupply(), 25_000_000 ether);
+        assertEq(ZVE.balanceOf(address(DAO)), 25_000_000 ether * 35 / 100);
+        assertEq(ZVE.balanceOf(address(vestZVE)), 25_000_000 ether * 65 / 100);
 
         // ZivoeTrancheToken - 0 zJTT, 0 zSTT.
+        assertEq(zJTT.totalSupply(), 0);
+        assertEq(zJTT.totalSupply(), 0);
 
+        // TODO: Basecase assumption gathering.
         // ZivoeRewardsVesting (token balances, assuming unclaimed vesting).
 
     }
@@ -186,14 +197,83 @@ contract Test_Validation_PreITO is Utility {
     function test_Validation_PreITO_Settings() public {
 
         // ZivoeDAO state.
+        assertEq(DAO.GBL(), address(GBL));
 
-        // ZivoeGlobals state via initializeGlobals().
-        // ZivoeGloblas stablecoin whitelist via initializeGlobals().
+        // ZivoeGlobals state, via initializeGlobals().
+        assertEq(GBL.DAO(), address(DAO));
+        assertEq(GBL.ITO(), address(ITO));
+        assertEq(GBL.stJTT(), address(stJTT));
+        assertEq(GBL.stSTT(), address(stSTT));
+        assertEq(GBL.stZVE(), address(stZVE));
+        assertEq(GBL.vestZVE(), address(vestZVE));
+        assertEq(GBL.YDL(), address(YDL));
+        assertEq(GBL.zJTT(), address(zJTT));
+        assertEq(GBL.zSTT(), address(zSTT));
+        assertEq(GBL.ZVE(), address(ZVE));
+
+        if (MAINNET) {
+            assertEq(GBL.ZVL(), address(0));
+        }
+        else {
+            assertEq(GBL.ZVL(), address(gZVL));
+        }
+
+        assertEq(GBL.ZVT(), address(ZVT));
+        assertEq(GBL.GOV(), address(GOV));
+        assertEq(GBL.TLC(), address(TLC));
+        assertEq(GBL.proposedZVL(), address(0));
+        assertEq(GBL.defaults(), 0);
+
+        // TODO: Add keepers to whitelist, document keepers, check below.
         // ZivoeGlobals keepers whitelist.
+
+        // TODO: Add in OCYs to this check.
         // ZivoeGlobals lockers whitelist.
+        assert(GBL.isLocker(address(ZVT)));
+        assert(GBL.isLocker(address(OCE)));
+        assert(GBL.isLocker(address(OCL)));
+        assert(GBL.isLocker(address(OCR)));
+        assert(GBL.isLocker(address(daoOCT)));
+        assert(GBL.isLocker(address(ydlOCT)));
+        assert(GBL.isLocker(address(zvlOCT)));
+
+        if (MAINNET) {
+            assert(GBL.isLocker(address(OCC_USDC)));
+        }
+        else {
+            assert(GBL.isLocker(address(OCC_DAI)));
+            assert(GBL.isLocker(address(OCC_FRAX)));
+            assert(GBL.isLocker(address(OCC_USDC)));
+            assert(GBL.isLocker(address(OCC_USDT)));
+        }
+
+        // ZivoeGlobals stablecoin whitelist, via initializeGlobals().
+        if (MAINNET) {
+
+        }
+        else {
+            // NOTE: FRAX not included
+            assert(GBL.stablecoinWhitelist(address(gDAI)));
+            assert(GBL.stablecoinWhitelist(address(gUSDC)));
+            assert(GBL.stablecoinWhitelist(address(gUSDT)));
+        }
 
         // ZivoeGovernorV2 initial governance settings.
         // (Governor, GovernorSettings, GovernorVotes, GovernorVotesQuorumFraction, ZivoeGTC)
+        assertEq(GOV.GBL(), address(GBL));
+        assertEq(GOV.name(), "ZivoeGovernorV2");
+
+        if (MAINNET) {
+
+        }
+        else {
+            assertEq(GOV.votingDelay(), 1);
+            assertEq(GOV.votingPeriod(), 100);
+            assertEq(GOV.proposalThreshold(), 50_000 ether);
+            assertEq(address(GOV.token()), address(ZVE));
+            assertEq(GOV.quorumNumerator(), 5);
+            assertEq(GOV.timelock(), address(TLC));
+        }
 
         // ZivoeITO state.
         
