@@ -136,6 +136,11 @@ contract Test_Validation_PreITO is Utility {
         assertEq(zJTT.totalSupply(), 0);
         assertEq(zJTT.totalSupply(), 0);
 
+        // ZivoeRewards - 0 stJTT, 0 stSTT, 0 stZVE.
+        assertEq(stJTT.totalSupply(), 0);
+        assertEq(stSTT.totalSupply(), 0);
+        assertEq(stZVE.totalSupply(), 0);
+
         // TODO: Basecase assumption gathering.
         // ZivoeRewardsVesting (token balances, assuming unclaimed vesting).
 
@@ -281,8 +286,11 @@ contract Test_Validation_PreITO is Utility {
         assertEq(stZVE.GBL(), address(GBL));
 
         assertEq(stJTT.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stJTT.rewardTokens(1), address(ZVE));
         assertEq(stSTT.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stSTT.rewardTokens(1), address(ZVE));
         assertEq(stZVE.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stZVE.rewardTokens(1), address(ZVE));
 
         (
             uint256 rewardsDuration, 
@@ -293,15 +301,107 @@ contract Test_Validation_PreITO is Utility {
         ) = stJTT.rewardData(MAINNET ? USDC : gUSDC);
 
         assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
-        
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
+
+        (
+            rewardsDuration, 
+            periodFinish, 
+            rewardRate, 
+            lastUpdateTime, 
+            rewardPerTokenStored
+        ) = stJTT.rewardData(address(ZVE));
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
+
+        (
+            rewardsDuration, 
+            periodFinish, 
+            rewardRate, 
+            lastUpdateTime, 
+            rewardPerTokenStored
+        ) = stSTT.rewardData(MAINNET ? USDC : gUSDC);
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
+
+        (
+            rewardsDuration, 
+            periodFinish, 
+            rewardRate, 
+            lastUpdateTime, 
+            rewardPerTokenStored
+        ) = stSTT.rewardData(address(ZVE));
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
+
+        (
+            rewardsDuration, 
+            periodFinish, 
+            rewardRate, 
+            lastUpdateTime, 
+            rewardPerTokenStored
+        ) = stZVE.rewardData(MAINNET ? USDC : gUSDC);
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
+
+        (
+            rewardsDuration, 
+            periodFinish, 
+            rewardRate, 
+            lastUpdateTime, 
+            rewardPerTokenStored
+        ) = stZVE.rewardData(address(ZVE));
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
 
         assertEq(address(stJTT.stakingToken()), address(zJTT));
         assertEq(address(stSTT.stakingToken()), address(zSTT));
         assertEq(address(stZVE.stakingToken()), address(ZVE));
 
-
-        
         // ZivoeRewardsVesting state.
+        assertEq(vesstZVE.GBL(), address(GBL));
+
+        assertEq(vesstZVE.vestingToken(), address(ZVE));
+        assertEq(vestZVE.rewardTokens(0), address(ZVE));
+        assertEq(vesstZVE.vestingTokenAllocated(), 0);
+        
+        (
+            rewardsDuration, 
+            periodFinish, 
+            rewardRate, 
+            lastUpdateTime, 
+            rewardPerTokenStored
+        ) = vestZVE.rewardData(address(ZVE));
+
+        assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
+        assertEq(periodFinish, 0);
+        assertEq(rewardRate, 0);
+        assertEq(lastUpdateTime, 0);
+        assertEq(rewardPerTokenStored, 0);
+
+        assertEq(address(vestZVE.stakingToken()), address(ZVE));
 
         // ZivoeToken state.
 
