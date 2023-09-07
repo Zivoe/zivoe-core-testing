@@ -204,7 +204,7 @@ contract Test_Validation_PreITO is Utility {
 
     }
 
-    function test_Validation_PreITO_Settings() public {
+    function test_Validation_PreITO_Core_Settings() public {
 
         // ZivoeDAO state.
         assertEq(DAO.GBL(), address(GBL));
@@ -381,11 +381,11 @@ contract Test_Validation_PreITO is Utility {
         assertEq(address(stZVE.stakingToken()), address(ZVE));
 
         // ZivoeRewardsVesting state.
-        assertEq(vesstZVE.GBL(), address(GBL));
+        assertEq(vestZVE.GBL(), address(GBL));
 
-        assertEq(vesstZVE.vestingToken(), address(ZVE));
-        assertEq(vestZVE.rewardTokens(0), address(ZVE));
-        assertEq(vesstZVE.vestingTokenAllocated(), 0);
+        assertEq(vestZVE.vestingToken(), address(ZVE));
+        assertEq(vestZVE.rewardTokens(0), MAINNET ? USDC : gUSDC);
+        assertEq(vestZVE.vestingTokenAllocated(), 0);
         
         (
             rewardsDuration, 
@@ -393,7 +393,7 @@ contract Test_Validation_PreITO is Utility {
             rewardRate, 
             lastUpdateTime, 
             rewardPerTokenStored
-        ) = vestZVE.rewardData(address(ZVE));
+        ) = vestZVE.rewardData(MAINNET ? USDC : gUSDC);
 
         assertEq(rewardsDuration, MAINNET ? 30 days : 7 days);
         assertEq(periodFinish, 0);
@@ -404,12 +404,70 @@ contract Test_Validation_PreITO is Utility {
         assertEq(address(vestZVE.stakingToken()), address(ZVE));
 
         // ZivoeToken state.
+        assertEq(ZVE.name(), "Zivoe");
+        assertEq(ZVE.symbol(), "ZVE");
+        assertEq(ZVE.decimals(), 18);
 
         // ZivoeTranches state.
+        assertEq(ZVT.GBL(), address(GBL));
+        assertEq(ZVT.maxTrancheRatioBIPS(), 4250);
+        assertEq(ZVT.minZVEPerJTTMint(), 0);
+        assertEq(ZVT.maxZVEPerJTTMint(), 0);
+        assertEq(ZVT.lowerRatioIncentiveBIPS(), 1000);
+        assertEq(ZVT.upperRatioIncentiveBIPS(), 2000);
+
+        assert(!ZVT.tranchesUnlocked());
+        assert(!ZVT.paused());
 
         // ZivoeTrancheToken state (x2).
+        assertEq(zJTT.name(), "Zivoe Junior Tranche");
+        assertEq(zJTT.symbol(), "zJTT");
+        assertEq(zJTT.decimals(), 18);
+
+        assertEq(zSTT.name(), "Zivoe Senior Tranche");
+        assertEq(zSTT.symbol(), "zSTT");
+        assertEq(zSTT.decimals(), 18);
 
         // ZivoeYDL state.
+        assertEq(YDL.GBL(), address(GBL));
+        assertEq(YDL.distributedAsset(), MAINNET ? USDC : gUSDC);
+        assertEq(YDL.lastDistribution(), 0);
+        assertEq(YDL.targetAPYBIPS(), 800);
+        assertEq(YDL.targetRatioBIPS(), 16250);
+        assertEq(YDL.protocolEarningsRateBIPS(), 2000);
+        assertEq(YDL.daysBetweenDistributions(), 7);
+        assertEq(YDL.retrospectiveDistributions(), 6);
+
+        assert(!YDL.unlocked());
+
+        // NOTE: This is post-ITO expected state commented out below.
+        // (
+        //     address[] memory protocolRecipients,
+        //     uint256[] memory protocolProportion,
+        //     address[] memory residualRecipients,
+        //     uint256[] memory residualProportion
+        // ) = YDL.viewDistributions();
+
+        // assertEq(protocolRecipients[0], address(stZVE));
+        // assertEq(protocolRecipients[1], address(DAO));
+
+        // assertEq(protocolProportion[0], 7500);
+        // assertEq(protocolProportion[1], 2500);
+
+        // assertEq(residualRecipients[0], address(stJTT));
+        // assertEq(residualRecipients[1], address(stSTT));
+        // assertEq(residualRecipients[2], address(stZVE));
+        // assertEq(residualRecipients[3], address(DAO));
+
+        // assertEq(residualProportion[0], 2500);
+        // assertEq(residualProportion[1], 500);
+        // assertEq(residualProportion[2], 4500);
+        // assertEq(residualProportion[3], 2500);
+
+    }
+
+
+    function test_Validation_PreITO_Lockers_Settings() public {
 
         // OCC_Modular state.
 
