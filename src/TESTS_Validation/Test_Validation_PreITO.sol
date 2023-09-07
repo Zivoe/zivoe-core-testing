@@ -220,7 +220,7 @@ contract Test_Validation_PreITO is Utility {
         assertEq(GBL.zJTT(), address(zJTT));
         assertEq(GBL.zSTT(), address(zSTT));
         assertEq(GBL.ZVE(), address(ZVE));
-        assertEq(GBL.ZVL(), MAINNET ? address(mZVL) : address(gZVL));
+        assertEq(GBL.ZVL(), MAINNET ? mZVL : gZVL);
         assertEq(GBL.ZVT(), address(ZVT));
         assertEq(GBL.GOV(), address(GOV));
         assertEq(GBL.TLC(), address(TLC));
@@ -249,9 +249,9 @@ contract Test_Validation_PreITO is Utility {
         }
 
         // ZivoeGlobals stablecoin whitelist, via initializeGlobals().
-        assert(MAINNET ? GBL.stablecoinWhitelist(address(DAI)) : GBL.stablecoinWhitelist(address(gDAI)));
-        assert(MAINNET ? GBL.stablecoinWhitelist(address(USDC)) : GBL.stablecoinWhitelist(address(gUSDC)));
-        assert(MAINNET ? GBL.stablecoinWhitelist(address(USDT)) : GBL.stablecoinWhitelist(address(gUSDT)));
+        assert(MAINNET ? GBL.stablecoinWhitelist(DAI) : GBL.stablecoinWhitelist(gDAI));
+        assert(MAINNET ? GBL.stablecoinWhitelist(USDC) : GBL.stablecoinWhitelist(gUSDC));
+        assert(MAINNET ? GBL.stablecoinWhitelist(USDT) : GBL.stablecoinWhitelist(gUSDT));
 
         // ZivoeGovernorV2 initial governance settings.
         // (Governor, GovernorSettings, GovernorVotes, GovernorVotesQuorumFraction, ZivoeGTC)
@@ -275,21 +275,21 @@ contract Test_Validation_PreITO is Utility {
         assertEq(ITO.end(), 0);
         assert(!ITO.migrated());
 
-        assertEq(ITO.stables(0), MAINNET ? address(DAI) : address(gDAI));
-        assertEq(ITO.stables(1), MAINNET ? address(FRAX) : address(gFRAX));
-        assertEq(ITO.stables(2), MAINNET ? address(USDC) : address(gUSDC));
-        assertEq(ITO.stables(3), MAINNET ? address(USDT) : address(gUSDT));
+        assertEq(ITO.stables(0), MAINNET ? DAI : gDAI);
+        assertEq(ITO.stables(1), MAINNET ? FRAX : gFRAX);
+        assertEq(ITO.stables(2), MAINNET ? USDC : gUSDC);
+        assertEq(ITO.stables(3), MAINNET ? USDT : gUSDT);
         
         // ZivoeRewards state (x3).
         assertEq(stJTT.GBL(), address(GBL));
         assertEq(stSTT.GBL(), address(GBL));
         assertEq(stZVE.GBL(), address(GBL));
 
-        assertEq(stJTT.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stJTT.rewardTokens(0), MAINNET ? USDC : gUSDC);
         assertEq(stJTT.rewardTokens(1), address(ZVE));
-        assertEq(stSTT.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stSTT.rewardTokens(0), MAINNET ? USDC : gUSDC);
         assertEq(stSTT.rewardTokens(1), address(ZVE));
-        assertEq(stZVE.rewardTokens(0), MAINNET ? address(USDC) : address(gUSDC));
+        assertEq(stZVE.rewardTokens(0), MAINNET ? USDC : gUSDC);
         assertEq(stZVE.rewardTokens(1), address(ZVE));
 
         (
@@ -418,6 +418,9 @@ contract Test_Validation_PreITO is Utility {
 
         assert(!ZVT.tranchesUnlocked());
         assert(!ZVT.paused());
+        assert(ZVT.canPush());
+        assert(ZVT.canPull());
+        assert(ZVT.canPullPartial());
 
         // ZivoeTrancheToken state (x2).
         assertEq(zJTT.name(), "Zivoe Junior Tranche");
@@ -470,14 +473,115 @@ contract Test_Validation_PreITO is Utility {
     function test_Validation_PreITO_Lockers_Settings() public {
 
         // OCC_Modular state.
+        assertEq(OCC_USDC.GBL(), address(GBL));
+        assertEq(OCC_USDC.stablecoin(), MAINNET ? USDC : gUSDC);
+        assertEq(OCC_USDC.underwriter(), MAINNET ? mLENDER : gLENDER);
+        assertEq(OCC_USDC.OCT_YDL(), address(ydlOCT));
+        assertEq(OCC_USDC.combineCounter(), 0);
+        assertEq(OCC_USDC.loanCounter(), 0);
+
+        assert(OCC_USDC.canPush());
+        assert(OCC_USDC.canPull());
+        assert(OCC_USDC.canPullPartial());
+
+        if (!MAINNET) {
+            assertEq(OCC_DAI.GBL(), address(GBL));
+            assertEq(OCC_DAI.stablecoin(), MAINNET ? DAI : gDAI);
+            assertEq(OCC_DAI.underwriter(), MAINNET ? mLENDER : gLENDER);
+            assertEq(OCC_DAI.OCT_YDL(), address(ydlOCT));
+            assertEq(OCC_DAI.combineCounter(), 0);
+            assertEq(OCC_DAI.loanCounter(), 0);
+
+            assert(OCC_DAI.canPush());
+            assert(OCC_DAI.canPull());
+            assert(OCC_DAI.canPullPartial());
+
+            assertEq(OCC_FRAX.GBL(), address(GBL));
+            assertEq(OCC_FRAX.stablecoin(), MAINNET ? FRAX : gFRAX);
+            assertEq(OCC_FRAX.underwriter(), MAINNET ? mLENDER : gLENDER);
+            assertEq(OCC_FRAX.OCT_YDL(), address(ydlOCT));
+            assertEq(OCC_FRAX.combineCounter(), 0);
+            assertEq(OCC_FRAX.loanCounter(), 0);
+
+            assert(OCC_FRAX.canPush());
+            assert(OCC_FRAX.canPull());
+            assert(OCC_FRAX.canPullPartial());
+
+            assertEq(OCC_USDT.GBL(), address(GBL));
+            assertEq(OCC_USDT.stablecoin(), MAINNET ? USDT : gUSDT);
+            assertEq(OCC_USDT.underwriter(), MAINNET ? mLENDER : gLENDER);
+            assertEq(OCC_USDT.OCT_YDL(), address(ydlOCT));
+            assertEq(OCC_USDT.combineCounter(), 0);
+            assertEq(OCC_USDT.loanCounter(), 0);
+
+            assert(OCC_USDT.canPush());
+            assert(OCC_USDT.canPull());
+            assert(OCC_USDT.canPullPartial());
+        }
 
         // OCE_ZVE state.
+        assertEq(OCE.GBL(), address(GBL));
+        assertEq(OCE.exponentialDecayPerSecond(), RAY * 99999999 / 100000000);
+
+        assert(OCE.lastDistribution() > 0);
+        assert(OCE.canPush());
+        assert(OCE.canPull());
+        assert(OCE.canPullPartial());
     
         // OCL_ZVE state.
+        assertEq(OCL.GBL(), address(GBL));
+        assertEq(OCL.factory(), UNISWAP_V2_FACTORY);
+        assertEq(OCL.pairAsset(), MAINNET ? USDC : gUSDC);
+        assertEq(OCL.router(), UNISWAP_V2_ROUTER_02);
+        assertEq(OCL.OCT_YDL(), address(ydlOCT));
+        assertEq(OCL.basis(), 0);
+        assertEq(OCL.compoundingRateBIPS(), 5000);
+        assertEq(OCL.nextYieldDistribution(), 0);
+
+        assert(OCL.canPushMulti());
+        assert(OCL.canPull());
+        assert(OCL.canPullPartial());
 
         // OCR_Modular state.
+        assertEq(OCR.stablecoin(), MAINNET ? USDC : gUSDC);
+        assertEq(OCR.GBL(), address(GBL));
+        assertEq(OCR.epochDiscountJunior(), 0);
+        assertEq(OCR.epochDiscountSenior(), 0);
+        assertEq(OCR.redemptionsFeeBIPS(), 200);
+        assertEq(OCR.redemptionsAllowedJunior(), 0);
+        assertEq(OCR.redemptionsAllowedSenior(), 0);
+        assertEq(OCR.redemptionsQueuedJunior(), 0);
+        assertEq(OCR.redemptionsQueuedSenior(), 0);
+        assertEq(OCR.requestCounter(), 0);
+
+        assert(OCR.epoch() > 0);
+        assert(OCR.canPush());
+        assert(OCR.canPull());
+        assert(OCR.canPullPartial());
 
         // OCT_DAO, OCT_YDL, OCT_ZVL state.
+        assertEq(daoOCT.GBL(), address(GBL));
+        assertEq(ydlOCT.GBL(), address(GBL));
+        assertEq(zvlOCT.GBL(), address(GBL));
+
+        assert(daoOCT.canPush());
+        assert(daoOCT.canPushMulti());
+        assert(daoOCT.canPull());
+        assert(daoOCT.canPullMulti());
+        assert(daoOCT.canPullPartial());
+        assert(daoOCT.canPullMultiPartial());
+
+        assert(ydlOCT.canPull());
+        assert(ydlOCT.canPullMulti());
+        assert(ydlOCT.canPullPartial());
+        assert(ydlOCT.canPullMultiPartial());
+
+        assert(zvlOCT.canPush());
+        assert(zvlOCT.canPushMulti());
+        assert(zvlOCT.canPull());
+        assert(zvlOCT.canPullMulti());
+        assert(zvlOCT.canPullPartial());
+        assert(zvlOCT.canPullMultiPartial());
 
         // OCY_Convex_A, OCY_Convex_B, OCY_OUSD state.
 
