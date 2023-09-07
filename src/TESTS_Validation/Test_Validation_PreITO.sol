@@ -10,6 +10,9 @@ import "../../lib/zivoe-core-foundry/src/lockers/OCR/OCR_Modular.sol";
 import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_DAO.sol";
 import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_YDL.sol";
 import "../../lib/zivoe-core-foundry/src/lockers/OCT/OCT_ZVL.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCY/OCY_Convex_A.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCY/OCY_Convex_B.sol";
+import "../../lib/zivoe-core-foundry/src/lockers/OCY/OCY_OUSD.sol";
 
 contract Test_Validation_PreITO is Utility {
 
@@ -81,6 +84,9 @@ contract Test_Validation_PreITO is Utility {
     OCT_DAO daoOCT;
     OCT_YDL ydlOCT;
     OCT_ZVL zvlOCT;
+    OCY_Convex_A OCY_A;
+    OCY_Convex_B OCY_B;
+    OCY_OUSD OCY_O;
 
     // TODO: Add OCY instantiations here.
 
@@ -121,6 +127,9 @@ contract Test_Validation_PreITO is Utility {
             daoOCT = OCT_DAO(0xAC40A789654251d405d4Bd2956F0516Ea044eCFF);
             ydlOCT = OCT_YDL(0xE2eF1bfc886BFb37ccF160a691718c3B1d189F9A);
             zvlOCT = OCT_ZVL(0x5A09A3E1c7C8aaE19333E43088eC9FDD9e7c30da);
+            OCY_A = OCY_Convex_A(0x7Cf87218F4d4D9A7200A7E924B429d53B6956811);
+            OCY_B = OCY_Convex_B(0x4e76809435369e88dCb79F92365bbaD11686Df84);
+            OCY_O = OCY_OUSD(0x8f441BFD97efc1B1896E1cb65d187A15Eb2ff7A2);
         }
 
     }
@@ -197,10 +206,14 @@ contract Test_Validation_PreITO is Utility {
         // OCT_ZVL::ZivoeLocker::OwnableLocked , owner == DAO
         assertEq(zvlOCT.owner(), address(DAO));
 
-        // TODO: Deploy these contracts.
         // OCY_Convex_A::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(OCY_A.owner(), address(DAO));
+
         // OCY_Convex_B::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(OCY_B.owner(), address(DAO));
+
         // OCY_OUSD::ZivoeLocker::OwnableLocked , owner == DAO
+        assertEq(OCY_O.owner(), address(DAO));
 
     }
 
