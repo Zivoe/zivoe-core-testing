@@ -597,6 +597,54 @@ contract Test_Validation_PreITO is Utility {
         assert(zvlOCT.canPullMultiPartial());
 
         // OCY_Convex_A, OCY_Convex_B, OCY_OUSD state.
+        assertEq(OCY_A.GBL(), address(GBL));
+        assertEq(OCY_A.OCT_YDL(), address(ydlOCT));
+        assertEq(OCY_A.FRAX(), 0x853d955aCEf822Db058eb8505911ED77F175b99e);
+        assertEq(OCY_A.USDC(), 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+        assertEq(OCY_A.alUSD(), 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9);
+        assertEq(OCY_A.CRV(), 0xD533a949740bb3306d119CC777fa900bA034cd52);
+        assertEq(OCY_A.CVX(), 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
+
+        assertEq(OCY_A.convexDeposit(), 0xF403C135812408BFbE8713b5A23a04b3D48AAE31);
+        assertEq(OCY_A.convexRewards(), 0x26598e3E511ADFadefD70ab2C3475Ff741741104);
+        assertEq(OCY_A.convexPoolToken(), 0xB30dA2376F63De30b42dC055C93fa474F31330A5);
+        assertEq(OCY_A.convexPoolID(), 106);
+        assertEq(OCY_A.curveBasePool(), 0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2);
+        assertEq(OCY_A.curveBasePoolToken(), 0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC);
+        assertEq(OCY_A.curveMetaPool(), 0xB30dA2376F63De30b42dC055C93fa474F31330A5);
+
+        assert(OCY_A.canPush());
+        assert(OCY_A.canPull());
+        assert(OCY_A.canPullPartial());
+
+        assertEq(OCY_B.GBL(), address(GBL));
+        assertEq(OCY_B.OCT_YDL(), address(ydlOCT));
+        assertEq(OCY_B.DAI(), 0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        assertEq(OCY_B.USDC(), 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+        assertEq(OCY_B.USDT(), 0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        assertEq(OCY_B.sUSD(), 0x57Ab1ec28D129707052df4dF418D58a2D46d5f51);
+        assertEq(OCY_B.CRV(), 0xD533a949740bb3306d119CC777fa900bA034cd52);
+        assertEq(OCY_B.CVX(), 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
+
+        assertEq(OCY_B.convexDeposit(), 0xF403C135812408BFbE8713b5A23a04b3D48AAE31);
+        assertEq(OCY_B.convexPoolToken(), 0xC25a3A3b969415c80451098fa907EC722572917F);
+        assertEq(OCY_B.convexRewards(), 0x22eE18aca7F3Ee920D01F25dA85840D12d98E8Ca);
+        assertEq(OCY_B.convexPoolID(), 4);
+        assertEq(OCY_B.curveBasePool(), 0xA5407eAE9Ba41422680e2e00537571bcC53efBfD);
+        assertEq(OCY_B.curveBasePoolToken(), 0xC25a3A3b969415c80451098fa907EC722572917F);
+
+        assert(OCY_B.canPush());
+        assert(OCY_B.canPull());
+        assert(OCY_B.canPullPartial());
+
+        assertEq(OCY_O.OUSD(), 0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86);
+        assertEq(OCY_O.GBL(), address(GBL));
+        assertEq(OCY_O.OCT_YDL(), address(ydlOCT));
+        assertEq(OCY_O.basis(), 0);
+
+        assert(OCY_O.canPush());
+        assert(OCY_O.canPull());
+        assert(OCY_O.canPullPartial());
 
     }
 
