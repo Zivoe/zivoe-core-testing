@@ -88,8 +88,6 @@ contract Test_Validation_PreITO is Utility {
     OCY_Convex_B OCY_B;
     OCY_OUSD OCY_O;
 
-    // TODO: Add OCY instantiations here.
-
     function setUp() public {
         
         if (MAINNET) {
@@ -143,7 +141,7 @@ contract Test_Validation_PreITO is Utility {
 
         // ZivoeTrancheToken - 0 zJTT, 0 zSTT.
         assertEq(zJTT.totalSupply(), 0);
-        assertEq(zJTT.totalSupply(), 0);
+        assertEq(zSTT.totalSupply(), 0);
 
         // ZivoeRewards - 0 stJTT, 0 stSTT, 0 stZVE.
         assertEq(stJTT.totalSupply(), 0);
@@ -239,11 +237,12 @@ contract Test_Validation_PreITO is Utility {
         assertEq(GBL.TLC(), address(TLC));
         assertEq(GBL.proposedZVL(), address(0));
         assertEq(GBL.defaults(), 0);
-
-        // TODO: Add keepers to whitelist, document keepers, check below.
+        
         // ZivoeGlobals keepers whitelist.
+        if (!MAINNET) {
+            assert(GBL.isKeeper(0x2a600051745a9c6dF749224C3b49f3d1571A075F));
+        }
 
-        // TODO: Add in OCYs to this check.
         // ZivoeGlobals lockers whitelist.
         assert(GBL.isLocker(address(ZVT)));
         assert(GBL.isLocker(address(OCE)));
@@ -252,7 +251,9 @@ contract Test_Validation_PreITO is Utility {
         assert(GBL.isLocker(address(daoOCT)));
         assert(GBL.isLocker(address(ydlOCT)));
         assert(GBL.isLocker(address(zvlOCT)));
-    
+        assert(GBL.isLocker(address(OCY_A)));
+        assert(GBL.isLocker(address(OCY_B)));
+        assert(GBL.isLocker(address(OCY_O)));
         assert(GBL.isLocker(address(OCC_USDC)));
 
         if (!MAINNET) {
@@ -444,6 +445,8 @@ contract Test_Validation_PreITO is Utility {
         assertEq(zSTT.symbol(), "zSTT");
         assertEq(zSTT.decimals(), 18);
 
+        // TODO: Check minter roles ... 
+
         // ZivoeYDL state.
         assertEq(YDL.GBL(), address(GBL));
         assertEq(YDL.distributedAsset(), MAINNET ? USDC : gUSDC);
@@ -451,7 +454,7 @@ contract Test_Validation_PreITO is Utility {
         assertEq(YDL.targetAPYBIPS(), 800);
         assertEq(YDL.targetRatioBIPS(), 16250);
         assertEq(YDL.protocolEarningsRateBIPS(), 2000);
-        assertEq(YDL.daysBetweenDistributions(), 7);
+        assertEq(YDL.daysBetweenDistributions(), MAINNET ? 30 : 7);
         assertEq(YDL.retrospectiveDistributions(), 6);
 
         assert(!YDL.unlocked());
