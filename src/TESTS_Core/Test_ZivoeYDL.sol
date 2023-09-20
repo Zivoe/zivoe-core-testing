@@ -205,7 +205,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random);
 
         // Pre-state.
-        assertEq(YDL.targetRatioBIPS(), 16250);
+        assertEq(YDL.targetRatioBIPS(), 18750);
         
         // updateTargetRatioBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -251,7 +251,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random) % 9000;
 
         // Pre-state.
-        assertEq(YDL.protocolEarningsRateBIPS(), 2000);
+        assertEq(YDL.protocolEarningsRateBIPS(), 3000);
         
         // updateProtocolEarningsRateBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));

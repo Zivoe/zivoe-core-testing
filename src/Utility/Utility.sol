@@ -905,8 +905,8 @@ contract Utility is DSTest, Test {
 
         if (!check) {
             emit log_named_uint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
-            emit log_named_uint("  Expected", val0);
-            emit log_named_uint("    Actual", val1);
+            emit log_named_uint("  Expected", val1);
+            emit log_named_uint("    Actual", val0);
             fail();
         }
     }

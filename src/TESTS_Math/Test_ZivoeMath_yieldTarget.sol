@@ -48,7 +48,7 @@ contract Test_ZivoeMath_yieldTarget is Utility {
             YDL.daysBetweenDistributions()
         );
 
-        withinDiff(yieldTarget0, 73_972 ether, 100 ether);
+        withinDiff(yieldTarget0, 77_260 ether, 100 ether);
         emit log_named_uint("yieldTarget0", yieldTarget0);
 
         // Test 1, examine yieldTarget() changes when senior tranche is reduced by 90%
@@ -63,7 +63,7 @@ contract Test_ZivoeMath_yieldTarget is Utility {
 
         // yieldTarget0 is our base-case, yieldTarget1 is our reduced yield as expected
         assert(yieldTarget1 < yieldTarget0);
-        withinDiff(yieldTarget1, 26_630 ether, 100 ether);
+        withinDiff(yieldTarget1, 29_917 ether, 100 ether);
         emit log_named_uint("yieldTarget1", yieldTarget1);
 
         // Test 2
@@ -76,7 +76,7 @@ contract Test_ZivoeMath_yieldTarget is Utility {
         );
 
         assert(yieldTarget2 < yieldTarget0);
-        withinDiff(yieldTarget2, 54_793 ether, 100 ether);
+        withinDiff(yieldTarget2, 55_068 ether, 100 ether);
         emit log_named_uint("yieldTarget2", yieldTarget2);
 
         // Test 3
@@ -89,7 +89,7 @@ contract Test_ZivoeMath_yieldTarget is Utility {
         );
 
         assert(yieldTarget3 < yieldTarget0);
-        withinDiff(yieldTarget3, 9_246 ether, 100 ether);
+        withinDiff(yieldTarget3, 9_657 ether, 100 ether);
         emit log_named_uint("yieldTarget3", yieldTarget3);
 
         // Test 4
@@ -102,7 +102,7 @@ contract Test_ZivoeMath_yieldTarget is Utility {
         );
 
         assert(yieldTarget4 > yieldTarget0 && yieldTarget4 > yieldTarget3);
-        withinDiff(yieldTarget4, 184_931 ether, 100 ether);
+        withinDiff(yieldTarget4, 193_151 ether, 100 ether);
         emit log_named_uint("yieldTarget4", yieldTarget4);
 
         // Test 5
@@ -141,7 +141,7 @@ contract Test_ZivoeMath_yieldTarget is Utility {
         );
 
         assert(yieldTarget7 < yieldTarget0);
-        withinDiff(yieldTarget7, 2_465 ether, 100 ether);
+        withinDiff(yieldTarget7, 2_575 ether, 100 ether);
         emit log_named_uint("yieldTarget7", yieldTarget7);
     }
 

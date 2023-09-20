@@ -438,11 +438,11 @@ contract Test_ZivoeTranches is Utility {
     }
 
     function test_ZivoeTranches_restrictions_governance_greaterThan_updateLowerRatioIncentiveBIPS() public {
-        assert(god.try_updateLowerRatioIncentiveBIPS(address(ZVT), 1999));
-        // Can't updateLowerRatioIncentiveBIPS() > upperRatioIncentiveBIPS (initially 2000).
+        assert(god.try_updateLowerRatioIncentiveBIPS(address(ZVT), 3499));
+        // Can't updateLowerRatioIncentiveBIPS() > upperRatioIncentiveBIPS (initially 3500).
         hevm.startPrank(address(god));
         hevm.expectRevert("ZivoeTranches::updateLowerRatioIncentiveBIPS() _lowerRatioIncentiveBIPS >= upperRatioIncentiveBIPS");
-        ZVT.updateLowerRatioIncentiveBIPS(2000);
+        ZVT.updateLowerRatioIncentiveBIPS(3500);
         hevm.stopPrank();
     }
 
@@ -470,11 +470,11 @@ contract Test_ZivoeTranches is Utility {
         }
 
         // Pre-state.
-        assertEq(ZVT.maxTrancheRatioBIPS(), 4250);
+        assertEq(ZVT.maxTrancheRatioBIPS(), 4500);
         assertEq(ZVT.minZVEPerJTTMint(), 0);
         assertEq(ZVT.maxZVEPerJTTMint(), 0);
         assertEq(ZVT.lowerRatioIncentiveBIPS(), 1000);
-        assertEq(ZVT.upperRatioIncentiveBIPS(), 2000);
+        assertEq(ZVT.upperRatioIncentiveBIPS(), 3500);
 
         hevm.expectEmit(false, false, false, false, address(ZVT));
         emit UpdatedMaxTrancheRatioBIPS(4250, maxTrancheRatio);

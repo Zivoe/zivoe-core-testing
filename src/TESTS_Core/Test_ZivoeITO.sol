@@ -819,7 +819,7 @@ contract Test_ZivoeITO is Utility {
         assert(!ITO.airdropClaimed(address(jim)));
         
         uint256 upper = _pre_JuniorCredits;
-        uint256 middle = ZVE.totalSupply() / 10;
+        uint256 middle = ZVE.totalSupply() / 20;
         uint256 lower = zSTT.totalSupply() * 3 + zJTT.totalSupply();
 
         hevm.expectEmit(true, false, false, false, address(ITO));
@@ -1018,7 +1018,7 @@ contract Test_ZivoeITO is Utility {
         assert(!ITO.airdropClaimed(address(jim)));
         
         uint256 upper = _pre_JuniorCredits + _pre_SeniorCredits;
-        uint256 middle = ZVE.totalSupply() / 10;
+        uint256 middle = ZVE.totalSupply() / 20;
         uint256 lower = zSTT.totalSupply() * 3 + zJTT.totalSupply();
 
         hevm.expectEmit(true, false, false, false, address(ITO));

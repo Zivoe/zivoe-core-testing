@@ -36,7 +36,7 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
             YDL.targetRatioBIPS()
         );
 
-        withinDiff(seniorRate, 754716981 ether, 100 ether);
+        withinDiff(seniorRate, 727272727 ether, 100 ether);
         emit log_named_uint("seniorRate", seniorRate);
 
         // state 1
@@ -47,7 +47,7 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
         );
 
         assert (seniorRate1 < seniorRate);
-        withinDiff(seniorRate1, 235294117 ether, 100 ether);
+        withinDiff(seniorRate1, 210526315 ether, 100 ether);
         emit log_named_uint("seniorRate1", seniorRate1);
 
         // state 2
@@ -58,7 +58,7 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
         );
 
         assert (seniorRate2 > seniorRate);
-        withinDiff(seniorRate2, 968523002 ether, 100 ether);
+        withinDiff(seniorRate2, 963855421 ether, 100 ether);
         emit log_named_uint("seniorRate2", seniorRate2);
 
         // state 3

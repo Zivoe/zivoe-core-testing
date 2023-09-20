@@ -100,7 +100,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeGovernor(_GOV).votingDelay(), 1);
         assertEq(IZivoeGovernor(_GOV).votingPeriod(), 3600);
         assertEq(IZivoeGovernor(_GOV).quorum(0), 0);
-        assertEq(IZivoeGovernor(_GOV).proposalThreshold(), 125000 ether);
+        assertEq(IZivoeGovernor(_GOV).proposalThreshold(), 100000 ether);
         assertEq(IZivoeGovernor(_GOV).name(), 'ZivoeGovernorV2');
         assertEq(IZivoeGovernor(_GOV).version(), '1');
         assertEq(IZivoeGovernor(_GOV).COUNTING_MODE(), 'support=bravo&quorum=for,abstain');
@@ -276,11 +276,11 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(IZivoeTranches(_ZVT).GBL(), _GBL);
-        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 4250);
-        assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(),    0);
-        assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(),    0);
+        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 4500);
+        assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(), 0);
+        assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(), 0);
         assertEq(IZivoeTranches(_ZVT).lowerRatioIncentiveBIPS(), 1000);
-        assertEq(IZivoeTranches(_ZVT).upperRatioIncentiveBIPS(), 2000);
+        assertEq(IZivoeTranches(_ZVT).upperRatioIncentiveBIPS(), 3500);
 
         assert(!IZivoeTranches(_ZVT).tranchesUnlocked());
         assert(IZivoeTranches(_ZVT).canPush());
@@ -344,8 +344,8 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeYDL(_YDL).distributionCounter(), 0);
         assertEq(IZivoeYDL(_YDL).lastDistribution(), 0);
         assertEq(IZivoeYDL(_YDL).targetAPYBIPS(), 800);
-        assertEq(IZivoeYDL(_YDL).targetRatioBIPS(), 16250);
-        assertEq(IZivoeYDL(_YDL).protocolEarningsRateBIPS(), 2000);
+        assertEq(IZivoeYDL(_YDL).targetRatioBIPS(), 18750);
+        assertEq(IZivoeYDL(_YDL).protocolEarningsRateBIPS(), 3000);
         assertEq(IZivoeYDL(_YDL).daysBetweenDistributions(), 30);
         assertEq(IZivoeYDL(_YDL).retrospectiveDistributions(), 6);
 
