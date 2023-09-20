@@ -91,7 +91,7 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(FRAX, address(DAO), amountFRAX);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, abi.encode(0, 0)));
 
         // Post-state.
         assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
@@ -104,7 +104,7 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(USDC, address(DAO), amountUSDC);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, abi.encode(0, 0)));
 
         // Post-state.
         assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
@@ -117,7 +117,7 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(alUSD, address(DAO), amountalUSD);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, abi.encode(0, 0)));
 
         // Post-state.
         assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
@@ -154,11 +154,11 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(alUSD, address(DAO), amountalUSD);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, abi.encode(0, 0)));
 
         // pullFromLocker().
         hevm.startPrank(address(god));
-        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
+        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), abi.encode(0, 0, 0, 0));
         hevm.stopPrank();
 
         assertEq(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
@@ -170,11 +170,11 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(FRAX, address(DAO), amountFRAX);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, abi.encode(0, 0)));
 
         // pullFromLocker().
         hevm.startPrank(address(god));
-        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
+        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), abi.encode(0, 0, 0, 0));
         hevm.stopPrank();
 
         assertEq(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
@@ -186,11 +186,11 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(USDC, address(DAO), amountUSDC);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, abi.encode(0, 0)));
 
         // pullFromLocker().
         hevm.startPrank(address(god));
-        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), "");
+        DAO.pull(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), abi.encode(0, 0, 0, 0));
         hevm.stopPrank();
 
         assertEq(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
@@ -227,13 +227,13 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(alUSD, address(DAO), amountalUSD);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), alUSD, amountalUSD, abi.encode(0, 0)));
 
         uint256 preRewardsTokens = IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A));
 
         // pullFromLocker().
         hevm.startPrank(address(god));
-        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, "");
+        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
         hevm.stopPrank();
 
         assertLt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), preRewardsTokens);
@@ -247,13 +247,13 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(FRAX, address(DAO), amountFRAX);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, abi.encode(0, 0)));
 
         uint256 preRewardsTokens = IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A));
 
         // pullFromLocker().
         hevm.startPrank(address(god));
-        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, "");
+        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
         hevm.stopPrank();
 
         assertLt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), preRewardsTokens);
@@ -267,13 +267,13 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(USDC, address(DAO), amountUSDC);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), USDC, amountUSDC, abi.encode(0, 0)));
 
         uint256 preRewardsTokens = IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A));
 
         // pullFromLocker().
         hevm.startPrank(address(god));
-        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, "");
+        DAO.pullPartial(address(OCY_CVX_A), OCY_CVX_A.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
         hevm.stopPrank();
 
         assertLt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), preRewardsTokens);
@@ -288,7 +288,7 @@ contract Test_OCY_Convex_A is Utility {
 
         // pushToLocker().
         deal(FRAX, address(DAO), amountFRAX);
-        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, ""));
+        assert(god.try_push(address(DAO), address(OCY_CVX_A), FRAX, amountFRAX, abi.encode(0, 0)));
 
         // Post-state.
         assertGt(IERC20(OCY_CVX_A.convexRewards()).balanceOf(address(OCY_CVX_A)), 0);
