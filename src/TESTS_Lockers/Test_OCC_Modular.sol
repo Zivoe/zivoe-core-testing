@@ -54,27 +54,27 @@ contract Test_OCC_Modular is Utility {
     // ------------
     //    Events
     // ------------
-    
-    event CombineApproved(
-        uint256 id, 
-        uint256[] loanIDs,
-        uint256 paymentInterval, 
-        uint256 term,
-        uint256 gracePeriod,
-        uint256 expires,
-        int8 paymentSchedule
-    );
-    
-    event CombineUnapproved(uint id);
 
     event CombineApplied(
         address indexed borrower, 
         uint256[] loanIDs, 
-        uint256 paymentInterval,
         uint256 term,
+        uint256 paymentInterval,
         uint256 gracePeriod,
-        int8 paymentSchedule
+        int8 indexed paymentSchedule
     );
+    
+    event CombineApproved(
+        uint256 indexed id, 
+        uint256[] loanIDs,
+        uint256 term,
+        uint256 paymentInterval, 
+        uint256 gracePeriod,
+        uint256 expires,
+        int8 indexed paymentSchedule
+    );
+    
+    event CombineUnapproved(uint id);
 
     event CombineLoanCreated(
         address indexed borrower,
