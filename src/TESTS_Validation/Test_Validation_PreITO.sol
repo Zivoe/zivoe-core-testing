@@ -50,16 +50,53 @@ contract Test_Validation_PreITO is Utility {
             "OCC_USDC": "0xB71222A73D09556f4C86661b3a3d087bBD6A3db2",
             "OCC_USDT": "0xfAD0Ba085410412ED58829DA13e32DAD66da898a"
         }
+
+        Branch: goerli_v4
+
+        {
+            "DAI": "0x2EC870eEdA64899d4a51690122eCB8fd2f49443a",
+            "FRAX": "0x3a7EC61b07D503FD46D2298c2a96E1E97ba41d32",
+            "USDC": "0xee5f77E6C43Ba7cC1fB14fbC53Ba8A51A96e4a31",
+            "USDT": "0x0A5Ad4fD85732c885bF29710138cBe19E9bf415a",
+            "GBL": "0x4f7b4a755A869B8B18f3cE908b92d2e4e19a80E4",
+            "ZVE": "0x73450e487e828ab9C48F0724cCD9a42666330560",
+            "TLC": "0x86e1294b7D38a668b4afe569e48cA8119F5C97F7",
+            "GOV": "0x56C51e94fD9054994a782d87a7818B7BE4Fd94E3",
+            "DAO": "0x8DAcA5c58D3E15896c762f2d2Bf741aD93692618",
+            "zJTT": "0x1187950e0B93220d150640d89ec30dd8F3692663",
+            "zSTT": "0xACAa83b6458D90dE0981B934E5f8F78863184129",
+            "ITO": "0x24A37028B7565B02BF1694a63B4A6C5D04E6462f",
+            "ZVT": "0x587c225bb80cd5338BE9a0512De4609c5fe55aDC",
+            "stZVE": "0xF94FB36723535c6e876A30C44d2e5c7819A221d3",
+            "stJTT": "0x2aDc0a70aFb8671fcAf84416A62b42ef588D7B06",
+            "stSTT": "0x89c0A651294867354860271d9baB676F76926320",
+            "YDL": "0x3052BC2213eCd382426EEB6a922D37d87013C6fC",
+            "VestZVE": "0x211e8508b1fc1b4Dd01812f70b64CBE10529350d",
+            "OctYDL": "0x135d02fdB1D88efE0a87C223c9ebFF38db08678a",
+            "OctDAO": "0xFd23f34b5a3a649e7c6b15FC5bCCd94aD1227B3f",
+            "OctZVL": "0x3888Df1b5995004FEA044632a2a765b454B1BEd6",
+            "OCR": "0xe30a4A1Ce0F2988d17C4c1f2f95fBFFb1bEaD66a",
+            "OclZVE": "0x9B9d654618526fcB76F8120ca6317CcfA4f0ed7c",
+            "OceZVE": "0xAED4375752d044Bce34ae36dea52B1A3d11B54ff",
+            "OCC_DAI": "0x9aDC12A82fA1D7fD647DC7752b3D74fE1bC39F02",
+            "OCC_FRAX": "0xd233842209FA52875af82D3167B0B63043928Cc6",
+            "OCC_USDC": "0x19947C1a8667711f9D968f80207529962E64969a",
+            "OCC_USDT": "0x1387266f1203B3Cb985d5AE042353e00d4883546",
+            "OCY_Convex_A": "0x60824bb058bbf893e34146A7BbFd6f4a1b22e0Bc",
+            "OCY_Convex_B": "0x4d6763838F2bc9Ea272Fd06a6d2E6226ffaB5463",
+            "OCY_OUSD": "0x6F68E1f6376df2fF47E80aDd9C2f0556F1Ebce6D"
+        }
+
     */
 
     // Flags.
     bool MAINNET = false;
 
     // Goerli stablecoins.
-    address gDAI = 0x48C8F62Ccd07Fd876a4e08b520B154a6f1Bbe02F;
-    address gFRAX = 0x721d91B3C03663aD72431D9D2c32Efc4Fe75AA9F;
-    address gUSDC = 0xcEFE5BD01F9181294607ddd288B682A5338470b8;
-    address gUSDT = 0x439D9960138fdE567e133884920217998Ba8d3f4;
+    address gDAI = 0x2EC870eEdA64899d4a51690122eCB8fd2f49443a;
+    address gFRAX = 0x3a7EC61b07D503FD46D2298c2a96E1E97ba41d32;
+    address gUSDC = 0xee5f77E6C43Ba7cC1fB14fbC53Ba8A51A96e4a31;
+    address gUSDT = 0x0A5Ad4fD85732c885bF29710138cBe19E9bf415a;
     
     // Goerli multi-signature SAFEs.
     address gZVL = 0xC7894D17340D2167fF5CF18d1E90f09F2f9e401e;
@@ -95,39 +132,39 @@ contract Test_Validation_PreITO is Utility {
         }
         else {
             // Core
-            DAO = ZivoeDAO(0x7eef248670F6D90A5E1798108D48BD7BC147b7aF);
-            GBL = ZivoeGlobals(0xF5C206f8Da970DF1039538d207146302f2047aDA);
-            GOV = ZivoeGovernorV2(payable(0xbd7eB0AE92f7A0224c6958B594DaA4a55D5838e8));
-            ITO = ZivoeITO(0x34712FA2953423006B78df175fafF7cEa42Af407);
-            ZVE = ZivoeToken(0xa7B5d5dF1C9aEA55ee5ccc7b49296bF42e7F439a);
-            ZVT = ZivoeTranches(0xEA607714e5EcA4CD41Ac232266A715e1Fb75cDb6);
-            zJTT = ZivoeTrancheToken(0x92EF59d06C79DbEE32BD9C4F98A010416500ee0A);
-            zSTT = ZivoeTrancheToken(0x80c6092B6A93Bad6b610b2B82d79EBeE2DACDdD8);
-            YDL = ZivoeYDL(0x7b5B414266274Fd2195028ABf65396Bdd9A97218);
-            TLC = ZivoeTLC(payable(0x98314D44AbBa2945Bf75685cA2eC5941897095Db));
+            DAO = ZivoeDAO(0x8DAcA5c58D3E15896c762f2d2Bf741aD93692618);
+            GBL = ZivoeGlobals(0x4f7b4a755A869B8B18f3cE908b92d2e4e19a80E4);
+            GOV = ZivoeGovernorV2(payable(0x56C51e94fD9054994a782d87a7818B7BE4Fd94E3));
+            ITO = ZivoeITO(0x24A37028B7565B02BF1694a63B4A6C5D04E6462f);
+            ZVE = ZivoeToken(0x73450e487e828ab9C48F0724cCD9a42666330560);
+            ZVT = ZivoeTranches(0x587c225bb80cd5338BE9a0512De4609c5fe55aDC);
+            zJTT = ZivoeTrancheToken(0x1187950e0B93220d150640d89ec30dd8F3692663);
+            zSTT = ZivoeTrancheToken(0xACAa83b6458D90dE0981B934E5f8F78863184129);
+            YDL = ZivoeYDL(0x3052BC2213eCd382426EEB6a922D37d87013C6fC);
+            TLC = ZivoeTLC(payable(0x86e1294b7D38a668b4afe569e48cA8119F5C97F7));
 
             // Periphery
             MATH = ZivoeMath(address(YDL.MATH()));
-            stJTT = ZivoeRewards(0xe3068d70b71AB87F2f4CFf4acfa528C6c4eDFC86);
-            stSTT = ZivoeRewards(0x8B4845019A99250f2BbfAAAB99F0C543687Bc5b3);
-            stZVE = ZivoeRewards(0x3c992e55AF28362701683B5E4243BdEbc0400a2e);
-            vestZVE = ZivoeRewardsVesting(0x295816643023e443f0806d75b0B2236051011eDb);
+            stJTT = ZivoeRewards(0x2aDc0a70aFb8671fcAf84416A62b42ef588D7B06);
+            stSTT = ZivoeRewards(0x89c0A651294867354860271d9baB676F76926320);
+            stZVE = ZivoeRewards(0xF94FB36723535c6e876A30C44d2e5c7819A221d3);
+            vestZVE = ZivoeRewardsVesting(0x211e8508b1fc1b4Dd01812f70b64CBE10529350d);
 
             // Lockers
-            OCC_DAI = OCC_Modular(0xc8Bb3B6Fb84F2FcfC13C8d95C5Ffb476945eb195);
-            OCC_FRAX = OCC_Modular(0x11CCd86071479457d9E5aA15bDA6b942fD6A0454);
-            OCC_USDC = OCC_Modular(0xB71222A73D09556f4C86661b3a3d087bBD6A3db2);
-            OCC_USDT = OCC_Modular(0xfAD0Ba085410412ED58829DA13e32DAD66da898a);
+            OCC_DAI = OCC_Modular(0x9aDC12A82fA1D7fD647DC7752b3D74fE1bC39F02);
+            OCC_FRAX = OCC_Modular(0xd233842209FA52875af82D3167B0B63043928Cc6);
+            OCC_USDC = OCC_Modular(0x19947C1a8667711f9D968f80207529962E64969a);
+            OCC_USDT = OCC_Modular(0x1387266f1203B3Cb985d5AE042353e00d4883546);
 
-            OCE = OCE_ZVE(0x8c96FbF9f3c39c9b96B13E54BB84AB9951592644);
-            OCL = OCL_ZVE(0xCbC19FA27FfA8D39832481e4AE4a863CF26601f8);
-            OCR = OCR_Modular(0xf2d9cba90E5D2e38436fC66DB97688bb9dd0a795);
-            daoOCT = OCT_DAO(0xAC40A789654251d405d4Bd2956F0516Ea044eCFF);
-            ydlOCT = OCT_YDL(0xE2eF1bfc886BFb37ccF160a691718c3B1d189F9A);
-            zvlOCT = OCT_ZVL(0x5A09A3E1c7C8aaE19333E43088eC9FDD9e7c30da);
-            OCY_A = OCY_Convex_A(0x7Cf87218F4d4D9A7200A7E924B429d53B6956811);
-            OCY_B = OCY_Convex_B(0x4e76809435369e88dCb79F92365bbaD11686Df84);
-            OCY_O = OCY_OUSD(0x8f441BFD97efc1B1896E1cb65d187A15Eb2ff7A2);
+            OCE = OCE_ZVE(0xAED4375752d044Bce34ae36dea52B1A3d11B54ff);
+            OCL = OCL_ZVE(0x9B9d654618526fcB76F8120ca6317CcfA4f0ed7c);
+            OCR = OCR_Modular(0xe30a4A1Ce0F2988d17C4c1f2f95fBFFb1bEaD66a);
+            daoOCT = OCT_DAO(0xFd23f34b5a3a649e7c6b15FC5bCCd94aD1227B3f);
+            ydlOCT = OCT_YDL(0x135d02fdB1D88efE0a87C223c9ebFF38db08678a);
+            zvlOCT = OCT_ZVL(0x3888Df1b5995004FEA044632a2a765b454B1BEd6);
+            OCY_A = OCY_Convex_A(0x60824bb058bbf893e34146A7BbFd6f4a1b22e0Bc);
+            OCY_B = OCY_Convex_B(0x4d6763838F2bc9Ea272Fd06a6d2E6226ffaB5463);
+            OCY_O = OCY_OUSD(0x6F68E1f6376df2fF47E80aDd9C2f0556F1Ebce6D);
         }
 
     }
@@ -299,12 +336,12 @@ contract Test_Validation_PreITO is Utility {
         assertEq(stSTT.GBL(), address(GBL));
         assertEq(stZVE.GBL(), address(GBL));
 
-        assertEq(stJTT.rewardTokens(0), MAINNET ? USDC : gUSDC);
-        assertEq(stJTT.rewardTokens(1), address(ZVE));
-        assertEq(stSTT.rewardTokens(0), MAINNET ? USDC : gUSDC);
-        assertEq(stSTT.rewardTokens(1), address(ZVE));
-        assertEq(stZVE.rewardTokens(0), MAINNET ? USDC : gUSDC);
-        assertEq(stZVE.rewardTokens(1), address(ZVE));
+        assertEq(stJTT.rewardTokens(0), address(ZVE));
+        assertEq(stJTT.rewardTokens(1), MAINNET ? USDC : gUSDC);
+        assertEq(stSTT.rewardTokens(0), address(ZVE));
+        assertEq(stSTT.rewardTokens(1), MAINNET ? USDC : gUSDC);
+        assertEq(stZVE.rewardTokens(0), address(ZVE));
+        assertEq(stZVE.rewardTokens(1), MAINNET ? USDC : gUSDC);
 
         (
             uint256 rewardsDuration, 
@@ -424,11 +461,11 @@ contract Test_Validation_PreITO is Utility {
 
         // ZivoeTranches state.
         assertEq(ZVT.GBL(), address(GBL));
-        assertEq(ZVT.maxTrancheRatioBIPS(), 4250);
+        assertEq(ZVT.maxTrancheRatioBIPS(), 4500);
         assertEq(ZVT.minZVEPerJTTMint(), 0);
         assertEq(ZVT.maxZVEPerJTTMint(), 0);
         assertEq(ZVT.lowerRatioIncentiveBIPS(), 1000);
-        assertEq(ZVT.upperRatioIncentiveBIPS(), 2000);
+        assertEq(ZVT.upperRatioIncentiveBIPS(), 3500);
 
         assert(!ZVT.tranchesUnlocked());
         assert(!ZVT.paused());
@@ -445,15 +482,19 @@ contract Test_Validation_PreITO is Utility {
         assertEq(zSTT.symbol(), "zSTT");
         assertEq(zSTT.decimals(), 18);
 
-        // TODO: Check minter roles ... 
+        assert(zJTT.isMinter(address(ITO)));
+        assert(zSTT.isMinter(address(ITO)));
+
+        assert(zJTT.isMinter(address(ZVT)));
+        assert(zSTT.isMinter(address(ZVT)));
 
         // ZivoeYDL state.
         assertEq(YDL.GBL(), address(GBL));
         assertEq(YDL.distributedAsset(), MAINNET ? USDC : gUSDC);
         assertEq(YDL.lastDistribution(), 0);
         assertEq(YDL.targetAPYBIPS(), 800);
-        assertEq(YDL.targetRatioBIPS(), 16250);
-        assertEq(YDL.protocolEarningsRateBIPS(), 2000);
+        assertEq(YDL.targetRatioBIPS(), 18750);
+        assertEq(YDL.protocolEarningsRateBIPS(), 3000);
         assertEq(YDL.daysBetweenDistributions(), MAINNET ? 30 : 7);
         assertEq(YDL.retrospectiveDistributions(), 6);
 
