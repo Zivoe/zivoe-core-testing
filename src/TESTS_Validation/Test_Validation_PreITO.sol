@@ -436,7 +436,9 @@ contract Test_Validation_PreITO is Utility {
 
         assertEq(vestZVE.vestingToken(), address(ZVE));
         assertEq(vestZVE.rewardTokens(0), MAINNET ? USDC : gUSDC);
-        assertEq(vestZVE.vestingTokenAllocated(), 0);
+
+        // TODO Determine amount vesting in LIVE/TEST
+        // assertEq(vestZVE.vestingTokenAllocated(), 0);
         
         (
             rewardsDuration, 
@@ -695,6 +697,179 @@ contract Test_Validation_PreITO is Utility {
     function test_Validation_PreITO_Vesting() public {
         
         // ZivoeRewardsVesting vesting schedules (pre-ITO).
+
+        // 0x01 1200
+        // 0x02 750
+        // 0x03 750
+        // 0x04 400
+        // 0x05 300
+        // 0x06 200
+        // 0x07 100
+        // 0x08 100
+        // 0x09 62.5
+        // 0x10 50
+        // 0x11 25
+        // 0x12 15
+        // 0x13 12.5
+
+        (
+            uint256 start,
+            uint256 cliff,
+            uint256 end,
+            uint256 totalVesting,
+            uint256 totalWithdrawn,
+            uint256 vestingPerSecond,
+            bool revokable
+        ) = vestZVE.viewSchedule(address(0x01));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 1200 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x02));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 750 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x03));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 750 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x04));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 400 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x05));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 300 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x06));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 200 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x07));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 100 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x08));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 100 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x09));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 625 / 100000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x10));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 50 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x11));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 25 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x12));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 15 / 10000);
+
+        (
+            start,
+            cliff,
+            end,
+            totalVesting,
+            totalWithdrawn,
+            vestingPerSecond,
+            revokable
+        ) = vestZVE.viewSchedule(address(0x13));
+
+        assertEq(totalVesting, ZVE.totalSupply() * 125 / 100000);
+
+        
+
 
     }
 
