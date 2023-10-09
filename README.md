@@ -1,10 +1,10 @@
 ![Web_Official_Dark](https://user-images.githubusercontent.com/26582141/201743461-87df24c4-80fd-4abe-baf8-7cf6a85e0fba.png)
 
-# Zivoe Finance Unit/Fuzz Testing (_zivoe-core-testing_)
+# Zivoe Unit/Fuzz Testing (_zivoe-core-testing_)
 
-[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://zivoe-finance.gitbook.io/public-docs/)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.zivoe.finance)
 
-This repository contains unit and fuzz testing for Zivoe Finance v1 smart contracts.
+This repository contains unit and fuzz testing for Zivoe v1 smart contracts.
 
 ## Setup & Environment
 
