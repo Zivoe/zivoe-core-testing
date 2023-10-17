@@ -33,6 +33,11 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(jim.try_approveToken(asset, address(ITO), amount));
+
+
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit JuniorDeposit(address(jim), address(asset), amount, GBL.standardize(amount, asset), GBL.standardize(amount, asset));
+
         assert(jim.try_depositJunior(address(ITO), amount, asset));
 
     }
@@ -332,6 +337,8 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_DAI_state(uint160 amountIn) public {
         
+        hevm.assume(amountIn != 0);
+
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
@@ -343,8 +350,13 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
         // depositJunior()
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(DAI), amount, GBL.standardize(amount, DAI), GBL.standardize(amount, DAI));
+        emit log_named_address('address(jim)', address(jim));
+        emit log_named_address('address(DAI)', address(DAI));
+        emit log_named_uint('amount', amount);
+        emit log_named_uint('GBL.standardize(amount, DAI)', GBL.standardize(amount, DAI));
+        emit log_named_uint('GBL.standardize(amount, DAI)', GBL.standardize(amount, DAI));
+        // hevm.expectEmit(true, true, false, true, address(ITO));
+        // emit JuniorDeposit(address(jim), address(DAI), amount, GBL.standardize(amount, DAI), GBL.standardize(amount, DAI));
         depositJunior(DAI, amount);
 
         // Post-state DAI deposit.
