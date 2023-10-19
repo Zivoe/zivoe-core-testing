@@ -62,6 +62,10 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(sam.try_approveToken(asset, address(ITO), amount));
+
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit SeniorDeposit(address(sam), address(asset), amount, GBL.standardize(amount, asset) * 3, GBL.standardize(amount, asset));
+
         assert(sam.try_depositSenior(address(ITO), amount, asset));
 
     }
@@ -350,13 +354,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
         // depositJunior()
-        emit log_named_address('address(jim)', address(jim));
-        emit log_named_address('address(DAI)', address(DAI));
-        emit log_named_uint('amount', amount);
-        emit log_named_uint('GBL.standardize(amount, DAI)', GBL.standardize(amount, DAI));
-        emit log_named_uint('GBL.standardize(amount, DAI)', GBL.standardize(amount, DAI));
-        // hevm.expectEmit(true, true, false, true, address(ITO));
-        // emit JuniorDeposit(address(jim), address(DAI), amount, GBL.standardize(amount, DAI), GBL.standardize(amount, DAI));
         depositJunior(DAI, amount);
 
         // Post-state DAI deposit.
@@ -382,8 +379,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_FRAX = IERC20(FRAX).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(FRAX), amount, GBL.standardize(amount, FRAX), GBL.standardize(amount, FRAX));
         depositJunior(FRAX, amountIn);
 
         // Post-state FRAX deposit.
@@ -408,8 +403,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_USDC = IERC20(USDC).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(USDC), amount, GBL.standardize(amount, USDC), GBL.standardize(amount, USDC));
         depositJunior(USDC, amountIn);
 
         // Post-state USDC deposit.
@@ -434,8 +427,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_USDT = IERC20(USDT).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(USDT), amount, GBL.standardize(amount, USDT), GBL.standardize(amount, USDT));
         depositJunior(USDT, amount);
 
         // Post-state USDT deposit.
@@ -460,8 +451,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(DAI), amount, GBL.standardize(amount, DAI) * 3, GBL.standardize(amount, DAI));
         depositSenior(DAI, amount);
 
         // Post-state DAI deposit.
@@ -487,8 +476,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_FRAX = IERC20(FRAX).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(FRAX), amount, GBL.standardize(amount, FRAX) * 3, GBL.standardize(amount, FRAX));
         depositSenior(FRAX, amount);
 
         // Post-state FRAX deposit.
@@ -514,8 +501,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_USDC = IERC20(USDC).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(USDC), amount, GBL.standardize(amount, USDC) * 3, GBL.standardize(amount, USDC));
         depositSenior(USDC, amount);
 
         // Post-state USDC deposit.
@@ -541,8 +526,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_USDT = IERC20(USDT).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(USDT), amount, GBL.standardize(amount, USDT) * 3, GBL.standardize(amount, USDT));
         depositSenior(USDT, amount);
 
         // Post-state USDT deposit.
