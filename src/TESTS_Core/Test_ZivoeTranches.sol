@@ -305,7 +305,7 @@ contract Test_ZivoeTranches is Utility {
             assertEq(IERC20(address(ZVE)).balanceOf(address(sam)), _preZVE + _rewardZVE);
             assertEq(IERC20(address(zSTT)).balanceOf(address(sam)), _preSTT + GBL.standardize(amount_6, USDT));
         }
-    } 
+    }
 
     // Validate state changes on switchPause()
     // Validate restrictions on switchPause()
