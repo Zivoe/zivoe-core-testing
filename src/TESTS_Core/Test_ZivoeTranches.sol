@@ -419,11 +419,11 @@ contract Test_ZivoeTranches is Utility {
     }
 
     function test_ZivoeTranches_restrictions_governance_greaterThan_updateMaxZVEPerJTTMint() public {
-        assert(god.try_updateMaxZVEPerJTTMint(address(ZVT), 0.1 * 10**18 - 1));
-        // Can't updateMaxZVEPerJTTMint() greater than 0.1 * 10 **18.
+        assert(god.try_updateMaxZVEPerJTTMint(address(ZVT), 0.5 * 10**18 - 1));
+        // Can't updateMaxZVEPerJTTMint() greater than 0.5 * 10 **18.
         hevm.startPrank(address(god));
-        hevm.expectRevert("ZivoeTranches::updateMaxZVEPerJTTMint() max >= 0.1 * 10**18");
-        ZVT.updateMaxZVEPerJTTMint(0.1 * 10**18);
+        hevm.expectRevert("ZivoeTranches::updateMaxZVEPerJTTMint() max >= 0.5 * 10**18");
+        ZVT.updateMaxZVEPerJTTMint(0.5 * 10**18);
         hevm.stopPrank();
     }
 
