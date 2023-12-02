@@ -130,24 +130,20 @@ contract Test_ZivoeYDL is Utility {
         ) = YDL.viewDistributions();
 
         assertEq(protocolEarningsRecipients[0], address(stZVE));
-        assertEq(protocolEarningsRecipients[1], address(DAO));
+        assertEq(protocolEarningsRecipients[1], GBL.ZVL());
         assertEq(protocolEarningsRecipients.length, 2);
 
-        assertEq(protocolEarningsProportion[0], 7500);
-        assertEq(protocolEarningsProportion[1], 2500);
+        assertEq(protocolEarningsProportion[0], 6666);
+        assertEq(protocolEarningsProportion[1], 3334);
         assertEq(protocolEarningsProportion.length, 2);
 
-        assertEq(residualEarningsRecipients[0], address(stJTT));
-        assertEq(residualEarningsRecipients[1], address(stSTT));
-        assertEq(residualEarningsRecipients[2], address(stZVE));
-        assertEq(residualEarningsRecipients[3], address(DAO));
-        assertEq(residualEarningsRecipients.length, 4);
+        assertEq(residualEarningsRecipients[0], address(stZVE));
+        assertEq(residualEarningsRecipients[1], GBL.ZVL());
+        assertEq(residualEarningsRecipients.length, 2);
 
-        assertEq(residualEarningsProportion[0], 2500);
-        assertEq(residualEarningsProportion[1], 500);
-        assertEq(residualEarningsProportion[2], 4500);
-        assertEq(residualEarningsProportion[3], 2500);
-        assertEq(residualEarningsProportion.length, 4);
+        assertEq(residualEarningsProportion[0], 6000);
+        assertEq(residualEarningsProportion[1], 4000);
+        assertEq(residualEarningsProportion.length, 2);
 
     }
 
@@ -205,7 +201,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random);
 
         // Pre-state.
-        assertEq(YDL.targetRatioBIPS(), 16250);
+        assertEq(YDL.targetRatioBIPS(), 18750);
         
         // updateTargetRatioBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -251,7 +247,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random) % 9000;
 
         // Pre-state.
-        assertEq(YDL.protocolEarningsRateBIPS(), 2000);
+        assertEq(YDL.protocolEarningsRateBIPS(), 3000);
         
         // updateProtocolEarningsRateBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -441,11 +437,11 @@ contract Test_ZivoeYDL is Utility {
         ) = YDL.viewDistributions();
 
         assertEq(protocolEarningsRecipients[0], address(stZVE));
-        assertEq(protocolEarningsRecipients[1], address(DAO));
+        assertEq(protocolEarningsRecipients[1], GBL.ZVL());
         assertEq(protocolEarningsRecipients.length, 2);
 
-        assertEq(protocolEarningsProportion[0], 7500);
-        assertEq(protocolEarningsProportion[1], 2500);
+        assertEq(protocolEarningsProportion[0], 6666);
+        assertEq(protocolEarningsProportion[1], 3334);
         assertEq(protocolEarningsProportion.length, 2);
 
         // updateRecipients().
@@ -600,17 +596,13 @@ contract Test_ZivoeYDL is Utility {
             uint256[] memory residualEarningsProportion
         ) = YDL.viewDistributions();
 
-        assertEq(residualEarningsRecipients[0], address(stJTT));
-        assertEq(residualEarningsRecipients[1], address(stSTT));
-        assertEq(residualEarningsRecipients[2], address(stZVE));
-        assertEq(residualEarningsRecipients[3], address(DAO));
-        assertEq(residualEarningsRecipients.length, 4);
+        assertEq(residualEarningsRecipients[0], address(stZVE));
+        assertEq(residualEarningsRecipients[1], GBL.ZVL());
+        assertEq(residualEarningsRecipients.length, 2);
 
-        assertEq(residualEarningsProportion[0], 2500);
-        assertEq(residualEarningsProportion[1], 500);
-        assertEq(residualEarningsProportion[2], 4500);
-        assertEq(residualEarningsProportion[3], 2500);
-        assertEq(residualEarningsProportion.length, 4);
+        assertEq(residualEarningsProportion[0], 6000);
+        assertEq(residualEarningsProportion[1], 4000);
+        assertEq(residualEarningsProportion.length, 2);
 
         // updateRecipients().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -780,14 +772,12 @@ contract Test_ZivoeYDL is Utility {
         vm.expectEmit(true, true, false, false);
         emit YieldDistributedSingle(DAI, address(stZVE),    protocol[0] * splitBIPS / BIPS);
         emit YieldDistributedSingle(DAI, address(vestZVE),  protocol[0] * (BIPS - splitBIPS) / BIPS);
-        emit YieldDistributedSingle(DAI, address(DAO),      protocol[1]);
+        emit YieldDistributedSingle(DAI, GBL.ZVL(),         protocol[1]);
         emit YieldDistributedSingle(DAI, address(stSTT),    senior);
         emit YieldDistributedSingle(DAI, address(stJTT),    junior);
-        emit YieldDistributedSingle(DAI, address(stJTT),    residual[0]);
-        emit YieldDistributedSingle(DAI, address(stSTT),    residual[1]);
-        emit YieldDistributedSingle(DAI, address(stZVE),    residual[2] * splitBIPS / BIPS);
-        emit YieldDistributedSingle(DAI, address(vestZVE),  residual[2] * (BIPS - splitBIPS) / BIPS);
-        emit YieldDistributedSingle(DAI, address(DAO),      residual[3]);
+        emit YieldDistributedSingle(DAI, address(stZVE),    residual[0] * splitBIPS / BIPS);
+        emit YieldDistributedSingle(DAI, address(vestZVE),  residual[0] * (BIPS - splitBIPS) / BIPS);
+        emit YieldDistributedSingle(DAI, GBL.ZVL(),         residual[1]);
 
         // distributeYield().
         YDL.distributeYield();
@@ -802,22 +792,20 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.lastDistribution(), block.timestamp);
 
         emit log_named_uint("protocol[0] - stZVE", protocol[0]);
-        emit log_named_uint("protocol[1] - DAO", protocol[1]);
+        emit log_named_uint("protocol[1] - ZVL", protocol[1]);
         emit log_named_uint("senior", residualAmt);
         emit log_named_uint("junior", residualAmt);
-        emit log_named_uint("residual[0] - stJTT", residual[0]);
-        emit log_named_uint("residual[1] - stSTT", residual[1]);
-        emit log_named_uint("residual[2] - stZVE", residual[2]);
-        emit log_named_uint("residual[3] - DAO", residual[3]);
+        emit log_named_uint("residual[0] - stZVE", residual[0]);
+        emit log_named_uint("residual[1] - ZVL", residual[1]);
         emit log_named_uint("residualAmt", residualAmt);
 
         withinDiff(IERC20(DAI).balanceOf(address(YDL)),     0, 10);
-        withinDiff(IERC20(DAI).balanceOf(address(stSTT)),   senior + residual[1], 10);
-        withinDiff(IERC20(DAI).balanceOf(address(stJTT)),   junior + residual[0], 10);
-        withinDiff(IERC20(DAI).balanceOf(address(DAO)),     _preDAO + protocol[1] + residual[3], 10);
+        withinDiff(IERC20(DAI).balanceOf(address(stSTT)),   senior, 10);
+        withinDiff(IERC20(DAI).balanceOf(address(stJTT)),   junior, 10);
+        withinDiff(IERC20(DAI).balanceOf(GBL.ZVL()),     protocol[1] + residual[1], 10);
 
-        withinDiff(IERC20(DAI).balanceOf(address(stZVE)),     (protocol[0] + residual[2]) * splitBIPS / BIPS, 10);
-        withinDiff(IERC20(DAI).balanceOf(address(vestZVE)),   (protocol[0] + residual[2]) * (BIPS - splitBIPS) / BIPS, 10);
+        withinDiff(IERC20(DAI).balanceOf(address(stZVE)),     (protocol[0] + residual[0]) * splitBIPS / BIPS, 10);
+        withinDiff(IERC20(DAI).balanceOf(address(vestZVE)),   (protocol[0] + residual[0]) * (BIPS - splitBIPS) / BIPS, 10);
 
     }
 
@@ -886,12 +874,14 @@ contract Test_ZivoeYDL is Utility {
             // withinDiff(IERC20(DAI).balanceOf(address(stJTT)),   snap_stJTT + junior + residual[0], 10);
             // withinDiff(IERC20(DAI).balanceOf(address(DAO)),     snap_DAO + protocol[1] + residual[3], 10);
             // withinDiff(IERC20(DAI).balanceOf(address(stZVE)),     snap_stZVE + (protocol[0] + residual[2]) * splitBIPS / BIPS, 10);
-            withinDiff(IERC20(DAI).balanceOf(address(vestZVE)),   snap_vestZVE + (protocol[0] + residual[2]) * (BIPS - splitBIPS) / BIPS, 10);
+
+            withinDiff(IERC20(DAI).balanceOf(address(vestZVE)),   snap_vestZVE + (protocol[0] + residual[0]) * (BIPS - splitBIPS) / BIPS, 10);
         
             // snap_stSTT = IERC20(DAI).balanceOf(address(stSTT));
             // snap_stJTT = IERC20(DAI).balanceOf(address(stJTT));
             // snap_DAO = IERC20(DAI).balanceOf(address(DAO));
             // snap_stZVE = IERC20(DAI).balanceOf(address(stZVE));
+
             snap_vestZVE = IERC20(DAI).balanceOf(address(vestZVE));
         }
     }

@@ -636,12 +636,12 @@ contract Utility is DSTest, Test {
         // Step #5 --- Deploy Senior/Junior tranche token, through ZivoeTrancheToken.sol.
 
         zSTT = new ZivoeTrancheToken(
-            "ZivoeSeniorTrancheToken",
+            "Zivoe Senior Tranche",
             "zSTT"
         );
 
         zJTT = new ZivoeTrancheToken(
-            "ZivoeJuniorTrancheToken",
+            "Zivoe Junior Tranche",
             "zJTT"
         );
 
@@ -905,8 +905,8 @@ contract Utility is DSTest, Test {
 
         if (!check) {
             emit log_named_uint("Error: approx a == b not satisfied, accuracy difference ", expectedDiff);
-            emit log_named_uint("  Expected", val0);
-            emit log_named_uint("    Actual", val1);
+            emit log_named_uint("  Expected", val1);
+            emit log_named_uint("    Actual", val0);
             fail();
         }
     }

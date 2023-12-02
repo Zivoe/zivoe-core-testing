@@ -30,7 +30,7 @@ contract Test_ZivoeMath_seniorProportion is Utility {
         uint256 seniorProportionShortfall = MATH.seniorProportionShortfall(
             eSTT, 
             eJTT, 
-            16250 // Q
+            18750 // Q
         );
 
         uint256 seniorProportionBase = MATH.seniorProportionBase(
@@ -65,7 +65,7 @@ contract Test_ZivoeMath_seniorProportion is Utility {
         uint256 seniorProportionShortfall = MATH.seniorProportionShortfall(
             eSTT, 
             eJTT, 
-            16250 // Q
+            18750 // Q
         );
 
         uint256 seniorProportionBase = MATH.seniorProportionBase(

@@ -65,9 +65,9 @@ contract Test_OCE_ZVE is Utility {
         _preDistribution[1] = OCE_ZVE_Live.distributionRatioBIPS(1);
         _preDistribution[2] = OCE_ZVE_Live.distributionRatioBIPS(2);
 
-        assertEq(OCE_ZVE_Live.distributionRatioBIPS(0), 0);
-        assertEq(OCE_ZVE_Live.distributionRatioBIPS(1), 0);
-        assertEq(OCE_ZVE_Live.distributionRatioBIPS(2), 0);
+        assertEq(OCE_ZVE_Live.distributionRatioBIPS(0), 3334);
+        assertEq(OCE_ZVE_Live.distributionRatioBIPS(1), 3333);
+        assertEq(OCE_ZVE_Live.distributionRatioBIPS(2), 3333);
 
         assert(OCE_ZVE_Live.canPush());
         assert(OCE_ZVE_Live.canPull());
@@ -142,9 +142,9 @@ contract Test_OCE_ZVE is Utility {
         _preDistribution[1] = OCE_ZVE_Live.distributionRatioBIPS(1);
         _preDistribution[2] = OCE_ZVE_Live.distributionRatioBIPS(2);
 
-        assertEq(OCE_ZVE_Live.distributionRatioBIPS(0), 0);
-        assertEq(OCE_ZVE_Live.distributionRatioBIPS(1), 0);
-        assertEq(OCE_ZVE_Live.distributionRatioBIPS(2), 0);
+        assertEq(OCE_ZVE_Live.distributionRatioBIPS(0), 3334);
+        assertEq(OCE_ZVE_Live.distributionRatioBIPS(1), 3333);
+        assertEq(OCE_ZVE_Live.distributionRatioBIPS(2), 3333);
 
         _preDistribution[0] = random_0;
         _preDistribution[1] = random_1;

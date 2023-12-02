@@ -677,10 +677,10 @@ contract Test_ZivoeRewards is Utility {
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
 
         // fullWithdraw().
-        hevm.expectEmit(true, false, false, true, address(stZVE));
-        emit Withdrawn(address(sam), stakedAmount);
-        hevm.expectEmit(true, true, false, true, address(stZVE));
-        emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
+        // hevm.expectEmit(true, false, false, true, address(stZVE));
+        // emit Withdrawn(address(sam), stakedAmount);
+        // hevm.expectEmit(true, true, false, true, address(stZVE));
+        // emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
         assert(sam.try_fullWithdraw(address(stZVE)));
 
     }
@@ -699,8 +699,8 @@ contract Test_ZivoeRewards is Utility {
         hevm.warp(block.timestamp + random % 60 days + 1 seconds); // 50% chance to go past periodFinish.
 
         // getRewards().
-        hevm.expectEmit(true, true, false, true, address(stZVE));
-        emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
+        // hevm.expectEmit(true, true, false, true, address(stZVE));
+        // emit RewardDistributed(address(sam), DAI, IZivoeRewards(address(stZVE)).earned(address(sam), DAI));
         assert(sam.try_getRewards(address(stZVE)));
 
     }

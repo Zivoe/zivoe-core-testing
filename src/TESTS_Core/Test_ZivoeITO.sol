@@ -33,6 +33,11 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(jim.try_approveToken(asset, address(ITO), amount));
+
+
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit JuniorDeposit(address(jim), address(asset), amount, GBL.standardize(amount, asset), GBL.standardize(amount, asset));
+
         assert(jim.try_depositJunior(address(ITO), amount, asset));
 
     }
@@ -57,6 +62,10 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         assert(sam.try_approveToken(asset, address(ITO), amount));
+
+        hevm.expectEmit(true, true, false, true, address(ITO));
+        emit SeniorDeposit(address(sam), address(asset), amount, GBL.standardize(amount, asset) * 3, GBL.standardize(amount, asset));
+
         assert(sam.try_depositSenior(address(ITO), amount, asset));
 
     }
@@ -120,7 +129,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositJunior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end"");
+        hevm.expectRevert("ZivoeITO::depositJunior() block.timestamp >= end");
         ITO.depositJunior(100 ether, address(DAI));
         hevm.stopPrank();
     }
@@ -228,7 +237,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositSenior() block.timestamp >= end""
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp >= end"");
+        hevm.expectRevert("ZivoeITO::depositSenior() block.timestamp >= end");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
     }
@@ -332,6 +341,8 @@ contract Test_ZivoeITO is Utility {
 
     function test_ZivoeITO_depositJunior_DAI_state(uint160 amountIn) public {
         
+        hevm.assume(amountIn != 0);
+
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
@@ -343,8 +354,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
         // depositJunior()
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(DAI), amount, GBL.standardize(amount, DAI), GBL.standardize(amount, DAI));
         depositJunior(DAI, amount);
 
         // Post-state DAI deposit.
@@ -370,8 +379,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_FRAX = IERC20(FRAX).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(FRAX), amount, GBL.standardize(amount, FRAX), GBL.standardize(amount, FRAX));
         depositJunior(FRAX, amountIn);
 
         // Post-state FRAX deposit.
@@ -396,8 +403,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_USDC = IERC20(USDC).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(USDC), amount, GBL.standardize(amount, USDC), GBL.standardize(amount, USDC));
         depositJunior(USDC, amountIn);
 
         // Post-state USDC deposit.
@@ -422,8 +427,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
         uint256 _pre_USDT = IERC20(USDT).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit JuniorDeposit(address(jim), address(USDT), amount, GBL.standardize(amount, USDT), GBL.standardize(amount, USDT));
         depositJunior(USDT, amount);
 
         // Post-state USDT deposit.
@@ -448,8 +451,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_DAI = IERC20(DAI).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(DAI), amount, GBL.standardize(amount, DAI) * 3, GBL.standardize(amount, DAI));
         depositSenior(DAI, amount);
 
         // Post-state DAI deposit.
@@ -475,8 +476,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_FRAX = IERC20(FRAX).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(FRAX), amount, GBL.standardize(amount, FRAX) * 3, GBL.standardize(amount, FRAX));
         depositSenior(FRAX, amount);
 
         // Post-state FRAX deposit.
@@ -502,8 +501,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_USDC = IERC20(USDC).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(USDC), amount, GBL.standardize(amount, USDC) * 3, GBL.standardize(amount, USDC));
         depositSenior(USDC, amount);
 
         // Post-state USDC deposit.
@@ -529,8 +526,6 @@ contract Test_ZivoeITO is Utility {
         uint256 _pre_zSTT = zSTT.balanceOf(address(ITO));
         uint256 _pre_USDT = IERC20(USDT).balanceOf(address(ITO));
 
-        hevm.expectEmit(true, true, false, true, address(ITO));
-        emit SeniorDeposit(address(sam), address(USDT), amount, GBL.standardize(amount, USDT) * 3, GBL.standardize(amount, USDT));
         depositSenior(USDT, amount);
 
         // Post-state USDT deposit.
@@ -819,7 +814,7 @@ contract Test_ZivoeITO is Utility {
         assert(!ITO.airdropClaimed(address(jim)));
         
         uint256 upper = _pre_JuniorCredits;
-        uint256 middle = ZVE.totalSupply() / 10;
+        uint256 middle = ZVE.totalSupply() / 20;
         uint256 lower = zSTT.totalSupply() * 3 + zJTT.totalSupply();
 
         hevm.expectEmit(true, false, false, false, address(ITO));
@@ -1018,7 +1013,7 @@ contract Test_ZivoeITO is Utility {
         assert(!ITO.airdropClaimed(address(jim)));
         
         uint256 upper = _pre_JuniorCredits + _pre_SeniorCredits;
-        uint256 middle = ZVE.totalSupply() / 10;
+        uint256 middle = ZVE.totalSupply() / 20;
         uint256 lower = zSTT.totalSupply() * 3 + zJTT.totalSupply();
 
         hevm.expectEmit(true, false, false, false, address(ITO));
