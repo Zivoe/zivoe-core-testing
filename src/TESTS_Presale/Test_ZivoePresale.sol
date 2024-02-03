@@ -30,7 +30,19 @@ contract Test_Presale is Utility {
     // Test presale initial settings.
 
     function test_Presale_initialSettings() public {
-        
+
+        assert(ZPS.stablecoinWhitelist(DAI));
+        assert(ZPS.stablecoinWhitelist(FRAX));
+        assert(ZPS.stablecoinWhitelist(USDC));
+        assert(ZPS.stablecoinWhitelist(USDT));
+
+        assertEq(ZPS.oracle(), CHAINLINK_ETH);
+        assertEq(ZPS.treasury(), address(this));
+        assertEq(ZPS.pointsFloor(), 250);
+        assertEq(ZPS.pointsCeiling(), 5000);
+        assertEq(ZPS.presaleStart(), block.timestamp + 1 days);
+        assertEq(ZPS.presaleDays(), 21);
+
     }
 
     // Test presale view function endpoints:
