@@ -116,6 +116,8 @@ contract Utility is DSTest, Test {
     address constant SUSHI_V2_ROUTER = 0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F; // Sushi router.
     address constant SUSHI_V2_FACTORY   = 0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac; // Sushi factory.
 
+    address constant CHAINLINK_ETH = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419; // Chainlink ETH oracle.
+
     
     // --------------------------
     //    Zivoe Core Contracts

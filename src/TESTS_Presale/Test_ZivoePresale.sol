@@ -9,6 +9,22 @@ contract Test_Presale is Utility {
 
     using FloorMath for uint256;
 
-    function setUp() public { }
+    Presale ZPS;
+
+    // Test-cases implemented for Ethereum mainnet RPC.
+
+    function setUp() public { 
+
+        // Stablecoin whitelist setup.
+        address[] memory stablecoins = new address[](4);
+        stablecoins[0] = DAI;
+        stablecoins[1] = FRAX;
+        stablecoins[2] = USDC;
+        stablecoins[3] = USDT;
+
+        // Initialize pre-sale contract.
+        ZPS = new Presale(stablecoins, CHAINLINK_ETH);
+
+    }
 
 }
