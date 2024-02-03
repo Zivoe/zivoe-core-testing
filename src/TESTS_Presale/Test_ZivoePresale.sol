@@ -52,14 +52,28 @@ contract Test_Presale is Utility {
     //  - standardize()
 
     function test_Presale_oraclePrice() public {
+
+        // Test-case ensure:
+        //  - 10**8 precision
+        //  - Range between 1500 and 3500 (subject to change)
+        assertGt(ZPS.oraclePrice() / (10**8), 1500);
+        assertLt(ZPS.oraclePrice() / (10**8), 3500);
+
+    }
+
+    function test_Presale_pointsAwardedStablecoin_static() public {
         
     }
 
-    function test_Presale_pointsAwardedStablecoin() public {
+    function test_Presale_pointsAwardedETH_static() public {
         
     }
 
-    function test_Presale_pointsAwardedETH() public {
+    function test_Presale_pointsAwardedStablecoin_fuzz() public {
+        
+    }
+
+    function test_Presale_pointsAwardedETH_fuzz() public {
         
     }
 
