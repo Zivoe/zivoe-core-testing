@@ -109,6 +109,13 @@ contract Test_Presale is Utility {
         (pointsAwarded, priceEth) = ZPS.pointsAwardedETH(1 ether);
         assertEq(pointsAwarded, 1 ether * priceEth / (10**8) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
 
+        // Warp to end of pre-sale
+        hevm.warp(block.timestamp + 14 days);
+
+        // Expect amount per 1 ETH is: Floor * 1 ETH ($ Value), wei precision
+        (pointsAwarded, priceEth) = ZPS.pointsAwardedETH(1 ether);
+        assertEq(pointsAwarded, 1 ether * priceEth / (10**8) * ZPS.pointsFloor());
+
     }
 
     function test_Presale_pointsAwardedStablecoin_fuzz() public {
