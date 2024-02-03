@@ -81,6 +81,16 @@ contract Test_Presale is Utility {
         assertEq(ZPS.pointsAwardedStablecoin(FRAX, 1000 ether), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
         assertEq(ZPS.pointsAwardedStablecoin(USDC, 1000 * 10**6), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
         assertEq(ZPS.pointsAwardedStablecoin(USDT, 1000 * 10**6), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
+        
+        // Warp to end of presale, 14 days more, 21 days in
+        hevm.warp(block.timestamp + 14 days);
+
+        // Expected amount per any stablecoin is: Floor * Stablecoins, wei precision
+        assertEq(ZPS.pointsAwardedStablecoin(DAI, 1000 ether), 1000 ether * ZPS.pointsFloor());
+        assertEq(ZPS.pointsAwardedStablecoin(FRAX, 1000 ether), 1000 ether * ZPS.pointsFloor());
+        assertEq(ZPS.pointsAwardedStablecoin(USDC, 1000 * 10**6), 1000 ether * ZPS.pointsFloor());
+        assertEq(ZPS.pointsAwardedStablecoin(USDT, 1000 * 10**6), 1000 ether * ZPS.pointsFloor());
+        
     }
 
     function test_Presale_pointsAwardedETH_static() public {
