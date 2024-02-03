@@ -27,9 +27,58 @@ contract Test_Presale is Utility {
 
     }
 
-    function test_Presale() public {
-        uint price = ZPS.oraclePrice();
-        emit log_named_uint('price', price);
+    // Test presale initial settings.
+
+    function test_Presale_initialSettings() public {
+        
     }
+
+    // Test presale view function endpoints:
+    //  - oraclePrice()
+    //  - pointsAwardedStablecoin()
+    //  - pointsAwardedETH()
+    //  - standardize()
+
+    function test_Presale_oraclePrice() public {
+        
+    }
+
+    function test_Presale_pointsAwardedStablecoin() public {
+        
+    }
+
+    function test_Presale_pointsAwardedETH() public {
+        
+    }
+
+    function test_Presale_standardize() public {
+        
+    }
+
+    // Test presale function depositStablecoin():
+    //  - Restrictions (whitelist stablecoin)
+    //  - Restrictions (amount > 0) ? (not implemented)
+    //  - State changes
+
+    function test_Presale_depositStablecoin_require() public {
+
+    }
+
+    function test_Presale_depositStablecoin_state() public {
+
+    }
+
+    // Test presale function depositETH():
+    //  - Restrictions (msg.value > 0.1 ether)
+    //  - State changes
+
+    function test_Presale_depositETH_require() public {
+
+    }
+
+    function test_Presale_depositETH_state() public {
+
+    }
+
 
 }
