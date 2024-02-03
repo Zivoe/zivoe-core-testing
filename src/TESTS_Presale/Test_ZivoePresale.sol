@@ -53,7 +53,7 @@ contract Test_Presale is Utility {
 
     function test_Presale_oraclePrice() public {
 
-        // Test-case ensure:
+        // Test-case ensures:
         //  - 10**8 precision
         //  - Range between 1500 and 3500 (subject to change)
         assertGt(ZPS.oraclePrice() / (10**8), 1500);
@@ -63,6 +63,24 @@ contract Test_Presale is Utility {
 
     function test_Presale_pointsAwardedStablecoin_static() public {
         
+        // Warp to 1 day later, exact start of presale
+        hevm.warp(block.timestamp + 1 days);
+
+        // Expected amount per any stablecoin is maximum: 5000 * Stablecoins, wei precision
+        // NOTE: DAI/FRAX = 18 decimal precision, USDC/USDT = 6 decimal precision
+        assertEq(ZPS.pointsAwardedStablecoin(DAI, 1000 ether), 1000 ether * ZPS.pointsCeiling());
+        assertEq(ZPS.pointsAwardedStablecoin(FRAX, 1000 ether), 1000 ether * ZPS.pointsCeiling());
+        assertEq(ZPS.pointsAwardedStablecoin(USDC, 1000 * 10**6), 1000 ether * ZPS.pointsCeiling());
+        assertEq(ZPS.pointsAwardedStablecoin(USDT, 1000 * 10**6), 1000 ether * ZPS.pointsCeiling());
+        
+        // Warp to 7 days later, 1 week into presale (7/21)
+        hevm.warp(block.timestamp + 7 days);
+
+        // Expected amount per any stablecoin is: Floor + (Ceiling - Floor) * 14/21 * Stablecoins, wei precision
+        assertEq(ZPS.pointsAwardedStablecoin(DAI, 1000 ether), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
+        assertEq(ZPS.pointsAwardedStablecoin(FRAX, 1000 ether), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
+        assertEq(ZPS.pointsAwardedStablecoin(USDC, 1000 * 10**6), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
+        assertEq(ZPS.pointsAwardedStablecoin(USDT, 1000 * 10**6), 1000 ether * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
     }
 
     function test_Presale_pointsAwardedETH_static() public {
