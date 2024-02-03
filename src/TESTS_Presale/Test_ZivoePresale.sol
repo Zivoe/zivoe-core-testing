@@ -90,11 +90,25 @@ contract Test_Presale is Utility {
         assertEq(ZPS.pointsAwardedStablecoin(FRAX, 1000 ether), 1000 ether * ZPS.pointsFloor());
         assertEq(ZPS.pointsAwardedStablecoin(USDC, 1000 * 10**6), 1000 ether * ZPS.pointsFloor());
         assertEq(ZPS.pointsAwardedStablecoin(USDT, 1000 * 10**6), 1000 ether * ZPS.pointsFloor());
-        
+
     }
 
     function test_Presale_pointsAwardedETH_static() public {
         
+        // Warp to 1 day later, exact start of presale
+        hevm.warp(block.timestamp + 1 days);
+
+        // Expected amount per 1 ETH is maximum: 5000 * 1 ETH ($ Value), wei precision
+        (uint pointsAwarded, uint priceEth) = ZPS.pointsAwardedETH(1 ether);
+        assertEq(pointsAwarded, 1 ether * priceEth / (10**8) * ZPS.pointsCeiling());
+
+        // Warp to 7 days later, early-mid of presale
+        hevm.warp(block.timestamp + 7 days);
+
+        // Expect amount per 1 ETH is: Floor + (Ceiling - Floor) * 14/21 * 1 ETH ($ Value), wei precision
+        (pointsAwarded, priceEth) = ZPS.pointsAwardedETH(1 ether);
+        assertEq(pointsAwarded, 1 ether * priceEth / (10**8) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 14 / 21));
+
     }
 
     function test_Presale_pointsAwardedStablecoin_fuzz() public {
