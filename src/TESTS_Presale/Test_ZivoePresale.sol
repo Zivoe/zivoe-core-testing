@@ -23,8 +23,13 @@ contract Test_Presale is Utility {
         stablecoins[3] = USDT;
 
         // Initialize pre-sale contract.
-        ZPS = new Presale(stablecoins, CHAINLINK_ETH);
+        ZPS = new Presale(stablecoins, CHAINLINK_ETH, address(this));
 
+    }
+
+    function test_Presale() public {
+        uint price = ZPS.oraclePrice();
+        emit log_named_uint('price', price);
     }
 
 }
