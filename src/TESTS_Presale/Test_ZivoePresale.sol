@@ -25,6 +25,10 @@ contract Test_Presale is Utility {
         // Initialize pre-sale contract.
         ZPS = new Presale(stablecoins, CHAINLINK_ETH, address(this));
 
+        // Create actors for interactions here (spoofing), initialize mainnet tokens (enables minting via hevm)
+        createActors();
+        setupTokens();
+
     }
 
     // Test presale initial settings.
@@ -186,11 +190,11 @@ contract Test_Presale is Utility {
 
     }
 
-    // Test presale function standardize() for:
-    //  - 6 Decimal tokens (USDC, USDT)
-    //  - 18 Decimal tokens (DAI, FRAX)
-
     function test_Presale_standardize(uint96 amount) public {
+
+        // Test presale function standardize() for:
+        //  - 6 Decimal tokens (USDC, USDT)
+        //  - 18 Decimal tokens (DAI, FRAX)
 
         uint256 conversionAmount = uint256(amount);
 
@@ -221,6 +225,12 @@ contract Test_Presale is Utility {
     //  - State changes, event logs
 
     function test_Presale_depositStablecoin_require_whitelist() public {
+
+        // 
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCE_ZVE::pushToLocker() asset != IZivoeGlobals_OCE_ZVE(GBL).ZVE()");
+        DAO.push(address(OCE_ZVE_Live), address(FRAX), 10_000 ether, "");
+        hevm.stopPrank();
 
     }
 
