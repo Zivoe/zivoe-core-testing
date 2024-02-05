@@ -118,7 +118,24 @@ contract Test_Presale is Utility {
 
     }
 
-    function test_Presale_pointsAwardedStablecoin_fuzz() public {
+    function test_Presale_pointsAwardedStablecoin_fuzz(uint256 amount, uint256 timePassed) public {
+        
+        hevm.assume(timePassed <= 21 days);
+        hevm.assume(amount < 1_000_000_000 ether);
+
+        // Warp to start of pre-sale
+        hevm.warp(block.timestamp + 1 days);
+
+        // Warp amount of time passed
+        hevm.warp(block.timestamp + timePassed);
+
+        // DAI Case
+
+        // FRAX Case
+
+        // USDC Case
+
+        // USDT Case
         
     }
 
@@ -130,12 +147,49 @@ contract Test_Presale is Utility {
         
     }
 
+    // Test presale function standardize() for:
+    //  - 6 Decimal tokens (USDC, USDT)
+    //  - 18 Decimal tokens (DAI, FRAX)
+
+    function test_ZivoeGlobals_standardize_view(uint96 amount) public {
+
+        uint256 conversionAmount = uint256(amount);
+
+        // USDC 6 Decimals -> 18 Decimals
+        // USDT 6 Decimals -> 18 Decimals
+        (uint256 standardizedAmountUSDC) = ZPS.standardize(conversionAmount, USDC);
+        (uint256 standardizedAmountUSDT) = ZPS.standardize(conversionAmount, USDT);
+
+        // Note: The conversion amount should be 10**12 greater than provided 10**6 amount for 10**18 standardization
+        assertEq(standardizedAmountUSDC, conversionAmount * 10**12);
+        assertEq(standardizedAmountUSDT, conversionAmount * 10**12);
+
+        // DAI 18 Decimals -> 18 Decimals
+        // FRAX 18 Decimals -> 18 Decimals
+        (uint256 standardizedAmountDAI) = ZPS.standardize(conversionAmount, DAI);
+        (uint256 standardizedAmountFRAX) = ZPS.standardize(conversionAmount, FRAX);
+
+        // Note: No change should occur (it should skip over if-else statements) given initial 10**18 precision
+        assertEq(standardizedAmountDAI, conversionAmount);
+        assertEq(standardizedAmountFRAX, conversionAmount);
+
+    }
+
     // Test presale function depositStablecoin():
     //  - Restrictions (whitelist stablecoin)
     //  - Restrictions (amount > 0) ? (not implemented)
-    //  - State changes
+    //  - Restrictions (presale ended)
+    //  - State changes, event logs
 
-    function test_Presale_depositStablecoin_require() public {
+    function test_Presale_depositStablecoin_require_whitelist() public {
+
+    }
+
+    function test_Presale_depositStablecoin_require_amount() public {
+
+    }
+
+    function test_Presale_depositStablecoin_require_time() public {
 
     }
 
@@ -145,9 +199,14 @@ contract Test_Presale is Utility {
 
     // Test presale function depositETH():
     //  - Restrictions (msg.value > 0.1 ether)
-    //  - State changes
+    //  - Restrictions (presale ended)
+    //  - State changes, event logs
 
-    function test_Presale_depositETH_require() public {
+    function test_Presale_depositETH_require_amount() public {
+
+    }
+
+    function test_Presale_depositETH_require_time() public {
 
     }
 
