@@ -159,8 +159,31 @@ contract Test_Presale is Utility {
         
     }
 
-    function test_Presale_pointsAwardedETH_fuzz() public {
+    function test_Presale_pointsAwardedETH_fuzz(uint256 amount, uint256 timePassed) public {
         
+        hevm.assume(timePassed <= 21 days);
+        hevm.assume(amount < 1_000_000_000 ether);
+
+        // Warp to start of pre-sale
+        hevm.warp(block.timestamp + 1 days);
+
+        // Warp amount of time passed
+        hevm.warp(block.timestamp + timePassed);
+
+        (uint256 pointsAwarded, uint256 ethPrice) = ZPS.pointsAwardedETH(amount);
+
+        assertEq(
+            pointsAwarded, 
+            ((ethPrice * amount) / (10**8)) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 
+            (21 days - (block.timestamp - ZPS.presaleStart())) / 21 days)
+        );
+
+        assertEq(
+            pointsAwarded, 
+            ((ZPS.oraclePrice() * amount) / (10**8)) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 
+            (21 days - (block.timestamp - ZPS.presaleStart())) / 21 days)
+        );
+
     }
 
     // Test presale function standardize() for:
