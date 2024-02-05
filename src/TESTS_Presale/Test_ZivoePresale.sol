@@ -130,12 +130,32 @@ contract Test_Presale is Utility {
         hevm.warp(block.timestamp + timePassed);
 
         // DAI Case
-
+        assertEq(
+            ZPS.pointsAwardedStablecoin(DAI, amount), 
+            ZPS.standardize(DAI, amount) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 
+            (21 days - (block.timestamp - ZPS.presaleStart())) / 21 days)
+        );
+        
         // FRAX Case
+        assertEq(
+            ZPS.pointsAwardedStablecoin(FRAX, amount), 
+            ZPS.standardize(FRAX, amount) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 
+            (21 days - (block.timestamp - ZPS.presaleStart())) / 21 days)
+        );
 
         // USDC Case
+        assertEq(
+            ZPS.pointsAwardedStablecoin(USDC, amount), 
+            ZPS.standardize(USDC, amount) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 
+            (21 days - (block.timestamp - ZPS.presaleStart())) / 21 days)
+        );
 
         // USDT Case
+        assertEq(
+            ZPS.pointsAwardedStablecoin(USDT, amount), 
+            ZPS.standardize(USDT, amount) * (ZPS.pointsFloor() + (ZPS.pointsCeiling() - ZPS.pointsFloor()) * 
+            (21 days - (block.timestamp - ZPS.presaleStart())) / 21 days)
+        );
         
     }
 
