@@ -41,7 +41,7 @@ contract Test_Presale is Utility {
         assertEq(ZPS.pointsFloor(), 250);
         assertEq(ZPS.pointsCeiling(), 5000);
         assertEq(ZPS.presaleStart(), block.timestamp + 1 days);
-        assertEq(ZPS.presaleDays(), 21);
+        assertEq(ZPS.presaleDuration(), 21);
 
     }
 
@@ -143,22 +143,18 @@ contract Test_Presale is Utility {
         
     }
 
-    function test_Presale_standardize() public {
-        
-    }
-
     // Test presale function standardize() for:
     //  - 6 Decimal tokens (USDC, USDT)
     //  - 18 Decimal tokens (DAI, FRAX)
 
-    function test_ZivoeGlobals_standardize_view(uint96 amount) public {
+    function test_Presale_standardize(uint96 amount) public {
 
         uint256 conversionAmount = uint256(amount);
 
         // USDC 6 Decimals -> 18 Decimals
         // USDT 6 Decimals -> 18 Decimals
-        (uint256 standardizedAmountUSDC) = ZPS.standardize(conversionAmount, USDC);
-        (uint256 standardizedAmountUSDT) = ZPS.standardize(conversionAmount, USDT);
+        (uint256 standardizedAmountUSDC) = ZPS.standardize(USDC, conversionAmount);
+        (uint256 standardizedAmountUSDT) = ZPS.standardize(USDT, conversionAmount);
 
         // Note: The conversion amount should be 10**12 greater than provided 10**6 amount for 10**18 standardization
         assertEq(standardizedAmountUSDC, conversionAmount * 10**12);
@@ -166,8 +162,8 @@ contract Test_Presale is Utility {
 
         // DAI 18 Decimals -> 18 Decimals
         // FRAX 18 Decimals -> 18 Decimals
-        (uint256 standardizedAmountDAI) = ZPS.standardize(conversionAmount, DAI);
-        (uint256 standardizedAmountFRAX) = ZPS.standardize(conversionAmount, FRAX);
+        (uint256 standardizedAmountDAI) = ZPS.standardize(DAI, conversionAmount);
+        (uint256 standardizedAmountFRAX) = ZPS.standardize(FRAX, conversionAmount);
 
         // Note: No change should occur (it should skip over if-else statements) given initial 10**18 precision
         assertEq(standardizedAmountDAI, conversionAmount);
