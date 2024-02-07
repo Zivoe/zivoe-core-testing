@@ -280,20 +280,28 @@ contract Test_Presale is Utility {
 
     function test_Presale_depositStablecoin_require_notStarted() public {
 
-        // Reverts if presale has not started
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
-        // Function call
+        // Warp to edge-case of presale (1 second before start)
+        hevm.warp(block.timestamp + 1 days);
+
+        // Revert if presale hasn't started (note no tokens/approvals are needed to trigger)
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Presale::depositStablecoin() block.timestamp <= presaleStart");
+        ZPS.depositStablecoin(USDT, 9.9 * 10**6);
+
         hevm.stopPrank();
 
     }
 
     function test_Presale_depositStablecoin_require_ended() public {
 
-        // Reverts if presale has ended
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
-        // Function call
+        // Warp to edge-case of presale (1 second after end)
+        hevm.warp(block.timestamp + 1 days + ZPS.presaleDuration());
+
+        // Revert if presale has ended (note no tokens/approvals are needed to trigger)
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Presale::depositStablecoin() block.timestamp >= presaleStart + presaleDuration");
+        ZPS.depositStablecoin(USDT, 9.9 * 10**6);
+
         hevm.stopPrank();
 
     }
