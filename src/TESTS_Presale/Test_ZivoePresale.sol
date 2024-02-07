@@ -306,11 +306,24 @@ contract Test_Presale is Utility {
 
     }
 
-    function test_Presale_depositStablecoin_state() public {
+    function test_Presale_depositStablecoin_state(uint256 warpSpeed, uint256 amount) public {
+
+        hevm.assume(warpSpeed > 1 seconds);
+        hevm.assume(warpSpeed < 21 days);
+        hevm.assume(amount >= 10 ether);
+        hevm.assume(amount < 20_000_000 ether);
+
+        // Warp to start of presale
+        hevm.warp(block.timestamp + 1 days + warpSpeed);
 
         // Pre-state
 
+
         // Function call
+        hevm.startPrank(address(bob));
+        mint("DAI", address(bob), amount);
+        assert(bob.try_approveToken(DAI, address(ZPS), amount));
+        ZPS.depositStablecoin(DAI, amount);
 
         // Post-state, event log
 
