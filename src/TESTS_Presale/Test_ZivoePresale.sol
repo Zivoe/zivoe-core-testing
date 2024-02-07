@@ -360,30 +360,31 @@ contract Test_Presale is Utility {
 
     function test_Presale_depositETH_require_amount() public {
 
+        // Warp past start of presale
+        hevm.warp(block.timestamp + 1 days + 1 hours);
+
         // Reverts if amount of ETH is less than 0.01
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
-        // Function call
-        hevm.stopPrank();
+        hevm.expectRevert("Presale::depositETH() msg.value < 0.01 ether");
+        ZPS.depositETH{value: 0.009 ether}();
 
     }
 
     function test_Presale_depositETH_require_notStarted() public {
 
-        // Reverts if presale has not started
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
-        // Function call
-        hevm.stopPrank();
+        // Warp to edge-case of presale (1 second before start)
+        hevm.warp(block.timestamp + 1 days);
+
+        // Revert if presale hasn't started (note no tokens/approvals are needed to trigger)
+        hevm.expectRevert("Presale::depositETH() block.timestamp <= presaleStart");
+        ZPS.depositETH{value: 0.01 ether}();
 
     }
 
     function test_Presale_depositETH_require_ended() public {
 
         // Reverts if presale has ended
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
-        // Function call
+        ZPS.depositETH{value: 0.01 ether}();
+        
         hevm.stopPrank();
 
     }
