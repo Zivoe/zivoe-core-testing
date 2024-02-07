@@ -31,6 +31,22 @@ contract Test_Presale is Utility {
 
     }
 
+    // Events for expecting emits
+
+    event StablecoinDeposited(
+        address indexed depositor,
+        address indexed stablecoin,
+        uint256 amount,
+        uint256 pointsAwarded
+    );
+
+    event ETHDeposited(
+        address indexed depositor,
+        uint256 amount,
+        uint256 oraclePrice,
+        uint256 pointsAwarded
+    );
+
     // Test presale initial settings.
 
     function test_Presale_initialSettings() public {
@@ -317,15 +333,22 @@ contract Test_Presale is Utility {
         hevm.warp(block.timestamp + 1 days + warpSpeed);
 
         // Pre-state
+        assertEq(IERC20(DAI).balanceOf(ZPS.treasury()), 0);
+        assertEq(ZPS.points(address(bob)), 0);
 
-
-        // Function call
+        // Mint tokens, approve
         hevm.startPrank(address(bob));
         mint("DAI", address(bob), amount);
         assert(bob.try_approveToken(DAI, address(ZPS), amount));
+
+        // Deposit, confirm event log
+        hevm.expectEmit(true, true, false, false, address(ZPS));
+        emit StablecoinDeposited(address(bob), DAI, amount, ZPS.pointsAwardedStablecoin(DAI, amount));
         ZPS.depositStablecoin(DAI, amount);
 
-        // Post-state, event log
+        // Post-state
+        assertEq(IERC20(DAI).balanceOf(ZPS.treasury()), amount);
+        assertEq(ZPS.points(address(bob)), ZPS.pointsAwardedStablecoin(DAI, amount));
 
     }
 
