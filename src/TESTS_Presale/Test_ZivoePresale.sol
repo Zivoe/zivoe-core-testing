@@ -221,15 +221,19 @@ contract Test_Presale is Utility {
     // Test presale function depositStablecoin():
     //  - Restrictions (whitelist stablecoin)
     //  - Restrictions (amount > 0) ? (not implemented)
+    //  - Restrictions (presale not started)
     //  - Restrictions (presale ended)
     //  - State changes, event logs
 
     function test_Presale_depositStablecoin_require_whitelist() public {
 
         // Reverts if stablecoin is not on whitelist
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
-        // Function call
+        hevm.startPrank(address(bob));
+        mint("WETH", address(bob), 1 ether);
+        hevm.expectRevert("Presale::depositStablecoin() !stablecoinWhitelist[stablecoin]");
+
+        // Revert on depositStablecoin()
+        ZPS.depositStablecoin(WETH, 1 ether);
         hevm.stopPrank();
 
     }
@@ -244,7 +248,17 @@ contract Test_Presale is Utility {
 
     }
 
-    function test_Presale_depositStablecoin_require_time() public {
+    function test_Presale_depositStablecoin_require_notStarted() public {
+
+        // Reverts if presale has not started
+        hevm.startPrank(address(god));
+        // hevm.expectRevert("msg");
+        // Function call
+        hevm.stopPrank();
+
+    }
+
+    function test_Presale_depositStablecoin_require_ended() public {
 
         // Reverts if presale has ended
         hevm.startPrank(address(god));
@@ -266,6 +280,7 @@ contract Test_Presale is Utility {
 
     // Test presale function depositETH():
     //  - Restrictions (msg.value > 0.1 ether)
+    //  - Restrictions (presale not started)
     //  - Restrictions (presale ended)
     //  - State changes, event logs
 
@@ -279,7 +294,17 @@ contract Test_Presale is Utility {
 
     }
 
-    function test_Presale_depositETH_require_time() public {
+    function test_Presale_depositETH_require_notStarted() public {
+
+        // Reverts if presale has not started
+        hevm.startPrank(address(god));
+        // hevm.expectRevert("msg");
+        // Function call
+        hevm.stopPrank();
+
+    }
+
+    function test_Presale_depositETH_require_ended() public {
 
         // Reverts if presale has ended
         hevm.startPrank(address(god));
