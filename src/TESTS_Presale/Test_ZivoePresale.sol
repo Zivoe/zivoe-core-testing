@@ -27,7 +27,7 @@ contract Test_Presale is Utility {
 
         // Create actors for interactions here (spoofing), initialize mainnet tokens (enables minting via hevm)
         createActors();
-        setupTokens();
+        setUpTokens();
 
     }
 
@@ -226,23 +226,41 @@ contract Test_Presale is Utility {
 
     function test_Presale_depositStablecoin_require_whitelist() public {
 
-        // 
+        // Reverts if stablecoin is not on whitelist
         hevm.startPrank(address(god));
-        hevm.expectRevert("OCE_ZVE::pushToLocker() asset != IZivoeGlobals_OCE_ZVE(GBL).ZVE()");
-        DAO.push(address(OCE_ZVE_Live), address(FRAX), 10_000 ether, "");
+        // hevm.expectRevert("msg");
+        // Function call
         hevm.stopPrank();
 
     }
 
     function test_Presale_depositStablecoin_require_amount() public {
 
+        // Reverts if amount is less than 10 (standardized)
+        hevm.startPrank(address(god));
+        // hevm.expectRevert("msg");
+        // Function call
+        hevm.stopPrank();
+
     }
 
     function test_Presale_depositStablecoin_require_time() public {
 
+        // Reverts if presale has ended
+        hevm.startPrank(address(god));
+        // hevm.expectRevert("msg");
+        // Function call
+        hevm.stopPrank();
+
     }
 
     function test_Presale_depositStablecoin_state() public {
+
+        // Pre-state
+
+        // Function call
+
+        // Post-state, event log
 
     }
 
@@ -253,13 +271,31 @@ contract Test_Presale is Utility {
 
     function test_Presale_depositETH_require_amount() public {
 
+        // Reverts if amount of ETH is less than 0.01
+        hevm.startPrank(address(god));
+        // hevm.expectRevert("msg");
+        // Function call
+        hevm.stopPrank();
+
     }
 
     function test_Presale_depositETH_require_time() public {
 
+        // Reverts if presale has ended
+        hevm.startPrank(address(god));
+        // hevm.expectRevert("msg");
+        // Function call
+        hevm.stopPrank();
+
     }
 
     function test_Presale_depositETH_state() public {
+
+        // Pre-state
+
+        // Function call
+
+        // Post-state, event log
 
     }
 
