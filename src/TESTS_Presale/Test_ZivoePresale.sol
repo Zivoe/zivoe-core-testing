@@ -238,11 +238,41 @@ contract Test_Presale is Utility {
 
     }
 
-    function test_Presale_depositStablecoin_require_amount() public {
+    function test_Presale_depositStablecoin_require_amount_18() public {
+
+        // Warp past start of presale (otherwise will trigger another reversion error)
+        hevm.warp(block.timestamp + 1 days + 1 hours);
 
         // Reverts if amount is less than 10 (standardized)
-        hevm.startPrank(address(god));
-        // hevm.expectRevert("msg");
+        hevm.startPrank(address(bob));
+
+        mint("DAI", address(bob), 9.9 ether);
+        assert(bob.try_approveToken(DAI, address(ZPS), 9.9 ether));
+
+        hevm.expectRevert("Presale::depositStablecoin() checkAmount < 10 ether");
+
+        ZPS.depositStablecoin(DAI, 9.9 ether);
+
+        // Function call
+        hevm.stopPrank();
+
+    }
+
+    function test_Presale_depositStablecoin_require_amount_6() public {
+
+        // Warp past start of presale (otherwise will trigger another reversion error)
+        hevm.warp(block.timestamp + 1 days + 1 hours);
+
+        // Reverts if amount is less than 10 (standardized)
+        hevm.startPrank(address(bob));
+
+        mint("USDT", address(bob), 9.9 * 10**6);
+        assert(bob.try_approveToken(USDT, address(ZPS), 9.9 * 10**6));
+
+        hevm.expectRevert("Presale::depositStablecoin() checkAmount < 10 ether");
+
+        ZPS.depositStablecoin(USDT, 9.9 * 10**6);
+
         // Function call
         hevm.stopPrank();
 
