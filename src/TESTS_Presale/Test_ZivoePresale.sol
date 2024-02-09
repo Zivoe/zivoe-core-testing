@@ -382,20 +382,38 @@ contract Test_Presale is Utility {
 
     function test_Presale_depositETH_require_ended() public {
 
-        // Reverts if presale has ended
-        ZPS.depositETH{value: 0.01 ether}();
+        // Warp to edge-case of presale (1 second after end)
+        hevm.warp(block.timestamp + 1 days + ZPS.presaleDuration());
         
-        hevm.stopPrank();
+        // Revert if presale has ended (note no tokens/approvals are needed to trigger)
+        hevm.expectRevert("Presale::depositETH() block.timestamp >= presaleStart + presaleDuration");
+        ZPS.depositETH{value: 0.01 ether}();
 
     }
 
-    function test_Presale_depositETH_state() public {
+    function test_Presale_depositETH_state(uint256 warpSpeed, uint256 amount) public {
+
+        hevm.assume(warpSpeed > 1 seconds);
+        hevm.assume(warpSpeed < 21 days);
+        hevm.assume(amount >= 0.01 ether);
+        hevm.assume(amount < 1000 ether);
+
+        // Warp to start of presale
+        hevm.warp(block.timestamp + 1 days + warpSpeed);
 
         // Pre-state
+        assertEq(ZPS.treasury().balance, 0);
+        assertEq(ZPS.points(address(this)), 0);
 
-        // Function call
+        (uint points, uint price) = ZPS.pointsAwardedETH(amount);
 
-        // Post-state, event log
+        // Deposit, confirm event log
+        hevm.expectEmit(true, false, false, false, address(ZPS));
+        emit ETHDeposited(address(this), amount, price, points);
+
+        // Post-state
+        assertEq(ZPS.treasury().balance, amount);
+        assertEq(ZPS.points(address(this)), points);
 
     }
 
