@@ -2,7 +2,7 @@
 
 # Zivoe Unit/Fuzz Testing (_zivoe-core-testing_)
 
-[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.zivoe.finance)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.zivoe.com)
 
 This repository contains unit and fuzz testing for Zivoe v1 smart contracts.
 
