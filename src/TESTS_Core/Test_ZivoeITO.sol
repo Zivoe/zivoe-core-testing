@@ -203,7 +203,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositJunior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositJunior() asset != stables[0-4]");
+        hevm.expectRevert("ZivoeITO::depositJunior() asset != stables[0-3]");
         ITO.depositJunior(100 ether, address(WETH));
         hevm.stopPrank();
     }
@@ -311,7 +311,7 @@ contract Test_ZivoeITO is Utility {
 
         // Should throw with: "ZivoeITO::depositSenior() !stablecoinWhitelist[asset]"
         hevm.startPrank(address(bob));
-        hevm.expectRevert("ZivoeITO::depositSenior() asset != stables[0-4]");
+        hevm.expectRevert("ZivoeITO::depositSenior() asset != stables[0-3]");
         ITO.depositSenior(100 ether, address(WETH));
         hevm.stopPrank();
     }
