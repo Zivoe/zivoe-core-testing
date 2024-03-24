@@ -23,7 +23,7 @@ contract Test_OCR_Modular is Utility {
     }
 
     uint256 startingSupplySTT = 10_000_000 ether;
-    uint256 startingSupplyJTT = 4_000_000 ether;
+    uint256 startingSupplyJTT = 2_000_000 ether;
     
     function setUp() public {
 

@@ -3,6 +3,8 @@ pragma solidity ^0.8.17;
 
 import "../Utility/Utility.sol";
 
+import "../../lib/zivoe-core-foundry/src/Misc/MockStablecoin.sol";
+
 contract Test_ZVT is Utility {
 
     uint minZVEPerJTTMint;
@@ -16,9 +18,9 @@ contract Test_ZVT is Utility {
 
     function test_ZVT_Error() public {
 
-        ZVT = ZivoeTranches(0x42882a9d01E857A30E211DdCde18aCB252CFE96c);
-        GBL = ZivoeGlobals(0xd88984dD7887a835F142ff4067Bf7D7d5B167931);
-        ZVE = ZivoeToken(0xAFaf4eb0D74A478e50c4f4a2f82CA56c6F965357);
+        ZVT = ZivoeTranches(0xc02FE7B001634d56055DB85bab8A7725C7DAf388);
+        GBL = ZivoeGlobals(0xf0Afc2A38Db679fc3FaD99AD2b3Df2532d2C16EC);
+        ZVE = ZivoeToken(0x0dBf52928DBBfCE096C39944ABd49cF412c84919);
 
         // Error (overflow / underflow)
         // rewardZVEJuniorDeposit(), rewardsSeniorDeposit()
@@ -56,6 +58,32 @@ contract Test_ZVT is Utility {
         }
 
         emit log_named_uint('reward', reward);
+
+    }
+
+    function test_ZVT_Error_2() public {
+
+        ZVT = ZivoeTranches(0xc02FE7B001634d56055DB85bab8A7725C7DAf388);
+        GBL = ZivoeGlobals(0xf0Afc2A38Db679fc3FaD99AD2b3Df2532d2C16EC);
+        ZVE = ZivoeToken(0x0dBf52928DBBfCE096C39944ABd49cF412c84919);
+
+        ZivoeTranches APPLE = new ZivoeTranches(0xf0Afc2A38Db679fc3FaD99AD2b3Df2532d2C16EC);
+
+        // Mint DAI/USDC for deposit
+        MockStablecoin MOCK_DAI = MockStablecoin(0x70bFe748C66B48B0ae0109637806959e45E486e5);
+        MockStablecoin MOCK_USDC = MockStablecoin(0x64ea78674f607A913ef033834dF4a57306aEE2C2);
+
+        MOCK_DAI.mint(address(this), 10_000 ether);
+        MOCK_USDC.mint(address(this), 10_000 * 10**6);
+
+        // Approve
+        MOCK_DAI.approve(address(ZVT), 10_000 ether);
+        MOCK_USDC.approve(address(ZVT), 10_000 * 10**6);
+
+        // Deposit
+        // ZVT.depositJunior(10_000 ether, 0x70bFe748C66B48B0ae0109637806959e45E486e5);
+        // APPLE.rewardZVEJuniorDeposit(100_000_000_000 ether);
+        ZVT.rewardZVEJuniorDeposit(10_000 ether);
 
     }
 
