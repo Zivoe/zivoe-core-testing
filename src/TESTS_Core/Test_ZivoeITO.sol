@@ -347,6 +347,9 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         uint256 amount = uint256(amountIn);
+
+        // Deposit senior to enable junior deposits (open tranche)
+        depositSenior(DAI, amount * 5);
         
         // Pre-state DAI deposit.
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -374,6 +377,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount = uint256(amountIn);
 
+        // Deposit senior to enable junior deposits (open tranche)
+        depositSenior(FRAX, amount * 5);
+
         // Pre-state FRAX deposit.
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
@@ -398,6 +404,9 @@ contract Test_ZivoeITO is Utility {
 
         uint256 amount = uint256(amountIn);
 
+        // Deposit senior to enable junior deposits (open tranche)
+        depositSenior(USDC, amount * 5);
+
         // Pre-state USDC deposit.
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
         uint256 _pre_zJTT = zJTT.balanceOf(address(ITO));
@@ -421,6 +430,9 @@ contract Test_ZivoeITO is Utility {
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
         uint256 amount = uint256(amountIn);
+
+        // Deposit senior to enable junior deposits (open tranche)
+        depositSenior(USDT, amount * 5);
 
         // Pre-state USDT deposit.
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -803,6 +815,7 @@ contract Test_ZivoeITO is Utility {
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
+        depositSenior(DAI, amount_junior * 5);
         depositJunior(DAI, amount_junior);
 
         // Warp to end of ITO.
@@ -858,6 +871,7 @@ contract Test_ZivoeITO is Utility {
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
+        depositSenior(FRAX, amount_junior * 5);
         depositJunior(FRAX, amount_junior);
 
         // Warp to end of ITO.
@@ -905,6 +919,7 @@ contract Test_ZivoeITO is Utility {
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
+        depositSenior(USDC, amount_junior * 5);
         depositJunior(USDC, amount_junior);
 
         // Warp to end of ITO.
@@ -952,6 +967,7 @@ contract Test_ZivoeITO is Utility {
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() - 30 days + 1 seconds);
 
+        depositSenior(USDT, amount_junior * 5);
         depositJunior(USDT, amount_junior);
 
         // Warp to end of ITO.
@@ -1274,10 +1290,8 @@ contract Test_ZivoeITO is Utility {
 
         depositSenior(FRAX, amount_A);
         depositSenior(DAI, amount_A);
-        depositJunior(FRAX, amount_A);
-        depositJunior(DAI, amount_A);
-        depositBoth(USDC, amount_A);
-        depositBoth(USDT, amount_A);
+        depositJunior(FRAX, amount_A / 5);
+        depositJunior(DAI, amount_A / 5);
 
         hevm.warp(ITO.end());
 
@@ -1297,10 +1311,8 @@ contract Test_ZivoeITO is Utility {
 
         depositSenior(FRAX, amount_A);
         depositSenior(DAI, amount_A);
-        depositJunior(FRAX, amount_A);
-        depositJunior(DAI, amount_A);
-        depositBoth(USDC, amount_A);
-        depositBoth(USDT, amount_A);
+        depositJunior(FRAX, amount_A / 5);
+        depositJunior(DAI, amount_A / 5);
         
         hevm.warp(ITO.end() + 1 seconds);
 
