@@ -30,7 +30,7 @@ contract Test_OCR_Modular is Utility {
         deployCore(false);
 
         // NOTE: "sam" owns $zSTT and "jim" owns $zJTT
-        simulateITO_byTranche_optionalStake(startingSupplySTT, startingSupplyJTT, false);
+        simulateITO_byTranche_optionalStake(startingSupplySTT, false);
 
         // OCR_Modular Initialization & Whitelist
         OCR_DAI = new OCR_Modular(address(DAO), address(DAI), address(GBL), 1000);

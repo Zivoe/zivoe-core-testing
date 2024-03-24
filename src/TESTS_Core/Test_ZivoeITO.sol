@@ -71,6 +71,31 @@ contract Test_ZivoeITO is Utility {
     }
 
     // Note: This helper function ends with time warped to exactly 1 second after ITO starts.
+    function depositBoth(address asset, uint256 amountJunior, uint256 amountSenior) public {
+        
+        if (asset == DAI) {
+            mint("DAI", address(sam), amountJunior + amountSenior);
+        }
+        else if (asset == FRAX) {
+            mint("FRAX", address(sam), amountJunior + amountSenior);
+        }
+        else if (asset == USDC) {
+            mint("USDC", address(sam), amountJunior + amountSenior);
+        }
+        else if (asset == USDT) {
+            mint("USDT", address(sam), amountJunior + amountSenior);
+        }
+        else { revert(); }
+
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
+        assert(sam.try_approveToken(asset, address(ITO), amountJunior + amountSenior));
+
+        assert(sam.try_depositBoth(address(ITO), amountSenior, asset, amountJunior, asset));
+
+    }
+
+    // Note: This helper function ends with time warped to exactly 1 second after ITO starts.
     function depositBoth(address asset, uint256 amount) public {
         
         uint amountTotal = amount * 120 / 100;
@@ -333,6 +358,22 @@ contract Test_ZivoeITO is Utility {
         hevm.expectRevert("ZivoeITO::depositSenior() ITO_IZivoeRewardsVesting(vestZVE).vestingScheduleSet(_msgSender())");
         ITO.depositSenior(100 ether, address(DAI));
         hevm.stopPrank();
+    }
+
+    // Verify depositBoth() functionality.
+
+    function test_ZivoeITO_depositBoth(uint160 amountIn) public {
+        
+        hevm.assume(amountIn != 0);
+
+        zvl.try_commence(address(ITO));
+        hevm.warp(ITO.end() - 30 days + 1 seconds);
+
+        uint256 amount = uint256(amountIn);
+
+        // Deposit to both
+        depositBoth(DAI, amount, amount * 5);
+
     }
 
     // Validate depositJunior() state changes.

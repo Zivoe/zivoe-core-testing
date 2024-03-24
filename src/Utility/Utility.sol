@@ -52,7 +52,7 @@ interface User {
 
 
 /// @notice This is the primary Utility contract for testing and debugging.
-contract Utility is DSTest, Test {
+contract Utility is Test {
 
     Hevm hevm;      /// @dev The core import of Hevm from Test.sol to support simulations.
 
@@ -256,13 +256,12 @@ contract Utility is DSTest, Test {
     /// @dev    Does not claim / stake tokens.
     function simulateITO_byTranche_optionalStake(
         uint256 amountSenior,
-        uint256 amountJunior,
         bool stake
     ) public {
 
         // mint().
         mint("DAI", address(sam), amountSenior);
-        mint("DAI", address(jim), amountJunior);
+        mint("DAI", address(jim), amountSenior / 5);
 
         // Warp to start of ITO.
         zvl.try_commence(address(ITO));
@@ -270,11 +269,11 @@ contract Utility is DSTest, Test {
 
         // approve().
         assert(sam.try_approveToken(DAI, address(ITO), amountSenior));
-        assert(jim.try_approveToken(DAI, address(ITO), amountJunior));
+        assert(jim.try_approveToken(DAI, address(ITO), amountSenior / 5));
 
         // depositSenior() / depositJunior().
         assert(sam.try_depositSenior(address(ITO), amountSenior, DAI));
-        assert(jim.try_depositJunior(address(ITO), amountJunior, DAI));
+        assert(jim.try_depositJunior(address(ITO), amountSenior / 5, DAI));
         
         hevm.warp(ITO.end() + 1 seconds);
         

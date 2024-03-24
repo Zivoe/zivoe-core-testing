@@ -106,17 +106,15 @@ contract Test_ZivoeTranches is Utility {
 
     function test_ZivoeTranches_depositJunior_restrictions_notOpen() public {
         
-        mint("WETH", address(bob), 100 ether);
-        mint("DAI", address(bob), 100 ether);
-        assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
-        assert(bob.try_approveToken(address(WETH), address(ZVT), 100 ether));
+        mint("DAI", address(bob), 100_000_000_000 ether);
+        assert(bob.try_approveToken(address(DAI), address(ZVT), 100_000_000_000 ether));
         
         simulateITO(100_000_000 ether, 100_000_000 ether, 100_000_000 * USD, 100_000_000 * USD);
 
         // Can't call depositJunior() if !isJuniorOpen()
         hevm.startPrank(address(bob));
         hevm.expectRevert("ZivoeTranches::depositJunior() !isJuniorOpen(amount, asset)");
-        ZVT.depositJunior(100 ether, address(DAI));
+        ZVT.depositJunior(100_000_000_000 ether, address(DAI));
         hevm.stopPrank();
     }
 
