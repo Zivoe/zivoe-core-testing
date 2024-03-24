@@ -298,17 +298,17 @@ contract Test_OCC_Modular is Utility {
         assert(tim.try_acceptOffer(address(OCC_Modular_USDC), _loanID_USDC));
         assert(tim.try_acceptOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
-        // Mint borrower tokens for paying interest, or other purposes.
-        mint("DAI", address(tim), MAX_UINT / 2);
-        mint("FRAX", address(tim), MAX_UINT / 2);
-        mint("USDC", address(tim), MAX_UINT / 2);
-        mint("USDT", address(tim), MAX_UINT / 2);
+        // // Mint borrower tokens for paying interest, or other purposes.
+        mint("DAI", address(tim), MAX_UINT / 10**18);
+        mint("FRAX", address(tim), MAX_UINT / 10**18);
+        mint("USDC", address(tim), MAX_UINT / 10**18);
+        mint("USDT", address(tim), MAX_UINT / 10**18);
 
-        // Handle pre-approvals here for future convenience.
-        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 2));
+        // // Handle pre-approvals here for future convenience.
+        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 10**18));
+        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 10**18));
+        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 10**18));
+        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 10**18));
 
     }
 
@@ -332,16 +332,16 @@ contract Test_OCC_Modular is Utility {
         assert(tim.try_acceptOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Mint borrower tokens for paying interest, or other purposes.
-        mint("DAI", address(tim), MAX_UINT / 2);
-        mint("FRAX", address(tim), MAX_UINT / 2);
-        mint("USDC", address(tim), MAX_UINT / 2);
-        mint("USDT", address(tim), MAX_UINT / 2);
+        mint("DAI", address(tim), MAX_UINT / 100);
+        mint("FRAX", address(tim), MAX_UINT / 100);
+        mint("USDC", address(tim), MAX_UINT / 100);
+        mint("USDT", address(tim), MAX_UINT / 100);
 
         // Handle pre-approvals here for future convenience.
-        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 2));
+        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 100));
 
     }
 
@@ -374,16 +374,16 @@ contract Test_OCC_Modular is Utility {
         assert(tim.try_acceptOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Mint borrower tokens for paying interest, or other purposes.
-        mint("DAI", address(tim), MAX_UINT / 2);
-        mint("FRAX", address(tim), MAX_UINT / 2);
-        mint("USDC", address(tim), MAX_UINT / 2);
-        mint("USDT", address(tim), MAX_UINT / 2);
+        mint("DAI", address(tim), MAX_UINT / 100);
+        mint("FRAX", address(tim), MAX_UINT / 100);
+        mint("USDC", address(tim), MAX_UINT / 100);
+        mint("USDT", address(tim), MAX_UINT / 100);
 
         // Handle pre-approvals here for future convenience.
-        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 2));
+        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 100));
 
         (,, uint256[10] memory loanInfo_DAI) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
         (,, uint256[10] memory loanInfo_FRAX) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);
@@ -432,16 +432,16 @@ contract Test_OCC_Modular is Utility {
         assert(tim.try_acceptOffer(address(OCC_Modular_USDT), _loanID_USDT));
 
         // Mint borrower tokens for paying interest, or other purposes.
-        mint("DAI", address(tim), MAX_UINT / 2);
-        mint("FRAX", address(tim), MAX_UINT / 2);
-        mint("USDC", address(tim), MAX_UINT / 2);
-        mint("USDT", address(tim), MAX_UINT / 2);
+        mint("DAI", address(tim), MAX_UINT / 100);
+        mint("FRAX", address(tim), MAX_UINT / 100);
+        mint("USDC", address(tim), MAX_UINT / 100);
+        mint("USDT", address(tim), MAX_UINT / 100);
 
         // Handle pre-approvals here for future convenience.
-        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 2));
-        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 2));
+        assert(tim.try_approveToken(address(DAI), address(OCC_Modular_DAI), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(FRAX), address(OCC_Modular_FRAX), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(USDC), address(OCC_Modular_USDC), MAX_UINT / 100));
+        assert(tim.try_approveToken(address(USDT), address(OCC_Modular_USDT), MAX_UINT / 100));
 
         (,, uint256[10] memory loanInfo_DAI) = OCC_Modular_DAI.loanInfo(_loanID_DAI);
         (,, uint256[10] memory loanInfo_FRAX) = OCC_Modular_FRAX.loanInfo(_loanID_FRAX);

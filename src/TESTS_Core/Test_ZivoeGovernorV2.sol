@@ -73,6 +73,11 @@ contract Test_ZivoeGovernorV2 is Utility {
             false
         ));
 
+        // emit log_named_uint("votes", GOV.getVotes(address(tia), block.number - 1));
+        // emit log_named_uint("votes", GOV.getVotes(address(tia), block.number));
+
+        hevm.roll(block.number + 1);
+
         // Post-state.
         assertEq(GOV.getVotes(address(tia), block.number - 1), amount % 12_500_000 ether + 1);
 

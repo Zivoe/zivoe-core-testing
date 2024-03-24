@@ -35,7 +35,11 @@ contract Test_ZivoeRewardsVesting is Utility {
 
         mint("DAI", address(jim), 100 ether);
         assert(jim.try_approveToken(DAI, address(ITO), 100 ether));
-        assert(jim.try_depositJunior(address(ITO), 100 ether, DAI));
+        assert(jim.try_depositSenior(address(ITO), 100 ether, DAI));
+
+        mint("DAI", address(jim), 20 ether);
+        assert(jim.try_approveToken(DAI, address(ITO), 20 ether));
+        assert(jim.try_depositJunior(address(ITO), 20 ether, DAI));
 
         // Can't call vest if deposited to ITO.
         hevm.startPrank(address(zvl));

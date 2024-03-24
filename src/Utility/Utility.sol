@@ -52,7 +52,7 @@ interface User {
 
 
 /// @notice This is the primary Utility contract for testing and debugging.
-contract Utility is DSTest, Test {
+contract Utility is Test {
 
     Hevm hevm;      /// @dev The core import of Hevm from Test.sol to support simulations.
 
@@ -256,13 +256,12 @@ contract Utility is DSTest, Test {
     /// @dev    Does not claim / stake tokens.
     function simulateITO_byTranche_optionalStake(
         uint256 amountSenior,
-        uint256 amountJunior,
         bool stake
     ) public {
 
         // mint().
         mint("DAI", address(sam), amountSenior);
-        mint("DAI", address(jim), amountJunior);
+        mint("DAI", address(jim), amountSenior / 5);
 
         // Warp to start of ITO.
         zvl.try_commence(address(ITO));
@@ -270,11 +269,11 @@ contract Utility is DSTest, Test {
 
         // approve().
         assert(sam.try_approveToken(DAI, address(ITO), amountSenior));
-        assert(jim.try_approveToken(DAI, address(ITO), amountJunior));
+        assert(jim.try_approveToken(DAI, address(ITO), amountSenior / 5));
 
         // depositSenior() / depositJunior().
         assert(sam.try_depositSenior(address(ITO), amountSenior, DAI));
-        assert(jim.try_depositJunior(address(ITO), amountJunior, DAI));
+        assert(jim.try_depositJunior(address(ITO), amountSenior / 5, DAI));
         
         hevm.warp(ITO.end() + 1 seconds);
         
@@ -397,36 +396,40 @@ contract Utility is DSTest, Test {
         assert(sue.try_depositSenior(address(ITO), amount_USDC, USDC));
         assert(sue.try_depositSenior(address(ITO), amount_USDT, USDT));
 
-        // 2 ("jim", "joe") into only junior tranche.
-        assert(jim.try_depositJunior(address(ITO), amount_DAI, DAI));
-        assert(jim.try_depositJunior(address(ITO), amount_FRAX, FRAX));
-        assert(jim.try_depositJunior(address(ITO), amount_USDC, USDC));
-        assert(jim.try_depositJunior(address(ITO), amount_USDT, USDT));
-        assert(joe.try_depositJunior(address(ITO), amount_DAI, DAI));
-        assert(joe.try_depositJunior(address(ITO), amount_FRAX, FRAX));
-        assert(joe.try_depositJunior(address(ITO), amount_USDC, USDC));
-        assert(joe.try_depositJunior(address(ITO), amount_USDT, USDT));
-
         // 4 ("sal", "sid", "jon", "jen") into both tranches.
-        assert(sal.try_depositSenior(address(ITO), amount_DAI, DAI));
-        assert(sal.try_depositJunior(address(ITO), amount_FRAX, FRAX));
-        assert(sal.try_depositSenior(address(ITO), amount_USDC, USDC));
-        assert(sal.try_depositJunior(address(ITO), amount_USDT, USDT));
-        
-        assert(sid.try_depositJunior(address(ITO), amount_DAI, DAI));
-        assert(sid.try_depositSenior(address(ITO), amount_FRAX, FRAX));
-        assert(sid.try_depositJunior(address(ITO), amount_USDC, USDC));
-        assert(sid.try_depositSenior(address(ITO), amount_USDT, USDT));
-        
-        assert(jon.try_depositSenior(address(ITO), amount_DAI, DAI));
-        assert(jon.try_depositJunior(address(ITO), amount_FRAX, FRAX));
-        assert(jon.try_depositJunior(address(ITO), amount_USDC, USDC));
-        assert(jon.try_depositSenior(address(ITO), amount_USDT, USDT));
-        
-        assert(jen.try_depositJunior(address(ITO), amount_DAI, DAI));
         assert(jen.try_depositSenior(address(ITO), amount_FRAX, FRAX));
         assert(jen.try_depositSenior(address(ITO), amount_USDC, USDC));
-        assert(jen.try_depositJunior(address(ITO), amount_USDT, USDT));
+
+        assert(sal.try_depositSenior(address(ITO), amount_DAI, DAI));
+        assert(sal.try_depositSenior(address(ITO), amount_USDC, USDC));
+
+        assert(sid.try_depositSenior(address(ITO), amount_FRAX, FRAX));
+        assert(sid.try_depositSenior(address(ITO), amount_USDT, USDT));
+
+        assert(jon.try_depositSenior(address(ITO), amount_DAI, DAI));
+        assert(jon.try_depositSenior(address(ITO), amount_USDT, USDT));
+
+        // 2 ("jim", "joe") into only junior tranche.
+        assert(jim.try_depositJunior(address(ITO), amount_DAI / 5, DAI));
+        assert(jim.try_depositJunior(address(ITO), amount_FRAX / 5, FRAX));
+        assert(jim.try_depositJunior(address(ITO), amount_USDC / 5, USDC));
+        assert(jim.try_depositJunior(address(ITO), amount_USDT / 5, USDT));
+        assert(joe.try_depositJunior(address(ITO), amount_DAI / 5, DAI));
+        assert(joe.try_depositJunior(address(ITO), amount_FRAX / 5, FRAX));
+        assert(joe.try_depositJunior(address(ITO), amount_USDC / 5, USDC));
+        assert(joe.try_depositJunior(address(ITO), amount_USDT / 5, USDT));
+
+        assert(sal.try_depositJunior(address(ITO), amount_FRAX / 5, FRAX));
+        assert(sal.try_depositJunior(address(ITO), amount_USDT / 5, USDT));
+        
+        assert(sid.try_depositJunior(address(ITO), amount_DAI / 5, DAI));
+        assert(sid.try_depositJunior(address(ITO), amount_USDC / 5, USDC));
+        
+        assert(jon.try_depositJunior(address(ITO), amount_FRAX / 5, FRAX));
+        assert(jon.try_depositJunior(address(ITO), amount_USDC / 5, USDC));
+        
+        assert(jen.try_depositJunior(address(ITO), amount_DAI / 5, DAI));
+        assert(jen.try_depositJunior(address(ITO), amount_USDT / 5, USDT));
 
         hevm.warp(ITO.end() + 1 seconds);
         
@@ -848,17 +851,17 @@ contract Utility is DSTest, Test {
         // "jim" => depositJunior()
         // ------------------------
 
-        mint("DAI",  address(jim), juniorDeposit * 1 ether);
-        mint("USDC", address(jim), juniorDeposit * USD);
-        mint("USDT", address(jim), juniorDeposit * USD);
+        mint("DAI",  address(jim), seniorDeposit * 1 ether / 5);
+        mint("USDC", address(jim), seniorDeposit * USD / 5);
+        mint("USDT", address(jim), seniorDeposit * USD / 5);
 
-        assert(jim.try_approveToken(DAI,  address(ITO), juniorDeposit * 1 ether));
-        assert(jim.try_approveToken(USDC, address(ITO), juniorDeposit * USD));
-        assert(jim.try_approveToken(USDT, address(ITO), juniorDeposit * USD));
+        assert(jim.try_approveToken(DAI,  address(ITO), seniorDeposit * 1 ether / 5));
+        assert(jim.try_approveToken(USDC, address(ITO), seniorDeposit * USD / 5));
+        assert(jim.try_approveToken(USDT, address(ITO), seniorDeposit * USD / 5));
 
-        assert(jim.try_depositJunior(address(ITO), juniorDeposit * 1 ether, address(DAI)));
-        assert(jim.try_depositJunior(address(ITO), juniorDeposit * USD, address(USDC)));
-        assert(jim.try_depositJunior(address(ITO), juniorDeposit * USD, address(USDT)));
+        assert(jim.try_depositJunior(address(ITO), seniorDeposit * 1 ether / 5, address(DAI)));
+        assert(jim.try_depositJunior(address(ITO), seniorDeposit * USD / 5, address(USDC)));
+        assert(jim.try_depositJunior(address(ITO), seniorDeposit * USD / 5, address(USDT)));
 
         // Warp to end of ITO, call migrateDeposits() to ensure ZivoeDAO.sol receives capital.
         hevm.warp(ITO.end() + 1);
