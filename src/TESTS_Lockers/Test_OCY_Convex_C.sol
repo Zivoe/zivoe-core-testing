@@ -92,338 +92,237 @@ contract Test_OCY_Convex_C is Utility {
 
         assertEq(OCY_CVX_C.curveBasePool(), 0x383E6b4437b59fff47B619CBA855CA29342A8559);
         assertEq(OCY_CVX_C.curveBasePoolToken(), 0x383E6b4437b59fff47B619CBA855CA29342A8559);
-        
+
         acquire_PYUSD_DAO();
 
     }
 
-    // // Validate pushToLocker() state changes.
-    // // Validate pushToLocker() restrictions.
-    // // This includes:
-    // //   - asset must be DAI, USDC, USDT, or sUSD
-    // //   - onlyOwner() modifier
+    // Validate pushToLocker() state changes.
+    // Validate pushToLocker() restrictions.
+    // This includes:
+    //   - asset must be PYUSD or USDC
+    //   - onlyOwner() modifier
 
-    // function test_OCY_Convex_B_pushToLocker_restrictions_msgSender() public {
+    function test_OCY_Convex_C_pushToLocker_restrictions_msgSender() public {
 
-    //     // Can't push to contract if _msgSender() != owner()
-    //     hevm.startPrank(address(bob));
-    //     hevm.expectRevert("Ownable: caller is not the owner");
-    //     OCY_CVX_B.pushToLocker(address(DAI), 100 ether, "");
-    //     hevm.stopPrank();
-    // }
+        // Can't push to contract if _msgSender() != owner()
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        OCY_CVX_C.pushToLocker(address(DAI), 100 ether, "");
+        hevm.stopPrank();
+    }
 
-    // function test_OCY_Convex_B_pushToLocker_restrictions_asset() public {
+    function test_OCY_Convex_C_pushToLocker_restrictions_asset() public {
         
-    //     deal(FRAX, address(DAO), 100 ether);
+        deal(FRAX, address(DAO), 100 ether);
 
-    //     // Can't push to contract if asset != DAI && asset != USDC && asset != USDT && asset != sUSD
-    //     hevm.startPrank(address(god));
-    //     hevm.expectRevert("OCY_Convex_B::pushToLocker() asset != DAI && asset != USDC && asset != USDT && asset != sUSD");
-    //     DAO.push(address(OCY_CVX_B), FRAX, 100 ether, abi.encode(0));
-    //     hevm.stopPrank();
-    // }
+        // Can't push to contract if asset != PYUSD && asset != USDC
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_C::pushToLocker() asset != PYUSD && asset != USDC");
+        DAO.push(address(OCY_CVX_C), FRAX, 100 ether, abi.encode(0));
+        hevm.stopPrank();
+    }
 
-    // function test_OCY_Convex_B_pushToLocker_state_DAI(uint96 amountDAI) public {
+    function test_OCY_Convex_C_pushToLocker_state_PYUSD(uint96 amountPYUSD) public {
 
-    //     hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
+        hevm.assume(amountPYUSD > 1_000 * 10**6 && amountPYUSD < 10_000_000 * 10**6);
 
-    //     // pushToLocker().
-    //     deal(DAI, address(DAO), amountDAI);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, abi.encode(0)));
+        // pushToLocker().
+        deal(PYUSD, address(DAO), amountPYUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), PYUSD, amountPYUSD, abi.encode(0)));
 
-    //     // Post-state.
-    //     assertGt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
+        // Post-state.
+        assertGt(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), 0);
 
-    // }
+    }
 
-    // function test_OCY_Convex_B_pushToLocker_state_USDC(uint96 amountUSDC) public {
+    function test_OCY_Convex_C_pushToLocker_state_USDC(uint96 amountUSDC) public {
 
-    //     hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
 
-    //     // pushToLocker().
-    //     deal(USDC, address(DAO), amountUSDC);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), USDC, amountUSDC, abi.encode(0)));
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), USDC, amountUSDC, abi.encode(0)));
 
-    //     // Post-state.
-    //     assertGt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
+        // Post-state.
+        assertGt(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), 0);
 
-    // }
+    }
 
-    // function test_OCY_Convex_B_pushToLocker_state_USDT(uint96 amountUSDT) public {
+    // Validate pullFromLocker() state changes.
+    // Validate pullFromLocker() restrictions.
+    // This includes:
+    //   - onlyOwner() modifier
+    //   - asset must be convexPoolToken
 
-    //     hevm.assume(amountUSDT > 1_000 * 10**6 && amountUSDT < 10_000_000 * 10**6);
+    function test_OCY_Convex_C_pullFromLocker_restrictions_msgSender() public {
 
-    //     // pushToLocker().
-    //     deal(USDT, address(DAO), amountUSDT);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), USDT, amountUSDT, abi.encode(0)));
+        // Can't push to contract if _msgSender() != owner()
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pull(address(OCY_CVX_C), USDT, abi.encode(0, 0));
+        hevm.stopPrank();
+    }
 
-    //     // Post-state.
-    //     assertGt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-
-    // }
-
-    // function test_OCY_Convex_B_pushToLocker_state_sUSD(uint96 amountsUSD) public {
-
-    //     acquire_sUSD_DAO();
-
-    //     hevm.assume(amountsUSD > 1_000 ether && amountsUSD < IERC20(sUSD).balanceOf(address(DAO)));
-
-    //     // pushToLocker().
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), sUSD, amountsUSD, abi.encode(0)));
-
-    //     // Post-state.
-    //     assertGt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-
-    // }
-
-    // // Validate pullFromLocker() state changes.
-    // // Validate pullFromLocker() restrictions.
-    // // This includes:
-    // //   - onlyOwner() modifier
-    // //   - asset must be convexPoolToken
-
-    // function test_OCY_Convex_B_pullFromLocker_restrictions_msgSender() public {
-
-    //     // Can't push to contract if _msgSender() != owner()
-    //     hevm.startPrank(address(bob));
-    //     hevm.expectRevert("Ownable: caller is not the owner");
-    //     DAO.pull(address(OCY_CVX_B), USDT, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-    // }
-
-    // function test_OCY_Convex_B_pullFromLocker_restrictions_asset() public {
+    function test_OCY_Convex_C_pullFromLocker_restrictions_asset() public {
         
-    //     // Can't pull if asset != convexPoolToken
-    //     hevm.startPrank(address(god));
-    //     hevm.expectRevert("OCY_Convex_B::pullFromLocker() asset != convexPoolToken");
-    //     DAO.pull(address(OCY_CVX_B), USDT, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-    // }
+        // Can't pull if asset != convexPoolToken
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_C::pullFromLocker() asset != convexPoolToken");
+        DAO.pull(address(OCY_CVX_C), USDT, abi.encode(0, 0));
+        hevm.stopPrank();
+    }
 
-    // function test_OCY_Convex_B_pullFromLocker_state_DAI(uint96 amountDAI) public {
+    function test_OCY_Convex_C_pullFromLocker_state_PYUSD(uint96 amountPYUSD) public {
 
-    //     hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
+        hevm.assume(amountPYUSD > 1_000 * 10**6 && amountPYUSD < 10_000_000 * 10**6);
 
-    //     // pushToLocker().
-    //     deal(DAI, address(DAO), amountDAI);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, abi.encode(0)));
+        // pushToLocker().
+        deal(PYUSD, address(DAO), amountPYUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), PYUSD, amountPYUSD, abi.encode(0)));
 
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pull(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCY_CVX_C), OCY_CVX_C.convexPoolToken(), abi.encode(0, 0));
+        hevm.stopPrank();
 
-    //     assertEq(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-    // }
+        assertEq(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), 0);
+    }
 
-    // function test_OCY_Convex_B_pullFromLocker_state_USDT(uint96 amountUSDT) public {
+    function test_OCY_Convex_C_pullFromLocker_state_USDC(uint96 amountUSDC) public {
 
-    //     hevm.assume(amountUSDT > 1_000 * 10**6 && amountUSDT < 10_000_000 * 10**6);
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
 
-    //     // pushToLocker().
-    //     deal(USDT, address(DAO), amountUSDT);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), USDT, amountUSDT, abi.encode(0)));
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), USDC, amountUSDC, abi.encode(0)));
 
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pull(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pull(address(OCY_CVX_C), OCY_CVX_C.convexPoolToken(), abi.encode(0, 0));
+        hevm.stopPrank();
 
-    //     assertEq(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-    // }
+        assertEq(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), 0);
+    }
 
-    // function test_OCY_Convex_B_pullFromLocker_state_USDC(uint96 amountUSDC) public {
+    // Validate pullFromLockerPartial() state changes.
+    // Validate pullFromLockerPartial() restrictions.
+    // This includes:
+    //   - asset must be convexPoolToken
+    //   - onlyOwner() modifier
 
-    //     hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+    function test_OCY_Convex_C_pullFromLockerPartial_restrictions_msgSender() public {
 
-    //     // pushToLocker().
-    //     deal(USDC, address(DAO), amountUSDC);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), USDC, amountUSDC, abi.encode(0)));
+        // Can't push to contract if _msgSender() != owner()
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("Ownable: caller is not the owner");
+        DAO.pullPartial(address(OCY_CVX_C), USDT, 5, abi.encode(0, 0));
+        hevm.stopPrank();
+    }
 
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pull(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-
-    //     assertEq(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-    // }
-
-    // function test_OCY_Convex_B_pullFromLocker_state_sUSD(uint96 amountsUSD) public {
-
-    //     acquire_sUSD_DAO();
-
-    //     hevm.assume(amountsUSD > 1_000 ether && amountsUSD < IERC20(sUSD).balanceOf(address(DAO)));
-
-    //     // pushToLocker().
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), sUSD, amountsUSD, abi.encode(0)));
-
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pull(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-
-    //     assertEq(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-    // }
-
-    // // Validate pullFromLockerPartial() state changes.
-    // // Validate pullFromLockerPartial() restrictions.
-    // // This includes:
-    // //   - asset must be convexPoolToken
-    // //   - onlyOwner() modifier
-
-    // function test_OCY_Convex_B_pullFromLockerPartial_restrictions_msgSender() public {
-
-    //     // Can't push to contract if _msgSender() != owner()
-    //     hevm.startPrank(address(bob));
-    //     hevm.expectRevert("Ownable: caller is not the owner");
-    //     DAO.pullPartial(address(OCY_CVX_B), USDT, 5, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-    // }
-
-    // function test_OCY_Convex_B_pullFromLockerPartial_restrictions_asset() public {
+    function test_OCY_Convex_C_pullFromLockerPartial_restrictions_asset() public {
         
-    //     // Can't pull if asset != convexPoolToken
-    //     hevm.startPrank(address(god));
-    //     hevm.expectRevert("OCY_Convex_B::pullFromLockerPartial() asset != convexPoolToken");
-    //     DAO.pullPartial(address(OCY_CVX_B), USDT, 5, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-    // }
+        // Can't pull if asset != convexPoolToken
+        hevm.startPrank(address(god));
+        hevm.expectRevert("OCY_Convex_C::pullFromLockerPartial() asset != convexPoolToken");
+        DAO.pullPartial(address(OCY_CVX_C), USDT, 5, abi.encode(0, 0));
+        hevm.stopPrank();
+    }
 
-    // function test_OCY_Convex_B_pullFromLockerPartial_state_DAI(uint96 amountDAI, uint96 amountPull) public {
+    function test_OCY_Convex_C_pullFromLockerPartial_state_PYUSD(uint96 amountPYUSD, uint96 amountPull) public {
 
-    //     hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
-    //     hevm.assume(amountPull > 100 ether);
+        hevm.assume(amountPYUSD > 1_000 * 10**6 && amountPYUSD < 10_000_000 * 10**6);
+        hevm.assume(amountPull > 100 * 10**6);
 
-    //     // pushToLocker().
-    //     deal(DAI, address(DAO), amountDAI);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, abi.encode(0)));
+        // pushToLocker().
+        deal(PYUSD, address(DAO), amountPYUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), PYUSD, amountPYUSD, abi.encode(0)));
 
-    //     uint256 preRewardsTokens = IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B));
+        uint256 preRewardsTokens = IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C));
 
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pullPartial(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pullPartial(address(OCY_CVX_C), OCY_CVX_C.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0));
+        hevm.stopPrank();
 
-    //     assertLt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), preRewardsTokens);
+        assertLt(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), preRewardsTokens);
         
-    // }
+    }
 
-    // function test_OCY_Convex_B_pullFromLockerPartial_state_USDC(uint96 amountUSDC, uint96 amountPull) public {
+    function test_OCY_Convex_C_pullFromLockerPartial_state_USDC(uint96 amountUSDC, uint96 amountPull) public {
 
-    //     hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
-    //     hevm.assume(amountPull > 100 * 10**6);
+        hevm.assume(amountUSDC > 1_000 * 10**6 && amountUSDC < 10_000_000 * 10**6);
+        hevm.assume(amountPull > 100 * 10**6);
 
-    //     // pushToLocker().
-    //     deal(USDC, address(DAO), amountUSDC);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), USDC, amountUSDC, abi.encode(0)));
+        // pushToLocker().
+        deal(USDC, address(DAO), amountUSDC);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), USDC, amountUSDC, abi.encode(0)));
 
-    //     uint256 preRewardsTokens = IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B));
+        uint256 preRewardsTokens = IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C));
 
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pullPartial(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
+        // pullFromLocker().
+        hevm.startPrank(address(god));
+        DAO.pullPartial(address(OCY_CVX_C), OCY_CVX_C.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0));
+        hevm.stopPrank();
 
-    //     assertLt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), preRewardsTokens);
+        assertLt(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), preRewardsTokens);
         
-    // }
+    }
 
-    // function test_OCY_Convex_B_pullFromLockerPartial_state_USDT(uint96 amountUSDT, uint96 amountPull) public {
+    // Validate claimRewards() state changes.
 
-    //     hevm.assume(amountUSDT > 1_000 * 10**6 && amountUSDT < 10_000_000 * 10**6);
-    //     hevm.assume(amountPull > 100 * 10**6);
+    function test_OCY_Convex_C_claimRewards_state(uint96 amountPYUSD) public {
 
-    //     // pushToLocker().
-    //     deal(USDT, address(DAO), amountUSDT);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), USDT, amountUSDT, abi.encode(0)));
+        hevm.assume(amountPYUSD > 1_000 * 10**6 && amountPYUSD < 10_000_000 * 10**6);
 
-    //     uint256 preRewardsTokens = IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B));
+        // pushToLocker().
+        deal(PYUSD, address(DAO), amountPYUSD);
+        assert(god.try_push(address(DAO), address(OCY_CVX_C), PYUSD, amountPYUSD, abi.encode(0)));
 
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pullPartial(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
+        // Post-state.
+        assertGt(IERC20(OCY_CVX_C.convexRewards()).balanceOf(address(OCY_CVX_C)), 0);
 
-    //     assertLt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), preRewardsTokens);
+        hevm.warp(block.timestamp + 7 days);
+
+        uint256 preCRV = IERC20(CRV).balanceOf(address(TreasuryYDL));
+        uint256 preCVX = IERC20(CVX).balanceOf(address(TreasuryYDL));
+
+        OCY_CVX_C.claimRewards(true);
+
+        assertGt(IERC20(CRV).balanceOf(address(TreasuryYDL)), preCRV);
+        assertGt(IERC20(CVX).balanceOf(address(TreasuryYDL)), preCVX);
+
+    }
+
+    // Validate updateOCTYDL() state changes.
+    // Validate updateOCTYDL() restrictions.
+    // This includes:
+    //   - _msgSender() must be ZVL
+
+    function test_OCY_Convex_C_updateOCTYDL_restrictions_msgSender() public {
+
+        // Can't call if _msgSender() is not ZVL.
+        hevm.startPrank(address(bob));
+        hevm.expectRevert("OCY_Convex_C::updateOCTYDL() _msgSender() != IZivoeGlobals_OCY_Convex_C(GBL).ZVL()");
+        OCY_CVX_C.updateOCTYDL(address(bob));
+        hevm.stopPrank();
+    }
+
+    function test_OCY_Convex_C_updateOCTYDL_state(address fuzzed) public {
         
-    // }
+        // Pre-state.
+        assertEq(OCY_CVX_C.OCT_YDL(), address(TreasuryYDL));
 
-    // function test_OCY_Convex_B_pullFromLockerPartial_state_sUSD(uint96 amountsUSD, uint96 amountPull) public {
+        // updateOCTYDL().
+        hevm.expectEmit(true, true, false, false, address(OCY_CVX_C));
+        emit UpdatedOCTYDL(address(fuzzed), address(TreasuryYDL));
+        hevm.startPrank(address(zvl));
+        OCY_CVX_C.updateOCTYDL(address(fuzzed));
+        hevm.stopPrank();
 
-    //     acquire_sUSD_DAO();
+        // Post-state.
+        assertEq(OCY_CVX_C.OCT_YDL(), address(fuzzed));
 
-    //     hevm.assume(amountsUSD > 1_000 ether && amountsUSD < IERC20(sUSD).balanceOf(address(DAO)));
-    //     hevm.assume(amountPull > 100 ether);
-
-    //     // pushToLocker().
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), sUSD, amountsUSD, abi.encode(0)));
-
-    //     uint256 preRewardsTokens = IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B));
-
-    //     // pullFromLocker().
-    //     hevm.startPrank(address(god));
-    //     DAO.pullPartial(address(OCY_CVX_B), OCY_CVX_B.convexPoolToken(), amountPull % preRewardsTokens, abi.encode(0, 0, 0, 0));
-    //     hevm.stopPrank();
-
-    //     assertLt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), preRewardsTokens);
-        
-    // }
-
-    // // Validate claimRewards() state changes.
-
-    // function test_OCY_Convex_B_claimRewards_state(uint96 amountDAI) public {
-
-    //     hevm.assume(amountDAI > 1_000 ether && amountDAI < 10_000_000 ether);
-
-    //     // pushToLocker().
-    //     deal(DAI, address(DAO), amountDAI);
-    //     assert(god.try_push(address(DAO), address(OCY_CVX_B), DAI, amountDAI, abi.encode(0)));
-
-    //     // Post-state.
-    //     assertGt(IERC20(OCY_CVX_B.convexRewards()).balanceOf(address(OCY_CVX_B)), 0);
-
-    //     hevm.warp(block.timestamp + 7 days);
-
-    //     uint256 preCRV = IERC20(CRV).balanceOf(address(TreasuryYDL));
-    //     uint256 preCVX = IERC20(CVX).balanceOf(address(TreasuryYDL));
-
-    //     OCY_CVX_B.claimRewards(true);
-
-    //     assertGt(IERC20(CRV).balanceOf(address(TreasuryYDL)), preCRV);
-    //     assertGt(IERC20(CVX).balanceOf(address(TreasuryYDL)), preCVX);
-
-    // }
-
-    // // Validate updateOCTYDL() state changes.
-    // // Validate updateOCTYDL() restrictions.
-    // // This includes:
-    // //   - _msgSender() must be ZVL
-
-    // function test_OCY_Convex_B_updateOCTYDL_restrictions_msgSender() public {
-
-    //     // Can't call if _msgSender() is not ZVL.
-    //     hevm.startPrank(address(bob));
-    //     hevm.expectRevert("OCY_Convex_B::updateOCTYDL() _msgSender() != IZivoeGlobals_OCY_Convex_B(GBL).ZVL()");
-    //     OCY_CVX_B.updateOCTYDL(address(bob));
-    //     hevm.stopPrank();
-    // }
-
-    // function test_OCY_Convex_B_updateOCTYDL_state(address fuzzed) public {
-        
-    //     // Pre-state.
-    //     assertEq(OCY_CVX_B.OCT_YDL(), address(TreasuryYDL));
-
-    //     // updateOCTYDL().
-    //     hevm.expectEmit(true, true, false, false, address(OCY_CVX_B));
-    //     emit UpdatedOCTYDL(address(fuzzed), address(TreasuryYDL));
-    //     hevm.startPrank(address(zvl));
-    //     OCY_CVX_B.updateOCTYDL(address(fuzzed));
-    //     hevm.stopPrank();
-
-    //     // Post-state.
-    //     assertEq(OCY_CVX_B.OCT_YDL(), address(fuzzed));
-
-    // }
+    }
 
 }
