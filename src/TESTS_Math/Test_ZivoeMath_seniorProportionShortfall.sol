@@ -35,8 +35,8 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
             eJTT,
             YDL.targetRatioBIPS()
         );
-
-        withinDiff(seniorRate, 727272727 ether, 100 ether);
+        
+        withinDiff(seniorRate, 694444444 ether, 100 ether);
         emit log_named_uint("seniorRate", seniorRate);
 
         // state 1
@@ -45,9 +45,9 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
             eJTT,
             YDL.targetRatioBIPS()
         );
-
+        
         assert (seniorRate1 < seniorRate);
-        withinDiff(seniorRate1, 210526315 ether, 100 ether);
+        withinDiff(seniorRate1, 185185185 ether, 100 ether);
         emit log_named_uint("seniorRate1", seniorRate1);
 
         // state 2
@@ -56,9 +56,9 @@ contract Test_ZivoeMath_seniorProportionShortfall is Utility {
             (eJTT * 10) / 100,
             YDL.targetRatioBIPS()
         );
-
+        
         assert (seniorRate2 > seniorRate);
-        withinDiff(seniorRate2, 963855421 ether, 100 ether);
+        withinDiff(seniorRate2, 957854406 ether, 100 ether);
         emit log_named_uint("seniorRate2", seniorRate2);
 
         // state 3
