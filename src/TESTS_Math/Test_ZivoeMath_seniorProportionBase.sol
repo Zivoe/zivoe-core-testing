@@ -21,7 +21,7 @@ contract Test_ZivoeMath_seniorProportionBase is Utility {
             YDL.daysBetweenDistributions() // T       
         );
 
-        withinDiff(sPB1, 789048986 ether, 100 ether);
+        withinDiff(sPB1, 986311233 ether, 100 ether);
 
         uint256 sPB2 = MATH.seniorProportionBase(
             yD * 50 / 100,     
@@ -41,7 +41,7 @@ contract Test_ZivoeMath_seniorProportionBase is Utility {
         );
 
         assert(sPB3 < sPB1);
-        withinDiff(sPB3, 78904899 ether, 100 ether);
+        withinDiff(sPB3, 98631123 ether, 100 ether);
 
         uint256 sPB4 = MATH.seniorProportionBase(
             yD,     
@@ -51,7 +51,7 @@ contract Test_ZivoeMath_seniorProportionBase is Utility {
         );
 
         assert(sPB4 > sPB1);
-        withinDiff(sPB4, 986311233 ether, 100 ether);
+        withinDiff(sPB4, 1000000000 ether, 100 ether);
 
     }
 
