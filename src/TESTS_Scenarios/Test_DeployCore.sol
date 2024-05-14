@@ -276,7 +276,7 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(IZivoeTranches(_ZVT).GBL(), _GBL);
-        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 2500);
+        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 2000);
         assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(), 0);
         assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(), 0);
         assertEq(IZivoeTranches(_ZVT).lowerRatioIncentiveBIPS(), 1000);
