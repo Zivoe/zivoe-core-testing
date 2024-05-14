@@ -253,6 +253,11 @@ contract Admin {
         (ok,) = address(stk).call(abi.encodeWithSignature(sig));
     }
 
+    function try_switchPause(address zvt) external returns (bool ok) {
+        string memory sig = "switchPause()";
+        (ok,) = address(zvt).call(abi.encodeWithSignature(sig));
+    }
+
     function try_stake(address stk, uint256 amount) external returns (bool ok) {
         string memory sig = "stake(uint256)";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig, amount));

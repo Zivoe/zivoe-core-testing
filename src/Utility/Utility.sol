@@ -784,6 +784,9 @@ contract Utility is Test {
         // "zvl" MUST add ZVT to the isLocker whitelist.
         assert(zvl.try_updateIsLocker(address(GBL), address(ZVT), true));
 
+        // "zvl" SHOULD switchPause after ZivoeITO concludes, however we will do that here
+        assert(zvl.try_switchPause(address(ZVT)));
+
         // Note: This completes the deployment of the core-protocol and facilitates
         //       the addition of a single locker (ZVT) to the whitelist.
         //       From here, the ITO will commence in 3 days (approx.) and last for

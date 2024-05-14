@@ -276,11 +276,11 @@ contract Test_DeployCore_Modular is Utility {
 
         // State variables.
         assertEq(IZivoeTranches(_ZVT).GBL(), _GBL);
-        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 4500);
+        assertEq(IZivoeTranches(_ZVT).maxTrancheRatioBIPS(), 2500);
         assertEq(IZivoeTranches(_ZVT).minZVEPerJTTMint(), 0);
         assertEq(IZivoeTranches(_ZVT).maxZVEPerJTTMint(), 0);
         assertEq(IZivoeTranches(_ZVT).lowerRatioIncentiveBIPS(), 1000);
-        assertEq(IZivoeTranches(_ZVT).upperRatioIncentiveBIPS(), 3500);
+        assertEq(IZivoeTranches(_ZVT).upperRatioIncentiveBIPS(), 2500);
 
         assert(!IZivoeTranches(_ZVT).tranchesUnlocked());
         assert(IZivoeTranches(_ZVT).canPush());
@@ -341,7 +341,7 @@ contract Test_DeployCore_Modular is Utility {
         assertEq(IZivoeYDL(_YDL).distributedAsset(), DAI);
         assertEq(IZivoeYDL(_YDL).emaSTT(), 0);
         assertEq(IZivoeYDL(_YDL).emaJTT(), 0);
-        assertEq(IZivoeYDL(_YDL).distributionCounter(), 0);
+        assertEq(IZivoeYDL(_YDL).distributionCounter(), 1);
         assertEq(IZivoeYDL(_YDL).lastDistribution(), 0);
         assertEq(IZivoeYDL(_YDL).targetAPYBIPS(), 1000);
         assertEq(IZivoeYDL(_YDL).targetRatioBIPS(), 22000);
