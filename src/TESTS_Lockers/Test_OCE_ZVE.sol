@@ -24,6 +24,9 @@ contract Test_OCE_ZVE is Utility {
         // DAO pushes 100k $ZVE to OCE_ZVE_Live.
         assert(god.try_push(address(DAO), address(OCE_ZVE_Live), address(ZVE), 100_000 ether, ""));
 
+        // Add OCE_ZVE to whitelist
+        assert(zvl.try_updateIsDepositor(address(GBL), address(OCE_ZVE_Live), true));
+
     }
 
     // ----------------------

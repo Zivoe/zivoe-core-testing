@@ -183,6 +183,11 @@ contract Admin {
         (ok,) = address(gen).call(abi.encodeWithSignature(sig, amount));
     }
 
+    function try_updateIsDepositor(address gbl, address depositor, bool allowed) external returns (bool ok) {
+        string memory sig = "updateIsDepositor(address,bool)";
+        (ok,) = address(gbl).call(abi.encodeWithSignature(sig, depositor, allowed));
+    }
+
     function try_updateIsKeeper(address gbl, address keeper, bool allowed) external returns (bool ok) {
         string memory sig = "updateIsKeeper(address,bool)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, keeper, allowed));

@@ -784,6 +784,9 @@ contract Utility is Test {
         // "zvl" MUST add ZVT to the isLocker whitelist.
         assert(zvl.try_updateIsLocker(address(GBL), address(ZVT), true));
 
+        // "zvl" MUST add YDL to the isDepositor whitelist.
+        assert(zvl.try_updateIsDepositor(address(GBL), address(YDL), true));
+
         // "zvl" SHOULD switchPause after ZivoeITO concludes, however we will do that here
         assert(zvl.try_switchPause(address(ZVT)));
 

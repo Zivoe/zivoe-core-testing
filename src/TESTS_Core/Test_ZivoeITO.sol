@@ -607,7 +607,7 @@ contract Test_ZivoeITO is Utility {
 
         // Can't call claim() until block.timestamp > end.
         hevm.startPrank(address(sam));
-        hevm.expectRevert("ZivoeITO::claimAirdrop() block.timestamp <= end && !migrated");
+        hevm.expectRevert("ZivoeITO::claimAirdrop() !migrated");
         ITO.claimAirdrop(address(sam));
         hevm.stopPrank();
     }
@@ -628,6 +628,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end.
         hevm.warp(ITO.end() + 1);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // "sam" will claimAirdrop once (successful) but cannot claimAirdrop again.
         assert(sam.try_claimAirdrop(address(ITO), address(sam)));
@@ -642,6 +643,7 @@ contract Test_ZivoeITO is Utility {
         // Warp to end.
         zvl.try_commence(address(ITO));
         hevm.warp(ITO.end() + 1);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Can't call claimAirdrop() if seniorCredits == 0 && juniorCredits == 0.
         hevm.startPrank(address(bob));
@@ -664,6 +666,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
@@ -713,6 +716,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
@@ -762,6 +766,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
@@ -811,6 +816,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (senior).
         uint256 _pre_SeniorCredits = ITO.seniorCredits(address(sam));
@@ -861,6 +867,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -917,6 +924,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -965,6 +973,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -1013,6 +1022,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -1060,6 +1070,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior + senior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -1133,6 +1144,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior + senior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -1198,6 +1210,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior + senior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
@@ -1263,6 +1276,7 @@ contract Test_ZivoeITO is Utility {
 
         // Warp to end of ITO.
         hevm.warp(ITO.end() + 1 seconds);
+        assert(bob.try_migrateDeposits(address(ITO)));
 
         // Pre-state claimAirdrop (junior + senior).
         uint256 _pre_JuniorCredits = ITO.juniorCredits(address(jim));
