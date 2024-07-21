@@ -1164,7 +1164,7 @@ contract Test_OCL_ZVE is Utility {
             assertEq(IERC20(DAI).balanceOf(address(OCL_ZVE_SUSHI_DAI)), 0);
             assertGt(IERC20(DAI).balanceOf(address(YDL)), _prePair); // Note: YDL.distributedAsset() == DAI
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_DAI.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_SUSHI_DAI.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_DAI,) = OCL_ZVE_SUSHI_DAI.fetchBasis();
         }
         else if (modularity == 1) {
@@ -1183,7 +1183,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(FRAX).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_FRAX.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_SUSHI_FRAX.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_FRAX,) = OCL_ZVE_SUSHI_FRAX.fetchBasis();
         }
         else if (modularity == 2) {
@@ -1202,7 +1202,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDC).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_USDC.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_SUSHI_USDC.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDC,) = OCL_ZVE_SUSHI_USDC.fetchBasis();
         }
         else if (modularity == 3) {
@@ -1221,7 +1221,7 @@ contract Test_OCL_ZVE is Utility {
             // Post-state.
             assertGt(IERC20(USDT).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
-            assertEq(OCL_ZVE_SUSHI_USDT.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_SUSHI_USDT.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDT,) = OCL_ZVE_SUSHI_USDT.fetchBasis();
         }
         else { revert(); }
@@ -1895,7 +1895,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(IERC20(DAI).balanceOf(address(YDL)), _prePair); // Note: YDL.distributedAsset() == DAI
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
             // assertEq(OCL_ZVE_UNIV2_DAI.amountForConversion(), 0);
-            assertEq(OCL_ZVE_UNIV2_DAI.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_UNIV2_DAI.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_DAI,) = OCL_ZVE_UNIV2_DAI.fetchBasis();
         }
         else if (modularity == 1) {
@@ -1916,7 +1916,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(IERC20(FRAX).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
             // assertEq(OCL_ZVE_UNIV2_FRAX.amountForConversion(), IERC20(FRAX).balanceOf(address(OCL_ZVE_UNIV2_FRAX)));
-            assertEq(OCL_ZVE_UNIV2_FRAX.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_UNIV2_FRAX.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_FRAX,) = OCL_ZVE_UNIV2_FRAX.fetchBasis();
         }
         else if (modularity == 2) {
@@ -1937,7 +1937,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(IERC20(USDC).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
             // assertEq(OCL_ZVE_UNIV2_USDC.amountForConversion(), IERC20(USDC).balanceOf(address(OCL_ZVE_UNIV2_USDC)));
-            assertEq(OCL_ZVE_UNIV2_USDC.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_UNIV2_USDC.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDC,) = OCL_ZVE_UNIV2_USDC.fetchBasis();
         }
         else if (modularity == 3) {
@@ -1958,7 +1958,7 @@ contract Test_OCL_ZVE is Utility {
             assertGt(IERC20(USDT).balanceOf(address(Treasury)), 0);
             assertGt(IERC20(address(ZVE)).balanceOf(address(DAO)), _preZVE);
             // assertEq(OCL_ZVE_UNIV2_USDT.amountForConversion(), IERC20(USDT).balanceOf(address(OCL_ZVE_UNIV2_USDT)));
-            assertEq(OCL_ZVE_UNIV2_USDT.nextYieldDistribution(), _preNYD + 30 days);
+            assertEq(OCL_ZVE_UNIV2_USDT.nextYieldDistribution(), block.timestamp + 30 days);
             (_PAC_USDT,) = OCL_ZVE_UNIV2_USDT.fetchBasis();
         }
         else { revert(); }

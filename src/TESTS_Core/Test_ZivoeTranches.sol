@@ -130,6 +130,8 @@ contract Test_ZivoeTranches is Utility {
         // Can't call depositJunior() if not unlocked (deploy new ZVT contract to test).
         ZVT = new ZivoeTranches(address(GBL));
 
+        // "zvl" SHOULD switchPause after ZivoeITO concludes, however we will do that here
+        assert(zvl.try_switchPause(address(ZVT)));
         assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
 
         hevm.startPrank(address(bob));
@@ -248,6 +250,9 @@ contract Test_ZivoeTranches is Utility {
 
         // Can't call depositSenior() if not unlocked (deploy new ZVT contract to test).
         ZVT = new ZivoeTranches(address(GBL));
+
+        // "zvl" SHOULD switchPause after ZivoeITO concludes, however we will do that here
+        assert(zvl.try_switchPause(address(ZVT)));
 
         assert(bob.try_approveToken(address(DAI), address(ZVT), 100 ether));
         hevm.startPrank(address(bob));
@@ -436,8 +441,8 @@ contract Test_ZivoeTranches is Utility {
     }
 
     function test_ZivoeTranches_restrictions_governance_greaterThan_updateLowerRatioIncentiveBIPS() public {
-        assert(god.try_updateLowerRatioIncentiveBIPS(address(ZVT), 3499));
-        // Can't updateLowerRatioIncentiveBIPS() > upperRatioIncentiveBIPS (initially 3500).
+        assert(god.try_updateLowerRatioIncentiveBIPS(address(ZVT), 2499));
+        // Can't updateLowerRatioIncentiveBIPS() > upperRatioIncentiveBIPS (initially 2500).
         hevm.startPrank(address(god));
         hevm.expectRevert("ZivoeTranches::updateLowerRatioIncentiveBIPS() _lowerRatioIncentiveBIPS >= upperRatioIncentiveBIPS");
         ZVT.updateLowerRatioIncentiveBIPS(3500);
@@ -452,7 +457,7 @@ contract Test_ZivoeTranches is Utility {
         uint256 upperRatioIncentiveBIPSIn
     ) public {
         
-        uint256 maxTrancheRatio = maxTrancheRatioIn % 3500;
+        uint256 maxTrancheRatio = maxTrancheRatioIn % 2500;
         uint256 minZVEPerJTTMint = minZVEPerJTTMintIn % (0.01 * 10**18);
         uint256 maxZVEPerJTTMint = maxZVEPerJTTMintIn % (0.01 * 10**18) + 1;
 
@@ -468,11 +473,11 @@ contract Test_ZivoeTranches is Utility {
         }
 
         // Pre-state.
-        assertEq(ZVT.maxTrancheRatioBIPS(), 4500);
+        assertEq(ZVT.maxTrancheRatioBIPS(), 2000);
         assertEq(ZVT.minZVEPerJTTMint(), 0);
         assertEq(ZVT.maxZVEPerJTTMint(), 0);
         assertEq(ZVT.lowerRatioIncentiveBIPS(), 1000);
-        assertEq(ZVT.upperRatioIncentiveBIPS(), 3500);
+        assertEq(ZVT.upperRatioIncentiveBIPS(), 2500);
 
         hevm.expectEmit(false, false, false, false, address(ZVT));
         emit UpdatedMaxTrancheRatioBIPS(4250, maxTrancheRatio);

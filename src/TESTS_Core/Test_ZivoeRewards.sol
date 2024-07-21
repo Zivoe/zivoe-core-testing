@@ -25,6 +25,9 @@ contract Test_ZivoeRewards is Utility {
         assert(zvl.try_updateIsLocker(address(GBL), address(ZVEClaimer), true));
         assert(god.try_push(address(DAO), address(ZVEClaimer), address(ZVE), 5000 ether, ""));
         ZVEClaimer.forward(address(ZVE), 5000 ether, address(sam));
+
+        // Add bob to whitelist
+        assert(zvl.try_updateIsDepositor(address(GBL), address(bob), true));
     }
 
     // ----------------------

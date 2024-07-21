@@ -183,6 +183,11 @@ contract Admin {
         (ok,) = address(gen).call(abi.encodeWithSignature(sig, amount));
     }
 
+    function try_updateIsDepositor(address gbl, address depositor, bool allowed) external returns (bool ok) {
+        string memory sig = "updateIsDepositor(address,bool)";
+        (ok,) = address(gbl).call(abi.encodeWithSignature(sig, depositor, allowed));
+    }
+
     function try_updateIsKeeper(address gbl, address keeper, bool allowed) external returns (bool ok) {
         string memory sig = "updateIsKeeper(address,bool)";
         (ok,) = address(gbl).call(abi.encodeWithSignature(sig, keeper, allowed));
@@ -251,6 +256,11 @@ contract Admin {
     function try_fullWithdraw(address stk) external returns (bool ok) {
         string memory sig = "fullWithdraw()";
         (ok,) = address(stk).call(abi.encodeWithSignature(sig));
+    }
+
+    function try_switchPause(address zvt) external returns (bool ok) {
+        string memory sig = "switchPause()";
+        (ok,) = address(zvt).call(abi.encodeWithSignature(sig));
     }
 
     function try_stake(address stk, uint256 amount) external returns (bool ok) {

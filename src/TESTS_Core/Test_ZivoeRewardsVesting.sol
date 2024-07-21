@@ -12,6 +12,9 @@ contract Test_ZivoeRewardsVesting is Utility {
         // Simulate ITO (10mm * 8 * 4), DAI/FRAX/USDC/USDT.
         simulateITO(10_000_000 ether, 10_000_000 ether, 10_000_000 * USD, 10_000_000 * USD);
 
+        // Add bob to whitelist
+        assert(zvl.try_updateIsDepositor(address(GBL), address(bob), true));
+
     }
 
     // ----------------------

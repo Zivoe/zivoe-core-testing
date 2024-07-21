@@ -141,8 +141,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(residualEarningsRecipients[1], GBL.ZVL());
         assertEq(residualEarningsRecipients.length, 2);
 
-        assertEq(residualEarningsProportion[0], 6000);
-        assertEq(residualEarningsProportion[1], 4000);
+        assertEq(residualEarningsProportion[0], 6666);
+        assertEq(residualEarningsProportion[1], 3334);
         assertEq(residualEarningsProportion.length, 2);
 
     }
@@ -168,7 +168,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random);
 
         // Pre-state.
-        assertEq(YDL.targetAPYBIPS(), 800);
+        assertEq(YDL.targetAPYBIPS(), 1000);
         
         // updateTargetAPYBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -201,7 +201,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random);
 
         // Pre-state.
-        assertEq(YDL.targetRatioBIPS(), 18750);
+        assertEq(YDL.targetRatioBIPS(), 22000);
         
         // updateTargetRatioBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -247,7 +247,7 @@ contract Test_ZivoeYDL is Utility {
         uint256 amount = uint256(random) % 9000;
 
         // Pre-state.
-        assertEq(YDL.protocolEarningsRateBIPS(), 3000);
+        assertEq(YDL.protocolEarningsRateBIPS(), 2000);
         
         // updateProtocolEarningsRateBIPS().
         hevm.expectEmit(false, false, false, true, address(YDL));
@@ -600,8 +600,8 @@ contract Test_ZivoeYDL is Utility {
         assertEq(residualEarningsRecipients[1], GBL.ZVL());
         assertEq(residualEarningsRecipients.length, 2);
 
-        assertEq(residualEarningsProportion[0], 6000);
-        assertEq(residualEarningsProportion[1], 4000);
+        assertEq(residualEarningsProportion[0], 6666);
+        assertEq(residualEarningsProportion[1], 3334);
         assertEq(residualEarningsProportion.length, 2);
 
         // updateRecipients().
@@ -747,7 +747,7 @@ contract Test_ZivoeYDL is Utility {
         (uint256 seniorSupp, uint256 juniorSupp) = GBL.adjustedSupplies();
 
         // Pre-state.
-        assertEq(YDL.distributionCounter(), 0);
+        assertEq(YDL.distributionCounter(), 1);
         assertEq(YDL.lastDistribution(), block.timestamp - YDL.daysBetweenDistributions() * 86400);
 
         assertEq(YDL.emaSTT(), zSTT.totalSupply());
@@ -785,7 +785,7 @@ contract Test_ZivoeYDL is Utility {
         assertEq(YDL.emaSTT(), zSTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
         assertEq(YDL.emaJTT(), zJTT.totalSupply()); // Note: Shouldn't change unless deposits occured to ZVT.
 
-        assertEq(YDL.distributionCounter(), 1);
+        assertEq(YDL.distributionCounter(), 2);
         assertEq(YDL.lastDistribution(), block.timestamp);
 
         emit log_named_uint("protocol[0] - stZVE", protocol[0]);

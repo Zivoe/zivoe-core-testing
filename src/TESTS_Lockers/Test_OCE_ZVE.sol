@@ -24,6 +24,9 @@ contract Test_OCE_ZVE is Utility {
         // DAO pushes 100k $ZVE to OCE_ZVE_Live.
         assert(god.try_push(address(DAO), address(OCE_ZVE_Live), address(ZVE), 100_000 ether, ""));
 
+        // Add OCE_ZVE to whitelist
+        assert(zvl.try_updateIsDepositor(address(GBL), address(OCE_ZVE_Live), true));
+
     }
 
     // ----------------------
@@ -255,7 +258,7 @@ contract Test_OCE_ZVE is Utility {
 
     function test_OCE_ZVE_Live_updateExponentialDecayPerSecond_state(uint256 random) public {
         
-        hevm.assume(random >= RAY * 99999999 / 100000000);
+        hevm.assume(random >= RAY * 99999999 / 100000000 && random < RAY);
 
         // Pre-state.
         assertEq(OCE_ZVE_Live.exponentialDecayPerSecond(), RAY * 99999999 / 100000000);
