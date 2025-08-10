@@ -24,6 +24,8 @@ contract Test_OCR_Instant is Utility {
 
     // Events for testing
     event UpdatedRedemptionFeeBIPS(uint256 oldFee, uint256 newFee);
+    event USDCDepositedToAAVE(uint256 amount, uint256 aTokenBalance);
+    event USDCWithdrawnFromAAVE(uint256 amount, uint256 aTokenBalance);
     event zVLTBurnedForUSDC(address indexed user, uint256 zVLTBurned, uint256 USDCRedeemed, uint256 fee);
 
     // Mainnet addresses
@@ -194,6 +196,9 @@ contract Test_OCR_Instant is Utility {
         uint256 aUSDCBalanceAfterPush = IERC20(m_aUSDC).balanceOf(address(OCR));
         assertGt(aUSDCBalanceAfterPush, 0); // Should have aUSDC after push
 
+        // Get DAO balance before pull
+        uint256 daoUSDCBalanceBeforePull = IERC20(m_USDC).balanceOf(address(m_DAO));
+
         // pullFromLocker()
         hevm.startPrank(address(m_TLC));
         IZivoeDAO(m_DAO).pull(address(OCR), m_aUSDC, "");
@@ -201,6 +206,12 @@ contract Test_OCR_Instant is Utility {
 
         // Post-state.
         assertEq(IERC20(m_aUSDC).balanceOf(address(OCR)), 0); // aUSDC should be 0 after pull
+        
+        // Verify DAO received the USDC back
+        uint256 daoUSDCBalanceAfter = IERC20(m_USDC).balanceOf(address(m_DAO));
+        
+        // The DAO should have received approximately the aUSDC amount that was in the locker
+        assertApproxEqRel(daoUSDCBalanceAfter, daoUSDCBalanceBeforePull + aUSDCBalanceAfterPush, 0.00001e18); // 0.001% tolerance
     }
 
     // Validate pullFromLockerPartial() state changes.
@@ -237,6 +248,9 @@ contract Test_OCR_Instant is Utility {
         uint256 aUSDCBalanceAfterPush = IERC20(m_aUSDC).balanceOf(address(OCR));
         assertGt(aUSDCBalanceAfterPush, 0); // Should have aUSDC after push
 
+        // Get DAO balance before pull
+        uint256 daoUSDCBalanceBeforePull = IERC20(m_USDC).balanceOf(address(m_DAO));
+
         // pullFromLockerPartial()
         hevm.startPrank(address(m_TLC));
         IZivoeDAO(m_DAO).pullPartial(address(OCR), m_aUSDC, pullAmount, "");
@@ -247,6 +261,17 @@ contract Test_OCR_Instant is Utility {
         uint256 expectedRemaining = aUSDCBalanceAfterPush - pullAmount;
         // Due to AAVE interest calculations, the actual balance might be slightly different
         assertApproxEqRel(aUSDCBalanceAfterPull, expectedRemaining, 0.00001e18); // 0.001% tolerance
+        
+        // Verify DAO received the USDC back
+        uint256 daoUSDCBalanceAfter = IERC20(m_USDC).balanceOf(address(m_DAO));
+        
+        // The DAO should have received approximately the pullAmount that was withdrawn from AAVE
+        // (accounting for AAVE interest conversion from aUSDC to USDC)
+        assertGt(daoUSDCBalanceAfter, daoUSDCBalanceBeforePull, "DAO should receive USDC from pull");
+        
+        // The amount received should be approximately equal to the pullAmount (within AAVE interest tolerance)
+        uint256 daoUSDCReceived = daoUSDCBalanceAfter - daoUSDCBalanceBeforePull;
+        assertApproxEqRel(daoUSDCReceived, pullAmount, 0.00001e18, "DAO should receive approximately pullAmount in USDC");
     }
 
     // Validate calculateRedemptionAmount() state changes.
@@ -423,6 +448,56 @@ contract Test_OCR_Instant is Utility {
         
         // The actual event emission would require proper zVLT token setup
         // which is complex in the mainnet fork environment
+    }
+
+    // Test event emissions for pullFromLocker functions
+    function test_OCR_Instant_pullFromLocker_events() public {
+        
+        uint256 testAmount = 50_000 * 10**6; // 50K USDC
+        
+        // Setup: Push USDC to OCR
+        deal(m_USDC, address(m_DAO), testAmount);
+        hevm.startPrank(address(m_TLC));
+        IZivoeDAO(m_DAO).push(address(OCR), m_USDC, testAmount, "");
+        hevm.stopPrank();
+        
+        uint256 aUSDCBalanceBeforePull = IERC20(m_aUSDC).balanceOf(address(OCR));
+        
+        // Test pullFromLocker event
+        hevm.startPrank(address(m_TLC));
+        IZivoeDAO(m_DAO).pull(address(OCR), m_aUSDC, "");
+        hevm.stopPrank();
+        
+        // Verify aUSDC balance is 0 after full pull
+        assertEq(IERC20(m_aUSDC).balanceOf(address(OCR)), 0, "aUSDC balance should be 0 after full pull");
+    }
+
+    function test_OCR_Instant_pullFromLockerPartial_events() public {
+        
+        uint256 testAmount = 100_000 * 10**6; // 100K USDC
+        uint256 pullAmount = 30_000 * 10**6; // 30K aUSDC
+        
+        // Setup: Push USDC to OCR
+        deal(m_USDC, address(m_DAO), testAmount);
+        hevm.startPrank(address(m_TLC));
+        IZivoeDAO(m_DAO).push(address(OCR), m_USDC, testAmount, "");
+        hevm.stopPrank();
+        
+        uint256 aUSDCBalanceBeforePull = IERC20(m_aUSDC).balanceOf(address(OCR));
+        
+        // Test pullFromLockerPartial event
+        hevm.startPrank(address(m_TLC));
+        IZivoeDAO(m_DAO).pullPartial(address(OCR), m_aUSDC, pullAmount, "");
+        hevm.stopPrank();
+        
+        // Verify aUSDC balance decreased by pullAmount (within AAVE interest tolerance)
+        uint256 aUSDCBalanceAfterPull = IERC20(m_aUSDC).balanceOf(address(OCR));
+        uint256 expectedRemaining = aUSDCBalanceBeforePull - pullAmount;
+        assertApproxEqRel(aUSDCBalanceAfterPull, expectedRemaining, 0.00001e18, "aUSDC balance should decrease by pullAmount");
+        
+        // Verify DAO received USDC
+        uint256 daoUSDCBalanceAfter = IERC20(m_USDC).balanceOf(address(m_DAO));
+        assertGt(daoUSDCBalanceAfter, 0, "DAO should receive USDC from partial pull");
     }
 
 
