@@ -348,13 +348,15 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_restrictions_limitExceeded() public {
 
+        address testUser = address(0x1111111111111111111111111111111111111111);
+        
         // Setup: Set a limit and try to draw more than allowed
         hevm.startPrank(address(m_Underwriter));
-        OCC.adjustLimit(10_000 ether, address(DAO));
+        OCC.adjustLimit(10_000 ether, testUser);
         hevm.stopPrank();
 
         // Try to draw more than the limit
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(testUser);
         hevm.expectRevert("OCC_Variable::draw() amount + usage > limit");
         OCC.draw(15_000 ether);
         hevm.stopPrank();
@@ -362,14 +364,16 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_restrictions_usageExceedsLimit() public {
 
+        address testUser = address(0x2222222222222222222222222222222222222222);
+        
         // Setup: Set a limit and draw up to it, then try to draw more
         deal(USDC, address(OCC), 15_000 ether); // Give OCC enough USDC
         hevm.startPrank(address(m_Underwriter));
-        OCC.adjustLimit(10_000 ether, address(DAO));
+        OCC.adjustLimit(10_000 ether, testUser);
         hevm.stopPrank();
 
         // First draw (should succeed)
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(testUser);
         OCC.draw(10_000 ether);
         
         // Try to draw more (should fail)
@@ -380,7 +384,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_state() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x3333333333333333333333333333333333333333);
         uint256 testLimit = 50_000 ether;
         uint256 drawAmount = 25_000 ether;
 
@@ -408,7 +412,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_event() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x4444444444444444444444444444444444444444);
         uint256 testLimit = 30_000 ether;
         uint256 drawAmount = 15_000 ether;
 
@@ -431,7 +435,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_multipleDraws() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x5555555555555555555555555555555555555555);
         uint256 testLimit = 100_000 ether;
         uint256 draw1 = 30_000 ether;
         uint256 draw2 = 40_000 ether;
@@ -460,7 +464,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_exactLimit() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x6666666666666666666666666666666666666666);
         uint256 testLimit = 25_000 ether;
 
         // Setup: Give OCC USDC and set limit
@@ -482,7 +486,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_zeroAmount() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x7777777777777777777777777777777777777777);
         uint256 testLimit = 10_000 ether;
 
         // Setup: Give OCC USDC and set limit
@@ -504,7 +508,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_draw_insufficientUSDC() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x8888888888888888888888888888888888888888);
         uint256 testLimit = 50_000 ether;
         uint256 drawAmount = 25_000 ether;
 
@@ -528,7 +532,7 @@ contract Test_OCC_Variable is Utility {
         limit = uint96(bound(limit, 1 ether, 1_000_000 ether));
         amount = uint96(bound(amount, 0, limit));
 
-        address testUser = address(DAO);
+        address testUser = address(0x9999999999999999999999999999999999999999);
 
         // Setup: Give OCC USDC and set limit
         deal(USDC, address(OCC), limit);
@@ -569,13 +573,15 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_restrictions_baseGreaterThanAmount() public {
 
+        address testUser = address(0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa);
+        
         // Setup: Set a limit and draw some amount
         deal(USDC, address(OCC), 20_000 ether);
         hevm.startPrank(address(m_Underwriter));
-        OCC.adjustLimit(20_000 ether, address(DAO));
+        OCC.adjustLimit(20_000 ether, testUser);
         hevm.stopPrank();
 
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(testUser);
         OCC.draw(10_000 ether);
         
         // Try to repay with base > amount
@@ -586,13 +592,15 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_restrictions_amountGreaterThanUsage() public {
 
+        address testUser = address(0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB);
+        
         // Setup: Set a limit and draw some amount
         deal(USDC, address(OCC), 20_000 ether);
         hevm.startPrank(address(m_Underwriter));
-        OCC.adjustLimit(20_000 ether, address(DAO));
+        OCC.adjustLimit(20_000 ether, testUser);
         hevm.stopPrank();
 
-        hevm.startPrank(address(DAO));
+        hevm.startPrank(testUser);
         OCC.draw(10_000 ether);
         
         // Try to repay more than usage
@@ -603,7 +611,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_state() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x9876543210987654321098765432109876543210); // Different from DAO
         uint256 testLimit = 50_000 ether;
         uint256 drawAmount = 30_000 ether;
         uint256 repayAmount = 20_000 ether;
@@ -620,7 +628,7 @@ contract Test_OCC_Variable is Utility {
         OCC.draw(drawAmount);
         hevm.stopPrank();
 
-        // Give USDC to the owner for repayment
+        // Give USDC to the user for repayment
         deal(USDC, testUser, repayAmount);
 
         // Approve OCC to spend USDC
@@ -640,14 +648,14 @@ contract Test_OCC_Variable is Utility {
 
         // Post-state.
         assertEq(OCC.usage(testUser), drawAmount - baseAmount);
-        assertEq(IERC20(USDC).balanceOf(testUser), baseAmount);
-        assertEq(IERC20(USDC).balanceOf(address(OCC)), testLimit - drawAmount);
+        assertEq(IERC20(USDC).balanceOf(testUser), 0); // User's USDC was transferred to OCC, base amount goes to DAO
+        assertEq(IERC20(USDC).balanceOf(address(OCC)), testLimit - drawAmount); // OCC keeps the same amount as before repayment
 
     }
 
     function test_OCC_Variable_repay_event() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC);
         uint256 testLimit = 40_000 ether;
         uint256 drawAmount = 25_000 ether;
         uint256 repayAmount = 15_000 ether;
@@ -664,7 +672,7 @@ contract Test_OCC_Variable is Utility {
         OCC.draw(drawAmount);
         hevm.stopPrank();
 
-        // Give USDC to the owner for repayment
+        // Give USDC to the user for repayment
         deal(USDC, testUser, repayAmount);
 
         // Approve OCC to spend USDC
@@ -685,7 +693,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_multipleRepayments() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x4040404040404040404040404040404040404040);
         uint256 testLimit = 100_000 ether;
         uint256 drawAmount = 60_000 ether;
         uint256 repay1 = 20_000 ether;
@@ -724,7 +732,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_exactUsage() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd);
         uint256 testLimit = 30_000 ether;
         uint256 drawAmount = 20_000 ether;
         uint256 baseAmount = 20_000 ether;
@@ -740,7 +748,7 @@ contract Test_OCC_Variable is Utility {
         OCC.draw(drawAmount);
         hevm.stopPrank();
 
-        // Give USDC to the owner for repayment
+        // Give USDC to the user for repayment
         deal(USDC, testUser, drawAmount);
 
         // Approve OCC to spend USDC
@@ -756,7 +764,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_zeroAmount() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
         uint256 testLimit = 20_000 ether;
         uint256 drawAmount = 10_000 ether;
 
@@ -783,7 +791,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_baseEqualsAmount() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF);
         uint256 testLimit = 25_000 ether;
         uint256 drawAmount = 15_000 ether;
         uint256 repayAmount = 10_000 ether;
@@ -799,7 +807,7 @@ contract Test_OCC_Variable is Utility {
         OCC.draw(drawAmount);
         hevm.stopPrank();
 
-        // Give USDC to the owner for repayment
+        // Give USDC to the user for repayment
         deal(USDC, testUser, repayAmount);
 
         // Approve OCC to spend USDC
@@ -815,7 +823,7 @@ contract Test_OCC_Variable is Utility {
 
     function test_OCC_Variable_repay_insufficientAllowance() public {
 
-        address testUser = address(DAO);
+        address testUser = address(0x1010101010101010101010101010101010101010);
         uint256 testLimit = 20_000 ether;
         uint256 drawAmount = 10_000 ether;
         uint256 repayAmount = 5_000 ether;
@@ -832,7 +840,7 @@ contract Test_OCC_Variable is Utility {
         OCC.draw(drawAmount);
         hevm.stopPrank();
 
-        // Give USDC to the owner but don't approve
+        // Give USDC to the user but don't approve
         deal(USDC, testUser, repayAmount);
 
         // Try to repay without approval (should fail)
@@ -850,7 +858,7 @@ contract Test_OCC_Variable is Utility {
         amount = uint96(bound(amount, 0, limit));
         base = uint96(bound(base, 0, amount));
 
-        address testUser = address(DAO);
+        address testUser = address(0x2020202020202020202020202020202020202020);
 
         // Setup: Give OCC USDC and set limit
         deal(USDC, address(OCC), limit);
@@ -863,7 +871,7 @@ contract Test_OCC_Variable is Utility {
         OCC.draw(amount);
         hevm.stopPrank();
 
-        // Give USDC to the owner for repayment
+        // Give USDC to the user for repayment
         deal(USDC, testUser, amount);
 
         // Approve OCC to spend USDC
@@ -881,6 +889,84 @@ contract Test_OCC_Variable is Utility {
 
         // Post-state.
         assertEq(OCC.usage(testUser), preUsage - base);
+
+    }
+
+    function test_OCC_Variable_repay_insufficientBalance() public {
+
+        address testUser = address(0x3030303030303030303030303030303030303030);
+        uint256 testLimit = 20_000 ether;
+        uint256 drawAmount = 10_000 ether;
+        uint256 repayAmount = 5_000 ether;
+        uint256 baseAmount = 3_000 ether;
+
+        // Setup: Give OCC USDC and set limit
+        deal(USDC, address(OCC), testLimit);
+        hevm.startPrank(address(m_Underwriter));
+        OCC.adjustLimit(testLimit, testUser);
+        hevm.stopPrank();
+
+        // Draw some amount
+        hevm.startPrank(testUser);
+        OCC.draw(drawAmount);
+        hevm.stopPrank();
+
+        // Give USDC to the user but less than repay amount
+        deal(USDC, testUser, repayAmount - 1 ether);
+
+        // Approve OCC to spend USDC
+        hevm.startPrank(testUser);
+        IERC20(USDC).approve(address(OCC), repayAmount);
+        hevm.stopPrank();
+
+        // Try to repay (should fail due to insufficient balance)
+        hevm.startPrank(testUser);
+        hevm.expectRevert("ERC20: transfer amount exceeds balance");
+        OCC.repay(repayAmount, baseAmount);
+        hevm.stopPrank();
+
+    }
+
+    function test_OCC_Variable_repay_distributionToYDLAndDAO() public {
+
+        address testUser = address(0x1234567890123456789012345678901234567890); // Different from DAO
+        uint256 testLimit = 30_000 ether;
+        uint256 drawAmount = 20_000 ether;
+        uint256 repayAmount = 15_000 ether;
+        uint256 baseAmount = 10_000 ether;
+        uint256 ydlAmount = repayAmount - baseAmount; // 5_000 ether
+
+        // Setup: Give OCC USDC and set limit
+        deal(USDC, address(OCC), testLimit);
+        hevm.startPrank(address(m_Underwriter));
+        OCC.adjustLimit(testLimit, testUser);
+        hevm.stopPrank();
+
+        // Draw some amount
+        hevm.startPrank(testUser);
+        OCC.draw(drawAmount);
+        hevm.stopPrank();
+
+        // Give USDC to the user for repayment
+        deal(USDC, testUser, repayAmount);
+
+        // Approve OCC to spend USDC
+        hevm.startPrank(testUser);
+        IERC20(USDC).approve(address(OCC), repayAmount);
+        hevm.stopPrank();
+
+        // Pre-state balances
+        uint256 preYDLBalance = IERC20(USDC).balanceOf(GBL.YDL());
+        uint256 preDAOBalance = IERC20(USDC).balanceOf(GBL.DAO());
+
+        // Repay.
+        hevm.startPrank(testUser);
+        OCC.repay(repayAmount, baseAmount);
+        hevm.stopPrank();
+
+        // Post-state balances - verify distribution
+        assertEq(IERC20(USDC).balanceOf(GBL.YDL()), preYDLBalance + ydlAmount);
+        assertEq(IERC20(USDC).balanceOf(GBL.DAO()), preDAOBalance + baseAmount);
 
     }
 
